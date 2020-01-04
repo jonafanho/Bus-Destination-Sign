@@ -47,21 +47,24 @@ public:
 			flip = false;
 		}
 
-		uint32_t bmpReadWidth = min<uint32_t>(WIDTH * SCALE, bmpWidth - CROP * 2);
-		uint32_t bmpReadHeight = min<uint32_t>(HEIGHT * SCALE, bmpHeight - CROP * 2);
+		uint32_t bmpReadWidth = min(WIDTH * SCALE, bmpWidth - CROP * 2);
+		uint32_t bmpReadHeight = min(HEIGHT * SCALE, bmpHeight - CROP * 2);
 
 		uint32_t bmpReadLeft = (bmpWidth - bmpReadWidth) / 2;
 		uint32_t bmpReadRight = bmpWidth - bmpReadLeft;
 		uint32_t bmpReadTop = (bmpHeight - bmpReadHeight) / 2;
 		uint32_t bmpReadBottom = bmpHeight - bmpReadTop;
 
-		uint32_t screenWriteColumnStart = (WIDTH - min<uint32_t>(bmpReadWidth / SCALE, WIDTH)) / 2;
-		uint32_t screenWriteRowStart = (HEIGHT - min<uint32_t>(bmpReadHeight / SCALE, HEIGHT)) / 2;
+		uint32_t screenWriteColumnStart = (WIDTH - min(bmpReadWidth / SCALE, WIDTH)) / 2;
+		uint32_t screenWriteRowStart = (HEIGHT - min(bmpReadHeight / SCALE, HEIGHT)) / 2;
 
 		uint8_t sdBuffer[SD_BUFFER_SIZE];
 		uint8_t bufferIndex = SD_BUFFER_SIZE;
-		for (uint16_t row = bmpReadTop + SCALE / 2; row < bmpReadBottom; row += SCALE)
+		for (uint16_t row = bmpReadTop; row < bmpReadBottom; row++)
 		{
+			if (row % SCALE == SCALE - 1)
+				continue;
+
 			uint32_t pos = bmpOffset + (flip ? bmpHeight - row - 1 : row) * rowSize + bmpReadLeft * bytesPerPixel;
 			if (bmpFile.position() != pos) // Need seek?
 			{
@@ -78,55 +81,56 @@ public:
 					bufferIndex = 0; // Set index to beginning
 				}
 
-				uint16_t screenDrawX = (column - bmpReadLeft) / SCALE + screenWriteColumnStart;
-				uint16_t screenDrawY = (row - bmpReadTop) / SCALE + screenWriteRowStart;
-				uint16_t arrayIndex;
-				uint8_t arrayBit;
-
-				if (XBM_MODE)
+				if (column % SCALE == SCALE - 1)
 				{
-					arrayIndex = screenDrawX / 8 + (screenDrawY * WIDTH + 7) / 8;
-					arrayBit = screenDrawX % 8;
+					bufferIndex += bytesPerPixel;
 				}
 				else
 				{
-					arrayIndex = (screenDrawX % WIDTH) + screenDrawY / 8 * WIDTH;
-					arrayBit = screenDrawY % 8;
-				}
+					uint16_t screenDrawX = (column - bmpReadLeft) / SCALE + screenWriteColumnStart;
+					uint16_t screenDrawY = (row - bmpReadTop) / SCALE + screenWriteRowStart;
+					uint16_t arrayIndex;
+					uint8_t arrayBit;
 
-				if ((column % SCALE) == SCALE / 2)
-				{
-					boolean pixelOn;
+					if (XBM_MODE)
+					{
+						arrayIndex = screenDrawX / 8 + (screenDrawY * WIDTH + 7) / 8;
+						arrayBit = screenDrawX % 8;
+					}
+					else
+					{
+						arrayIndex = (screenDrawX % WIDTH) + screenDrawY / 8 * WIDTH;
+						arrayBit = screenDrawY % 8;
+					}
+
+					uint16_t p, r, g, b;
 					switch (bytesPerPixel)
 					{
 					case 1:
-						uint8_t p = sdBuffer[bufferIndex++];
-						uint8_t r = (p & 0b00110000) >> 4;
-						uint8_t g = (p & 0b00001100) >> 2;
-						uint8_t b = (p & 0b00000011);
-						pixelOn = r + g + b >= 4;
+						p = sdBuffer[bufferIndex++];
+						r = ((p & 0b00110000) >> 4) * 64;
+						g = ((p & 0b00001100) >> 2) * 64;
+						b = (p & 0b00000011) * 64;
 						break;
 					case 2:
-						uint8_t p = (sdBuffer[bufferIndex++] << 8) + sdBuffer[bufferIndex++];
-						uint8_t r = (p & 0b0000111100000000) >> 8;
-						uint8_t g = (p & 0b0000000011110000) >> 4;
-						uint8_t b = (p & 0b0000000000001111);
-						pixelOn = r + g + b >= 22;
+						p = (sdBuffer[bufferIndex++] << 8) + sdBuffer[bufferIndex++];
+						r = ((p & 0b0000111100000000) >> 8) * 16;
+						g = ((p & 0b0000000011110000) >> 4) * 16;
+						b = (p & 0b0000000000001111) * 16;
 						break;
 					case 4:
 						bufferIndex++;
 					case 3:
-						uint8_t b = sdBuffer[bufferIndex++];
-						uint8_t g = sdBuffer[bufferIndex++];
-						uint8_t r = sdBuffer[bufferIndex++];
-						pixelOn = (uint16_t)r + (uint16_t)g + (uint16_t)b >= 382 break;
+						b = sdBuffer[bufferIndex++];
+						g = sdBuffer[bufferIndex++];
+						r = sdBuffer[bufferIndex++];
+						break;
 					}
 
-					imageNew[arrayIndex] = pixelOn ? 1 : 0;
-				}
-				else
-				{
-					bufferIndex += bytesPerPixel;
+					if (bytesPerPixel == 1) // Might find a better solution here later
+						imageNew[arrayIndex] |= ((r == 0 && (g > 0 || b > 0) ? 1 : 0) << arrayBit);
+					else
+						imageNew[arrayIndex] |= ((r > 64 || g > 64 || b > 64 ? 1 : 0) << arrayBit);
 				}
 			}
 		}
@@ -175,12 +179,6 @@ private:
 		((uint8_t *)&result)[2] = f.read();
 		((uint8_t *)&result)[3] = f.read(); // MSB
 		return result;
-	}
-
-	template <typename T2>
-	static T2 min(T2 x, T2 y)
-	{
-		return x < y ? x : y;
 	}
 };
 
