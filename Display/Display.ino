@@ -8,29 +8,33 @@
 #include "Core.h"
 #include "SdFat.h"
 
-Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(3, 256, 64, 20, PA9, PA8);
-Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(3, 256, 64, 19, PA10, PA8);
-Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(1, 128, 64, 0, PA11, PA8);
+Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(256, 64, PA9, PA8);
+Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, PA10, PA8);
+Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, PA11, PA8);
 
 SdFatSoftSpiEX<PB9, PB4, PB5> sd; // MISO, MOSI, CLK
 File frontFolder, sideFolder, backFolder;
 
-void printFolder(FatFile folder)
+uint8_t currentFolder = 0;
+const uint8_t MAX_FOLDERS = 10;
+
+void openAndIncrementFolder()
 {
-	front.display.clear();
-	char name[256];
-	folder.getName(name, 256);
-	front.display.drawString(0, 0, name);
-	int i = 1;
-	File file;
-	while (file.openNext(&folder))
-	{
-		file.getName(name, 256);
-		front.display.drawString(0, i, name);
-		i++;
-		file.close();
-	}
-	delay(500);
+	char folderName[8];
+
+	sprintf(folderName, "%d/front", currentFolder);
+	front.setFolder(folderName);
+
+	sprintf(folderName, "%d/side", currentFolder);
+	side.setFolder(folderName);
+
+	sprintf(folderName, "%d/back", currentFolder);
+	back.setFolder(folderName);
+
+	if (currentFolder < MAX_FOLDERS)
+		currentFolder++;
+	else
+		currentFolder = 0;
 }
 
 void setup()
@@ -38,44 +42,34 @@ void setup()
 	front.display.begin();
 	side.display.begin();
 	back.display.begin();
-	front.display.setFont(u8x8_font_5x7_f);
+
 	if (!sd.begin(PB6))
 	{
+		front.display.setFont(u8x8_font_5x7_f);
 		front.display.drawString(0, 0, "SD card initialization failed.");
 		while (true)
 		{
 		}
 	}
-	sd.mkdir("front");
-	sd.mkdir("side");
-	sd.mkdir("back");
-	frontFolder.open("/front");
-	sideFolder.open("/side");
-	backFolder.open("/back");
-	printFolder(frontFolder);
-	printFolder(sideFolder);
-	printFolder(backFolder);
+
+	for (uint8_t i = 0; i < MAX_FOLDERS; i++)
+	{
+		char folderName[8];
+		sprintf(folderName, "%d/front", i);
+		sd.mkdir(folderName);
+		sprintf(folderName, "%d/side", i);
+		sd.mkdir(folderName);
+		sprintf(folderName, "%d/back", i);
+		sd.mkdir(folderName);
+	}
+
+	openAndIncrementFolder();
 }
 
 void loop()
 {
-	File file;
-	if (!file.openNext(&frontFolder))
-	{
-		frontFolder.rewindDirectory();
-		file.openNext(&frontFolder);
-	}
-	front.loadBmp(file);
-	file.close();
-
-	if (!file.openNext(&sideFolder))
-	{
-		sideFolder.rewindDirectory();
-		file.openNext(&sideFolder);
-	}
-	side.loadBmp(file);
-	file.close();
-
+	front.loadBmp();
+	side.loadBmp();
 	for (int i = 0; i < 256; i++)
 	{
 		front.step(i);

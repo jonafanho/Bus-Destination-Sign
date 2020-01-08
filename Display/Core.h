@@ -10,10 +10,21 @@ class Core
 public:
 	T display;
 
-	Core(const uint8_t scale, const uint16_t width, const uint16_t height, const uint16_t crop, const uint8_t cs, const uint8_t dc) : SCALE(scale), WIDTH(width), HEIGHT(height), CROP(crop), display(T(cs, dc)) {}
-
-	void loadBmp(File &bmpFile)
+	Core(const uint16_t width, const uint16_t height, const uint8_t cs, const uint8_t dc) : WIDTH(width), HEIGHT(height), display(T(cs, dc))
 	{
+		scale = 1;
+		crop = 0;
+	}
+
+	void loadBmp()
+	{
+		File bmpFile;
+		if (!bmpFile.openNext(&folder))
+		{
+			folder.rewindDirectory();
+			bmpFile.openNext(&folder);
+		}
+
 		// Parse BMP header
 		if (read16(bmpFile) != 0x4D42) // BMP signature
 			return;
@@ -47,22 +58,22 @@ public:
 			flip = false;
 		}
 
-		uint32_t bmpReadWidth = min(WIDTH * SCALE, bmpWidth - CROP * 2);
-		uint32_t bmpReadHeight = min(HEIGHT * SCALE, bmpHeight - CROP * 2);
+		uint32_t bmpReadWidth = min(WIDTH * scale, bmpWidth - crop * 2);
+		uint32_t bmpReadHeight = min(HEIGHT * scale, bmpHeight - crop * 2);
 
 		uint32_t bmpReadLeft = (bmpWidth - bmpReadWidth) / 2;
 		uint32_t bmpReadRight = bmpWidth - bmpReadLeft;
 		uint32_t bmpReadTop = (bmpHeight - bmpReadHeight) / 2;
 		uint32_t bmpReadBottom = bmpHeight - bmpReadTop;
 
-		uint32_t screenWriteColumnStart = (WIDTH - min(bmpReadWidth / SCALE, WIDTH)) / 2;
-		uint32_t screenWriteRowStart = (HEIGHT - min(bmpReadHeight / SCALE, HEIGHT)) / 2;
+		uint32_t screenWriteColumnStart = (WIDTH - min(bmpReadWidth / scale, WIDTH)) / 2;
+		uint32_t screenWriteRowStart = (HEIGHT - min(bmpReadHeight / scale, HEIGHT)) / 2;
 
 		uint8_t sdBuffer[SD_BUFFER_SIZE];
 		uint8_t bufferIndex = SD_BUFFER_SIZE;
 		for (uint16_t row = bmpReadTop; row < bmpReadBottom; row++)
 		{
-			if (row % SCALE == SCALE - 1)
+			if (scale != 1 && row % scale == scale - 1)
 				continue;
 
 			uint32_t pos = bmpOffset + (flip ? bmpHeight - row - 1 : row) * rowSize + bmpReadLeft * bytesPerPixel;
@@ -81,14 +92,14 @@ public:
 					bufferIndex = 0; // Set index to beginning
 				}
 
-				if (column % SCALE == SCALE - 1)
+				if (scale != 1 && column % scale == scale - 1)
 				{
 					bufferIndex += bytesPerPixel;
 				}
 				else
 				{
-					uint16_t screenDrawX = (column - bmpReadLeft) / SCALE + screenWriteColumnStart;
-					uint16_t screenDrawY = (row - bmpReadTop) / SCALE + screenWriteRowStart;
+					uint16_t screenDrawX = (column - bmpReadLeft) / scale + screenWriteColumnStart;
+					uint16_t screenDrawY = (row - bmpReadTop) / scale + screenWriteRowStart;
 					uint16_t arrayIndex;
 					uint8_t arrayBit;
 
@@ -130,10 +141,12 @@ public:
 					if (bytesPerPixel == 1) // Might find a better solution here later
 						imageNew[arrayIndex] |= ((r == 0 && (g > 0 || b > 0) ? 1 : 0) << arrayBit);
 					else
-						imageNew[arrayIndex] |= ((r > 64 || g > 64 || b > 64 ? 1 : 0) << arrayBit);
+						imageNew[arrayIndex] |= ((r > 128 || g > 128 || b > 128 ? 1 : 0) << arrayBit);
 				}
 			}
 		}
+
+		bmpFile.close();
 	}
 
 	void draw()
@@ -154,14 +167,20 @@ public:
 		}
 	}
 
+	void setFolder(char *newFolder)
+	{
+		folder.open(newFolder);
+	}
+
 private:
-	const uint8_t SCALE;
-	const uint16_t WIDTH, HEIGHT, CROP;
+	uint8_t scale, crop;
+	U8X8_PROGMEM uint8_t imageNew[2048] = {}, imageOld[2048] = {};
+	File folder;
+
+	const uint16_t WIDTH, HEIGHT;
 
 	static const uint8_t SD_BUFFER_SIZE = 3 * 20;
 	static const boolean XBM_MODE = false;
-
-	U8X8_PROGMEM uint8_t imageNew[2048] = {}, imageOld[2048] = {};
 
 	static uint16_t read16(File &f)
 	{
