@@ -8,7 +8,7 @@ SdFatSoftSpiEX<PB9, PB4, PB5> sd; // MISO, MOSI, CLK
 File frontFolder, sideFolder, backFolder;
 
 uint8_t currentFolder = 0;
-const uint8_t MAX_FOLDERS = 10, SETTINGS_COUNT = 6;
+const uint8_t MAX_FOLDERS = 10, SETTINGS_COUNT = 6, SETTINGS_MAIN_COUNT = 2;
 const String SETTINGS[] = {
 	"front_scale=",
 	"front_crop=",
@@ -17,16 +17,65 @@ const String SETTINGS[] = {
 	"back_scale=",
 	"back_crop=",
 };
+const String SETTINGS_MAIN[] = {
+	"scroll_animation=",
+	"switch_delay=",
+};
 const uint8_t DEFAULT_SETTINGS[] = {3, 20, 3, 19, 1, 0};
+const uint8_t DEFAULT_SETTINGS_MAIN[] = {1, 2};
 
-void writeSettingsFile(char *name)
+void writeDefaultSettings(char *name, String *settings, String *defaultSettings, uint8_t settingsCount)
 {
 	File settingsFile;
 	settingsFile.open(name, O_WRONLY | O_CREAT | O_TRUNC);
-	for (uint8_t i = 0; i < SETTINGS_COUNT; i++)
-		settingsFile.println(SETTINGS[i] + String(DEFAULT_SETTINGS[i]));
+	for (uint8_t i = 0; i < settingsCount; i++)
+		settingsFile.println(settings[i] + String(defaultSettings[i]));
 	settingsFile.flush();
 	settingsFile.close();
+}
+
+void readSettings(char *name, uint8_t *settingsOut, String *settings, String *defaultSettings, uint8_t settingsCount)
+{
+	File settingsFile;
+	boolean validFile = true;
+	if (settingsFile.open(name, O_RDONLY))
+	{
+		char buffer[128];
+		settingsFile.read(buffer, 128);
+		String text(buffer);
+
+		for (uint8_t i = 0; i < settingsCount; i++)
+		{
+			settingsOut[i] = defaultSettings[i];
+
+			int8_t settingIndex = text.indexOf(settings[i]);
+			if (settingIndex < 0)
+			{
+				validFile = false;
+				break;
+			}
+
+			text = text.substring(settingIndex + settings[i].length());
+
+			int8_t crlfIndex = text.indexOf("\r\n");
+			if (crlfIndex < 0)
+			{
+				validFile = false;
+				break;
+			}
+
+			settingsOut[i] = text.substring(0, crlfIndex).toInt();
+		}
+
+		settingsFile.close();
+	}
+	else
+	{
+		validFile = false;
+	}
+
+	if (!validFile)
+		writeDefaultSettings(name, settings, defaultSettings, settingsCount);
 }
 
 void openAndIncrementFolder()
@@ -51,47 +100,8 @@ void openAndIncrementFolder()
 			currentFolder = 0;
 	}
 
-	File settingsFile;
-	boolean validFile = true;
-	uint8_t settingValues[6];
-	if (settingsFile.open(name, O_RDONLY))
-	{
-		char buffer[128];
-		settingsFile.read(buffer, 128);
-		String text(buffer);
-
-		for (uint8_t i = 0; i < SETTINGS_COUNT; i++)
-		{
-			settingValues[i] = DEFAULT_SETTINGS[i];
-
-			int8_t settingIndex = text.indexOf(SETTINGS[i]);
-			if (settingIndex < 0)
-			{
-				validFile = false;
-				break;
-			}
-
-			text = text.substring(settingIndex + SETTINGS[i].length());
-
-			int8_t crlfIndex = text.indexOf("\r\n");
-			if (crlfIndex < 0)
-			{
-				validFile = false;
-				break;
-			}
-
-			settingValues[i] = text.substring(0, crlfIndex).toInt();
-		}
-
-		settingsFile.close();
-	}
-	else
-	{
-		validFile = false;
-	}
-
-	if (!validFile)
-		writeSettingsFile(name);
+	uint8_t settingValues[SETTINGS_COUNT];
+	readSettings(name, settingValues, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
 
 	front.setScaleCrop(settingValues[0], settingValues[1]);
 	side.setScaleCrop(settingValues[2], settingValues[3]);
@@ -130,19 +140,22 @@ void setup()
 		if (settingsFile.open(name, O_RDONLY))
 			settingsFile.close();
 		else
-			writeSettingsFile(name);
+			writeDefaultSettings(name, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
 	}
+
+	uint8_t settingValues[SETTINGS_MAIN_COUNT];
+	readSettings("settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
 
 	openAndIncrementFolder();
 }
 
 void loop()
 {
-	for (int j = 0; j < 2; j++)
+	for (uint8_t j = 0; j < 2; j++)
 	{
 		front.loadBmp();
 		side.loadBmp();
-		for (int i = 0; i < 256; i++)
+		for (uint16_t i = 0; i < 256; i++)
 		{
 			front.step(i);
 			side.step(i);

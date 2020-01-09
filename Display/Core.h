@@ -10,11 +10,7 @@ class Core
 public:
 	T display;
 
-	Core(const uint16_t width, const uint16_t height, const uint8_t cs, const uint8_t dc) : WIDTH(width), HEIGHT(height), display(T(cs, dc))
-	{
-		scale = 1;
-		crop = 0;
-	}
+	Core(const uint16_t width, const uint16_t height, const uint8_t cs, const uint8_t dc) : WIDTH(width), HEIGHT(height), display(T(cs, dc)) {}
 
 	void loadBmp()
 	{
@@ -183,12 +179,13 @@ public:
 
 	void setScaleCrop(uint8_t s, uint8_t c)
 	{
-		scale = s;
+		if (s > 0)
+			scale = s;
 		crop = c;
 	}
 
 private:
-	uint8_t scale, crop;
+	uint8_t scale = 1, crop = 0;
 	U8X8_PROGMEM uint8_t imageNew[2048] = {}, imageOld[2048] = {};
 	File folder;
 
