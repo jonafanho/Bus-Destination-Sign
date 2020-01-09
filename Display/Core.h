@@ -172,6 +172,12 @@ public:
 		folder.open(newFolder);
 	}
 
+	void setScaleCrop(uint8_t s, uint8_t c)
+	{
+		scale = s;
+		crop = c;
+	}
+
 private:
 	uint8_t scale, crop;
 	U8X8_PROGMEM uint8_t imageNew[2048] = {}, imageOld[2048] = {};
