@@ -18,11 +18,19 @@ public:
 
 	void loadBmp()
 	{
+		// Copy old image
+		for (uint16_t i = 0; i < 2048; i++)
+		{
+			imageOld[i] = imageNew[i];
+			imageNew[i] = 0;
+		}
+
 		File bmpFile;
 		if (!bmpFile.openNext(&folder))
 		{
 			folder.rewindDirectory();
-			bmpFile.openNext(&folder);
+			if (!bmpFile.openNext(&folder))
+				return;
 		}
 
 		// Parse BMP header
@@ -41,13 +49,6 @@ public:
 			return;
 		if (read32(bmpFile) != 0) // 0 = uncompressed
 			return;
-
-		// Copy old image
-		for (uint16_t i = 0; i < 2048; i++)
-		{
-			imageOld[i] = imageNew[i];
-			imageNew[i] = 0;
-		}
 
 		// BMP rows are padded (if needed) to 4-byte boundary
 		uint32_t rowSize = ((bmpWidth * bytesPerPixel + 3) / 4) * 4;
@@ -167,9 +168,17 @@ public:
 		}
 	}
 
-	void setFolder(char *newFolder)
+	boolean setFolder(char *newFolder)
 	{
+		folder.close();
 		folder.open(newFolder);
+
+		File testFile;
+		boolean empty = !testFile.openNext(&folder);
+		testFile.close();
+
+		folder.rewindDirectory();
+		return empty;
 	}
 
 	void setScaleCrop(uint8_t s, uint8_t c)

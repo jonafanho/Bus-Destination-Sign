@@ -17,24 +17,43 @@ const String SETTINGS[] = {
 	"back_scale=",
 	"back_crop=",
 };
+const uint8_t DEFAULT_SETTINGS[] = {3, 20, 3, 19, 1, 0};
+
+void writeSettingsFile(char *name)
+{
+	File settingsFile;
+	settingsFile.open(name, O_WRONLY | O_CREAT | O_TRUNC);
+	for (uint8_t i = 0; i < SETTINGS_COUNT; i++)
+		settingsFile.println(SETTINGS[i] + String(DEFAULT_SETTINGS[i]));
+	settingsFile.flush();
+	settingsFile.close();
+}
 
 void openAndIncrementFolder()
 {
 	char name[32];
+	boolean frontEmpty = true, sideEmpty = true, backEmpty = true;
+	while (frontEmpty && sideEmpty && backEmpty)
+	{
+		sprintf(name, "%d/front", currentFolder);
+		frontEmpty = front.setFolder(name);
 
-	sprintf(name, "%d/front", currentFolder);
-	front.setFolder(name);
+		sprintf(name, "%d/side", currentFolder);
+		sideEmpty = side.setFolder(name);
 
-	sprintf(name, "%d/side", currentFolder);
-	side.setFolder(name);
+		sprintf(name, "%d/back", currentFolder);
+		backEmpty = back.setFolder(name);
 
-	sprintf(name, "%d/back", currentFolder);
-	back.setFolder(name);
+		sprintf(name, "%d/settings.txt", currentFolder);
 
-	sprintf(name, "%d/settings.txt", currentFolder);
+		currentFolder++;
+		if (currentFolder == MAX_FOLDERS)
+			currentFolder = 0;
+	}
+
 	File settingsFile;
 	boolean validFile = true;
-	uint8_t settingValues[SETTINGS_COUNT] = {3, 20, 3, 19, 1, 0};
+	uint8_t settingValues[6];
 	if (settingsFile.open(name, O_RDONLY))
 	{
 		char buffer[128];
@@ -43,12 +62,15 @@ void openAndIncrementFolder()
 
 		for (uint8_t i = 0; i < SETTINGS_COUNT; i++)
 		{
+			settingValues[i] = DEFAULT_SETTINGS[i];
+
 			int8_t settingIndex = text.indexOf(SETTINGS[i]);
 			if (settingIndex < 0)
 			{
 				validFile = false;
 				break;
 			}
+
 			text = text.substring(settingIndex + SETTINGS[i].length());
 
 			int8_t crlfIndex = text.indexOf("\r\n");
@@ -69,22 +91,11 @@ void openAndIncrementFolder()
 	}
 
 	if (!validFile)
-	{
-		settingsFile.open(name, O_WRONLY | O_CREAT | O_TRUNC);
-		for (uint8_t i = 0; i < SETTINGS_COUNT; i++)
-			settingsFile.println(SETTINGS[i] + String(settingValues[i]));
-		settingsFile.flush();
-		settingsFile.close();
-	}
+		writeSettingsFile(name);
 
 	front.setScaleCrop(settingValues[0], settingValues[1]);
 	side.setScaleCrop(settingValues[2], settingValues[3]);
 	back.setScaleCrop(settingValues[4], settingValues[5]);
-
-	if (currentFolder < MAX_FOLDERS)
-		currentFolder++;
-	else
-		currentFolder = 0;
 }
 
 void setup()
@@ -116,8 +127,10 @@ void setup()
 
 		sprintf(name, "%d/settings.txt", i);
 		File settingsFile;
-		settingsFile.open(name, O_WRONLY | O_CREAT);
-		settingsFile.close();
+		if (settingsFile.open(name, O_RDONLY))
+			settingsFile.close();
+		else
+			writeSettingsFile(name);
 	}
 
 	openAndIncrementFolder();
@@ -125,13 +138,17 @@ void setup()
 
 void loop()
 {
-	front.loadBmp();
-	side.loadBmp();
-	for (int i = 0; i < 256; i++)
+	for (int j = 0; j < 2; j++)
 	{
-		front.step(i);
-		side.step(i);
-		delay(2);
+		front.loadBmp();
+		side.loadBmp();
+		for (int i = 0; i < 256; i++)
+		{
+			front.step(i);
+			side.step(i);
+			delay(2);
+		}
+		//front.draw();
 	}
-	//front.draw();
+	openAndIncrementFolder();
 }
