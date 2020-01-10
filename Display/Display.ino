@@ -7,7 +7,10 @@ Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, PA11, PA8);
 SdFatSoftSpiEX<PB9, PB4, PB5> sd; // MISO, MOSI, CLK
 File frontFolder, sideFolder, backFolder;
 
-uint8_t currentFolder = 0;
+uint8_t currentFolder = 0, switchDelay = 2;
+uint32_t ticks = 0;
+boolean scrollMode = true;
+
 const uint8_t MAX_FOLDERS = 10, SETTINGS_COUNT = 6, SETTINGS_MAIN_COUNT = 2;
 const String SETTINGS[] = {
 	"front_scale=",
@@ -24,7 +27,7 @@ const String SETTINGS_MAIN[] = {
 const uint8_t DEFAULT_SETTINGS[] = {3, 20, 3, 19, 1, 0};
 const uint8_t DEFAULT_SETTINGS_MAIN[] = {1, 2};
 
-void writeDefaultSettings(char *name, String *settings, String *defaultSettings, uint8_t settingsCount)
+void writeDefaultSettings(char *name, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount)
 {
 	File settingsFile;
 	settingsFile.open(name, O_WRONLY | O_CREAT | O_TRUNC);
@@ -34,7 +37,7 @@ void writeDefaultSettings(char *name, String *settings, String *defaultSettings,
 	settingsFile.close();
 }
 
-void readSettings(char *name, uint8_t *settingsOut, String *settings, String *defaultSettings, uint8_t settingsCount)
+void readSettings(char *name, uint8_t *settingsOut, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount)
 {
 	File settingsFile;
 	boolean validFile = true;
@@ -145,23 +148,42 @@ void setup()
 
 	uint8_t settingValues[SETTINGS_MAIN_COUNT];
 	readSettings("settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
+	scrollMode = settingValues[0] > 0;
+	switchDelay = settingValues[1];
 
 	openAndIncrementFolder();
 }
 
 void loop()
 {
-	for (uint8_t j = 0; j < 2; j++)
+	for (uint8_t j = 0; j < 3; j++)
 	{
+
 		front.loadBmp();
 		side.loadBmp();
-		for (uint16_t i = 0; i < 256; i++)
+		back.loadBmp();
+
+		while (ticks != 0 && (millis() - ticks) / 1000 < (uint32_t)switchDelay)
 		{
-			front.step(i);
-			side.step(i);
-			delay(2);
 		}
-		//front.draw();
+		ticks = millis();
+
+		if (scrollMode)
+		{
+			for (uint16_t i = 0; i < 256; i++)
+			{
+				front.step(i);
+				side.step(i);
+				back.step(i);
+				delay(2);
+			}
+		}
+		else
+		{
+			front.draw();
+			side.draw();
+			back.draw();
+		}
 	}
 	openAndIncrementFolder();
 }
