@@ -96,7 +96,7 @@ void openAndIncrementFolder()
 		sprintf(name, "%d/back", currentFolder);
 		backEmpty = back.setFolder(name);
 
-		sprintf(name, "%d/settings.txt", currentFolder);
+		sprintf(name, "%d/image_settings.txt", currentFolder);
 
 		currentFolder++;
 		if (currentFolder == MAX_FOLDERS)
@@ -138,7 +138,7 @@ void setup()
 		sprintf(name, "%d/back", i);
 		sd.mkdir(name);
 
-		sprintf(name, "%d/settings.txt", i);
+		sprintf(name, "%d/image_settings.txt", i);
 		File settingsFile;
 		if (settingsFile.open(name, O_RDONLY))
 			settingsFile.close();
@@ -147,7 +147,7 @@ void setup()
 	}
 
 	uint8_t settingValues[SETTINGS_MAIN_COUNT];
-	readSettings("settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
+	readSettings("global_settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
 	scrollMode = settingValues[0] > 0;
 	switchDelay = settingValues[1];
 
