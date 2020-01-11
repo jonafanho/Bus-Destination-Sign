@@ -14,12 +14,22 @@ public:
 
 	void loadBmp()
 	{
-		// Copy old image
-		for (uint16_t i = 0; i < 2048; i++)
-		{
-			imageOld[i] = imageNew[i];
-			imageNew[i] = 0;
-		}
+		// temp
+		boolean fancyScroll = true;
+		uint8_t leftOffset = 4;
+
+		// Copy or erase old image
+		if (fancyScroll)
+			for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE * 2; i++)
+			{
+				image[i] = 0;
+			}
+		else
+			for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++)
+			{
+				image[IMAGE_BUFFER_SIZE + i] = image[i];
+				image[i] = 0;
+			}
 
 		File bmpFile;
 		if (!bmpFile.openNext(&folder))
@@ -55,7 +65,7 @@ public:
 			flip = false;
 		}
 
-		uint32_t bmpReadWidth = min(WIDTH * scale, bmpWidth - crop * 2);
+		uint32_t bmpReadWidth = min(WIDTH * (fancyScroll ? 2 : 1) * scale, bmpWidth - crop * 2);
 		uint32_t bmpReadHeight = min(HEIGHT * scale, bmpHeight - crop * 2);
 
 		uint32_t bmpReadLeft = (bmpWidth - bmpReadWidth) / 2;
@@ -63,7 +73,7 @@ public:
 		uint32_t bmpReadTop = (bmpHeight - bmpReadHeight) / 2;
 		uint32_t bmpReadBottom = bmpHeight - bmpReadTop;
 
-		uint32_t screenWriteColumnStart = (WIDTH - min(bmpReadWidth / scale, WIDTH)) / 2;
+		uint32_t screenWriteColumnStart = fancyScroll ? leftOffset : ((WIDTH - min(bmpReadWidth / scale, WIDTH)) / 2);
 		uint32_t screenWriteRowStart = (HEIGHT - min(bmpReadHeight / scale, HEIGHT)) / 2;
 
 		uint8_t sdBuffer[SD_BUFFER_SIZE];
@@ -102,14 +112,17 @@ public:
 
 					if (XBM_MODE)
 					{
-						arrayIndex = screenDrawX / 8 + (screenDrawY * WIDTH + 7) / 8;
+						arrayIndex = screenDrawX / 8 + (screenDrawY * WIDTH * (fancyScroll ? 2 : 1) + 7) / 8;
 						arrayBit = screenDrawX % 8;
 					}
 					else
 					{
-						arrayIndex = (screenDrawX % WIDTH) + screenDrawY / 8 * WIDTH;
+						arrayIndex = (screenDrawX % (WIDTH * (fancyScroll ? 2 : 1))) + screenDrawY / 8 * WIDTH * (fancyScroll ? 2 : 1);
 						arrayBit = screenDrawY % 8;
 					}
+
+					if (arrayIndex >= IMAGE_BUFFER_SIZE * (fancyScroll ? 2 : 1))
+						arrayIndex = IMAGE_BUFFER_SIZE * (fancyScroll ? 2 : 1) - 1;
 
 					uint16_t p, r, g, b;
 					switch (bytesPerPixel)
@@ -136,9 +149,9 @@ public:
 					}
 
 					if (bytesPerPixel == 1) // Might find a better solution here later
-						imageNew[arrayIndex] |= ((r == 0 && (g > 0 || b > 0) ? 1 : 0) << arrayBit);
+						image[arrayIndex] |= ((r == 0 && (g > 0 || b > 0) ? 1 : 0) << arrayBit);
 					else
-						imageNew[arrayIndex] |= ((r > 128 || g > 128 || b > 128 ? 1 : 0) << arrayBit);
+						image[arrayIndex] |= ((r > 128 || g > 128 || b > 128 ? 1 : 0) << arrayBit);
 				}
 			}
 		}
@@ -148,23 +161,39 @@ public:
 
 	void draw()
 	{
-		for (int i = 0; i < HEIGHT / 8; i++)
-			display.drawTile(0, i, WIDTH / 8, imageNew + i * WIDTH);
+		for (uint16_t row = 0; row < HEIGHT / 8; row++)
+			display.drawTile(0, row, WIDTH / 8, image + row * WIDTH);
 	}
 
-	void step(uint16_t step)
+	void draw(const uint16_t divider)
+	{
+		for (uint16_t row = 0; row < HEIGHT / 8; row++)
+			display.drawTile(0, row, WIDTH / 8, image + row * WIDTH * 2);
+
+		delay(1000);
+
+		const uint16_t numTiles = WIDTH / 8 - divider;
+		for (uint16_t step = 0; step < 256; step++)
+		{
+			uint8_t *imagePointer = image + divider * 8 + step;
+			for (uint16_t row = 0; row < HEIGHT / 8; row++)
+				display.drawTile(divider, row, numTiles, imagePointer + row * WIDTH * 2);
+		}
+	}
+
+	void step(const uint16_t step)
 	{
 		uint8_t stepMod = step % 8, stepRounded = step - stepMod;
 		uint8_t tile[8];
 		for (uint16_t y = 0; y < HEIGHT / 8; y++)
 		{
 			for (uint8_t i = 0; i < 8; i++)
-				tile[i] = i <= stepMod ? imageNew[stepRounded + i + y * WIDTH] : imageOld[stepRounded + i + y * WIDTH];
+				tile[i] = image[(i <= stepMod ? 0 : IMAGE_BUFFER_SIZE) + stepRounded + i + y * WIDTH];
 			display.drawTile(step / 8, y, 1, tile);
 		}
 	}
 
-	boolean setFolder(char *newFolder)
+	boolean setFolder(const char *newFolder)
 	{
 		folder.close();
 		folder.open(newFolder);
@@ -177,7 +206,7 @@ public:
 		return empty;
 	}
 
-	void setScaleCrop(uint8_t s, uint8_t c)
+	void setScaleCrop(const uint8_t s, const uint8_t c)
 	{
 		if (s > 0)
 			scale = s;
@@ -186,10 +215,10 @@ public:
 
 private:
 	uint8_t scale = 1, crop = 0;
-	U8X8_PROGMEM uint8_t imageNew[2048] = {}, imageOld[2048] = {};
+	U8X8_PROGMEM uint8_t image[4096] = {}; // first 2048 bytes for new image, next 2048 bytes for old image (except for scrolling)
 	File folder;
 
-	const uint16_t WIDTH, HEIGHT;
+	const uint16_t WIDTH, HEIGHT, IMAGE_BUFFER_SIZE = 2048;
 
 	static const uint8_t SD_BUFFER_SIZE = 3 * 20;
 	static const boolean XBM_MODE = false;

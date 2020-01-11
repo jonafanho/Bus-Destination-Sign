@@ -7,9 +7,8 @@ Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, PA11, PA8);
 SdFatSoftSpiEX<PB9, PB4, PB5> sd; // MISO, MOSI, CLK
 File frontFolder, sideFolder, backFolder;
 
-uint8_t currentFolder = 0, switchDelay = 2;
+uint8_t currentFolder = 0, switchDelay = 2, scrollMode = 1;
 uint32_t ticks = 0;
-boolean scrollMode = true;
 
 const uint8_t MAX_FOLDERS = 10, SETTINGS_COUNT = 6, SETTINGS_MAIN_COUNT = 2;
 const String SETTINGS[] = {
@@ -27,7 +26,7 @@ const String SETTINGS_MAIN[] = {
 const uint8_t DEFAULT_SETTINGS[] = {3, 20, 3, 19, 1, 0};
 const uint8_t DEFAULT_SETTINGS_MAIN[] = {1, 2};
 
-void writeDefaultSettings(char *name, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount)
+void writeDefaultSettings(const char *name, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount)
 {
 	File settingsFile;
 	settingsFile.open(name, O_WRONLY | O_CREAT | O_TRUNC);
@@ -37,7 +36,7 @@ void writeDefaultSettings(char *name, const String *settings, const uint8_t *def
 	settingsFile.close();
 }
 
-void readSettings(char *name, uint8_t *settingsOut, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount)
+void readSettings(const char *name, uint8_t *settingsOut, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount)
 {
 	File settingsFile;
 	boolean validFile = true;
@@ -148,7 +147,7 @@ void setup()
 
 	uint8_t settingValues[SETTINGS_MAIN_COUNT];
 	readSettings("global_settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
-	scrollMode = settingValues[0] > 0;
+	scrollMode = settingValues[0];
 	switchDelay = settingValues[1];
 
 	openAndIncrementFolder();
@@ -168,8 +167,14 @@ void loop()
 		}
 		ticks = millis();
 
-		if (scrollMode)
+		switch (scrollMode)
 		{
+		case 0:
+			front.draw();
+			side.draw();
+			back.draw();
+			break;
+		case 1:
 			for (uint16_t i = 0; i < 256; i++)
 			{
 				front.step(i);
@@ -177,12 +182,13 @@ void loop()
 				back.step(i);
 				delay(2);
 			}
-		}
-		else
-		{
+			break;
+		case 2:
 			front.draw();
-			side.draw();
 			back.draw();
+
+			side.draw(6);
+			break;
 		}
 	}
 	openAndIncrementFolder();
