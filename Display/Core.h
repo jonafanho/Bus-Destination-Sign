@@ -14,29 +14,47 @@ public:
 
 	void loadBmp()
 	{
-		// temp
-		boolean fancyScroll = true;
-		uint8_t leftOffset = 4;
 
-		// Copy or erase old image
-		if (fancyScroll)
-			for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE * 2; i++)
-			{
-				image[i] = 0;
-			}
-		else
-			for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++)
-			{
-				image[IMAGE_BUFFER_SIZE + i] = image[i];
-				image[i] = 0;
-			}
+		// Copy old image
+		for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++)
+		{
+			image[IMAGE_BUFFER_SIZE + i] = image[i];
+			image[i] = 0;
+		}
 
+		// Read file
 		File bmpFile;
 		if (!bmpFile.openNext(&folder))
 		{
 			folder.rewindDirectory();
 			if (!bmpFile.openNext(&folder))
 				return;
+		}
+
+		// Check file name for fancy scroll
+		char fileName[13];
+		bmpFile.getName(fileName, 13);
+		if (fileName[0] == 33) // !
+		{
+			fancyScroll = true;
+
+			// Read left offset and divide
+			if (fileName[1] >= 48 && fileName[1] < 58) // 0 to 9
+				fancyScrollLeftOffset = fileName[1] - 48;
+			else
+				fancyScrollLeftOffset = 0;
+			if (fileName[2] >= 48 && fileName[2] < 58) // 0 to 9
+				fancyScrollDivide = fileName[2] - 48;
+			else
+				fancyScrollDivide = 6;
+
+			// Clear old image
+			for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++)
+				image[IMAGE_BUFFER_SIZE + i] = 0;
+		}
+		else
+		{
+			fancyScroll = false;
 		}
 
 		// Parse BMP header
@@ -73,7 +91,7 @@ public:
 		uint32_t bmpReadTop = (bmpHeight - bmpReadHeight) / 2;
 		uint32_t bmpReadBottom = bmpHeight - bmpReadTop;
 
-		uint32_t screenWriteColumnStart = fancyScroll ? leftOffset : ((WIDTH - min(bmpReadWidth / scale, WIDTH)) / 2);
+		uint32_t screenWriteColumnStart = fancyScroll ? fancyScrollLeftOffset : ((WIDTH - min(bmpReadWidth / scale, WIDTH)) / 2);
 		uint32_t screenWriteRowStart = (HEIGHT - min(bmpReadHeight / scale, HEIGHT)) / 2;
 
 		uint8_t sdBuffer[SD_BUFFER_SIZE];
@@ -161,23 +179,25 @@ public:
 
 	void draw()
 	{
-		for (uint16_t row = 0; row < HEIGHT / 8; row++)
-			display.drawTile(0, row, WIDTH / 8, image + row * WIDTH);
-	}
-
-	void draw(const uint16_t divider)
-	{
-		for (uint16_t row = 0; row < HEIGHT / 8; row++)
-			display.drawTile(0, row, WIDTH / 8, image + row * WIDTH * 2);
-
-		delay(1000);
-
-		const uint16_t numTiles = WIDTH / 8 - divider;
-		for (uint16_t step = 0; step < 256; step++)
+		if (fancyScroll)
 		{
-			uint8_t *imagePointer = image + divider * 8 + step;
 			for (uint16_t row = 0; row < HEIGHT / 8; row++)
-				display.drawTile(divider, row, numTiles, imagePointer + row * WIDTH * 2);
+				display.drawTile(0, row, WIDTH / 8, image + row * WIDTH * 2);
+
+			delay(1000);
+
+			const uint16_t numTiles = WIDTH / 8 - fancyScrollDivide;
+			for (uint16_t step = 0; step < 256; step++)
+			{
+				uint8_t *imagePointer = image + fancyScrollDivide * 8 + step;
+				for (uint16_t row = 0; row < HEIGHT / 8; row++)
+					display.drawTile(fancyScrollDivide, row, numTiles, imagePointer + row * WIDTH * 2);
+			}
+		}
+		else
+		{
+			for (uint16_t row = 0; row < HEIGHT / 8; row++)
+				display.drawTile(0, row, WIDTH / 8, image + row * WIDTH);
 		}
 	}
 
@@ -214,7 +234,9 @@ public:
 	}
 
 private:
-	uint8_t scale = 1, crop = 0;
+	uint8_t scale = 1, crop = 0, fancyScrollLeftOffset;
+	uint16_t fancyScrollDivide;
+	boolean fancyScroll = false;
 	U8X8_PROGMEM uint8_t image[4096] = {}; // first 2048 bytes for new image, next 2048 bytes for old image (except for scrolling)
 	File folder;
 

@@ -157,7 +157,6 @@ void loop()
 {
 	for (uint8_t j = 0; j < 3; j++)
 	{
-
 		front.loadBmp();
 		side.loadBmp();
 		back.loadBmp();
@@ -171,8 +170,8 @@ void loop()
 		{
 		case 0:
 			front.draw();
-			side.draw();
 			back.draw();
+			side.draw();
 			break;
 		case 1:
 			for (uint16_t i = 0; i < 256; i++)
@@ -183,13 +182,8 @@ void loop()
 				delay(2);
 			}
 			break;
-		case 2:
-			front.draw();
-			back.draw();
-
-			side.draw(6);
-			break;
 		}
 	}
+
 	openAndIncrementFolder();
 }
