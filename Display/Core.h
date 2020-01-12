@@ -14,7 +14,6 @@ public:
 
 	void loadBmp()
 	{
-
 		// Copy old image
 		for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++)
 		{
@@ -39,14 +38,17 @@ public:
 			fancyScroll = true;
 
 			// Read left offset and divide
-			if (fileName[1] >= 48 && fileName[1] < 58) // 0 to 9
-				fancyScrollLeftOffset = fileName[1] - 48;
+			if (fileName[1] >= 48 && fileName[1] < 58 && fileName[2] >= 48 && fileName[2] < 58 && fileName[3] >= 48 && fileName[3] < 58)
+			{
+				fancyScrollDivide = (fileName[1] - 48) * 100 + (fileName[2] - 48) * 10 + fileName[3] - 48;
+				fancyScrollLeftOffset = fancyScrollDivide % 8;
+				fancyScrollDivide = (fancyScrollDivide + 7) / 8;
+			}
 			else
+			{
 				fancyScrollLeftOffset = 0;
-			if (fileName[2] >= 48 && fileName[2] < 58) // 0 to 9
-				fancyScrollDivide = fileName[2] - 48;
-			else
 				fancyScrollDivide = 6;
+			}
 
 			// Clear old image
 			for (uint16_t i = 0; i < IMAGE_BUFFER_SIZE; i++)
@@ -128,6 +130,9 @@ public:
 					uint16_t arrayIndex;
 					uint8_t arrayBit;
 
+					if (fancyScroll && screenDrawX >= fancyScrollDivide * 8)
+						screenDrawX += 8;
+
 					if (XBM_MODE)
 					{
 						arrayIndex = screenDrawX / 8 + (screenDrawY * WIDTH * (fancyScroll ? 2 : 1) + 7) / 8;
@@ -179,25 +184,44 @@ public:
 
 	void draw()
 	{
+		const uint16_t widthChunk = WIDTH / 8;
+		const uint16_t heightChunk = HEIGHT / 8;
+
 		if (fancyScroll)
 		{
-			for (uint16_t row = 0; row < HEIGHT / 8; row++)
-				display.drawTile(0, row, WIDTH / 8, image + row * WIDTH * 2);
+			// Fancy scrolling
+			display.clearDisplay();
 
-			delay(1000);
+			const uint16_t doubleWidth = WIDTH * 2;
 
-			const uint16_t numTiles = WIDTH / 8 - fancyScrollDivide;
-			for (uint16_t step = 0; step < 256; step++)
+			for (uint16_t row = 0; row < heightChunk; row++)
+				display.drawTile(0, row, fancyScrollDivide, image + row * doubleWidth);
+
+			const uint16_t fancyScrollDivideChunk = fancyScrollDivide * 8;
+
+			for (uint16_t step = WIDTH - 1; step >= fancyScrollDivideChunk; step--)
 			{
-				uint8_t *imagePointer = image + fancyScrollDivide * 8 + step;
-				for (uint16_t row = 0; row < HEIGHT / 8; row++)
-					display.drawTile(fancyScrollDivide, row, numTiles, imagePointer + row * WIDTH * 2);
+				const uint16_t startTile = step / 8;
+				const uint16_t numTiles = widthChunk - startTile;
+				uint8_t *imagePointer = image + fancyScrollDivideChunk + 7 - step % 8;
+				for (uint16_t row = 0; row < heightChunk; row++)
+					display.drawTile(startTile, row, numTiles, imagePointer + row * doubleWidth);
+			}
+
+			const uint16_t numTiles = widthChunk - fancyScrollDivide;
+			const uint16_t remainingWidth = 512 - WIDTH - 8;
+			for (uint16_t step = 0; step < remainingWidth; step++)
+			{
+				uint8_t *imagePointer = image + fancyScrollDivideChunk + step + 8;
+				for (uint16_t row = 0; row < heightChunk; row++)
+					display.drawTile(fancyScrollDivide, row, numTiles, imagePointer + row * doubleWidth);
 			}
 		}
 		else
 		{
-			for (uint16_t row = 0; row < HEIGHT / 8; row++)
-				display.drawTile(0, row, WIDTH / 8, image + row * WIDTH);
+			// Normal image display
+			for (uint16_t row = 0; row < heightChunk; row++)
+				display.drawTile(0, row, widthChunk, image + row * WIDTH);
 		}
 	}
 
