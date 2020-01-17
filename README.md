@@ -100,6 +100,17 @@ Parameter | Description
 `back_scale` | The scaling of the images on the back display.
 `back_crop` | The crop of the images on the back display.
 
+## Special Scrolling
+To use special scrolling on an image, the file name must begin with an exclamation mark (`!`).
+
+After the exclamation mark, the file name should contain a three digit number. This number corresponds to the number of pixels from the left edge (after scaling) where the image should be split. The pixels before the split to the left will display as a stationary image, and the pixels on or after the split to the right will be scrolled. If the number is less than three digits long, it should be padded by zeros.
+
+An example of file names implementing special scrolling is shown below.
+```
+!046-NWFB-682.bmp
+!112-NWFB-15.bmp
+```
+
 ## Troubleshooting
 * My images are not showing up!
   * Make sure the images are in BMP format. (8, 16, 24, and 32-bit uncompressed BMP files are supported.)
@@ -111,3 +122,6 @@ Parameter | Description
 * My SD card failed to initalize!
   * Make sure the SD card is formatted to FAT32.
   * Make sure the SD card is clean, inserted fully into the SD card slot, and oriented in the correct direction.
+
+## Building it Yourself
+Refer to the [Installation](https://github.com/jonafanho/Bus-Destination-Sign/blob/master/Installation.md) page for instructions.
