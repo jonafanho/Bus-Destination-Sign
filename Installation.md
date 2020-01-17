@@ -78,7 +78,7 @@ SD Card Reader Pin | Function | STM32 Pin
 
 ### Installing Libraries
 Several libraries are required by the software. They can be installed right from the Arduino IDE.
-1. Go to `Sketch` | `Install Library` | `Manage Libraries`.
+1. Go to `Sketch` | `Include Library` | `Manage Libraries`.
 1. Search for the following libraries and click `Install` for each of them.
    1. `U8G2`
    1. `SdFat (Adafruit fork)`
