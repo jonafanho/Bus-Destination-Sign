@@ -13,6 +13,36 @@ SD card reader | 1 |
 LM7805 voltage regulators | 1 |
 Custom PCB | 1 | The PCB design is packaged in this repository. See the [Custom PCB](#custom-pcb) section for instructions.
 USB to TTL | 1 | This is a tool. Only one is needed to create many sets.
+Micro USB cable | 1 | This is a tool. Only one is needed to create many sets.
+
+### Preparing the STM32 Microcontroller
+Before any programs can be uploaded to the microcontroller through a USB connection, a bootloader must be flashed onto the device.
+
+Connect the USB to TTL device to the microcontroller as follows. Double check the connections before proceeding!
+
+USB to TTL Pin | STM32 Pin
+--- | ---
+GND | GND
+VCC | 5V
+RX | A9
+TX | A10
+
+Next, the bootloader will need to be flashed onto the microcontroller.
+1. There are two yellow rectangles sticking out of the STM32 board; they are jumper pins.
+   1. Find the jumper pin labelled `BOOT0` and move it to `1` (programming mode).
+   1. The other jumper pin, labelled `BOOT1`, should stay at `0`.
+1. Download and install [Python 3](https://www.python.org/downloads) if it is not already installed.
+1. Download pip if it is not already installed.
+   1. Download [this installation file](https://bootstrap.pypa.io/get-pip.py). It should be called `get-pip.py`. Leave it in the Downloads folder.
+   1. Double click on the file `get-pip.py` to run it. If that doesn't work, open a Terminal or Command Prompt window and run the command `python ~/Downloads/get-pip.py`.
+1. Open a Terminal or Command Prompt window and run the command `pip install pyserial`.
+1. Download the [stm32loader Python script](https://github.com/jsnyder/stm32loader). The file should be called `stm32loader.py`. Leave it in the Downloads folder.
+1. Double click on `stm32loader.py` to run it. If that doesn't work, open a Terminal or Command Prompt window and run the command `python ~/Downloads/stm32loader.py`.
+1. Download the bootloader from [this GitHub repository](https://github.com/rogerclarkmelbourne/STM32duino-bootloader/blob/master/binaries/generic_boot20_pc13.bin). It should be a `.bin` file. Leave it in the Downloads folder. *(Note: Check that the STM32 has its on-board LED connected to pin PC13. If it is not, search for other bootloaders in that repository.)*
+1. Plug in the USB to TTL device into the computer. It should also already be connected to the STM32 microcontroller as instructed above.
+1. In the Terminal or Command Prompt window, run the command `python ./stm32loader -p /dev/tty.SLAB_USBtoUART -w ~/Downloads/generic_boot20_pc13.bin`.
+1. The reset button on the STM32 board might need to be pressed before the above command can work. If the process is successful, the LED should flash quickly after pressing reset and then flash slowly afterwards.
+1. Move both yellow jumper pins on the STM32 board back to `0` and disconnect everything.  
 
 ### Custom PCB
 A custom PCB is not strictly required as the whole circuit can be built on a breadboard or a protoboard. However, a PCB design and schematic is provided in this repository.
@@ -21,7 +51,7 @@ A custom PCB is not strictly required as the whole circuit can be built on a bre
 ### Assembly
 The displays and the SD card reader needs to be wired up to the STM32. In the following tables, the pins shown on the left (or centre) column need to be wired up to the corresponding pins shown on the right column.
 
-It is essential that the correct pins are connected together. Double and triple check your connections!
+It is essential that the correct pins are connected together. Double and triple check all the connections!
 
 #### Displays
 ##### SSD1322 Display Pinout
@@ -90,6 +120,13 @@ Several libraries are required by the software. They can be installed right from
 1. Go to the SdFat (Adafruit fork) library directory.
    1. Enable software SPI by setting `#define ENABLE_SOFTWARE_SPI_CLASS` to `1` in `SdFatConfig.h`.
    1. In the `inline void fastPinMode()` function in `SpiDriver/DigitalPin.h`, change the second argument's datatype to `WiringPinMode` instead of `uint8_t`.
+
+### Using the code
+1. Clone or download this repository.
+1. Double click on `Display.ino` to open it. It should open in the Arduino IDE by default.
+1. Make changes to the code as needed, for example, if you have [custom OLED displays](#custom-oled-displays).
+1. Connect the STM32 to the computer using a Micro USB cable.
+1. Press the upload icon in the Arduino IDE to uplaod the code to the STM32 microcontroller.
 
 ### Custom OLED Displays
 Custom OLED displays of different sizes or resolutions may be used. The communication protocol should be 4-wire SPI. The code must be changed if a different type of display or resolution is used.
