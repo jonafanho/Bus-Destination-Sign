@@ -23,11 +23,11 @@ Connect the USB to TTL device to the microcontroller as follows. Double check th
 USB to TTL Pin | STM32 Pin
 --- | ---
 GND | GND
-VCC | 5V
+3.3V | 3.3V
 RX | A9
 TX | A10
 
-Next, the bootloader will need to be flashed onto the microcontroller.
+Next, the bootloader will need to be flashed onto the microcontroller. For Windows users, there is an additional driver that needs to be installed. Complete the [Preparing the Environment](#preparing-the-environment) section before continuing.
 1. There are two yellow rectangles sticking out of the STM32 board; they are jumper pins.
    1. Find the jumper pin labelled `BOOT0` and move it to `1` (programming mode).
    1. The other jumper pin, labelled `BOOT1`, should stay at `0`.
@@ -105,6 +105,13 @@ SD Card Reader Pin | Function | STM32 Pin
 1. Select the entry containing `STM32F1xx/GD32F1xx boards` and click `Install`.
 1. After the installation finishes, click `Close` to close the Boards Manager.
 1. Select `Tools` | `Board: ...` | `Generic STM32F103C series` to use the STM32 board with the Arduino IDE.
+1. (Windows users only)
+   1. Navigate to `C:\Program Files (x86)\Arduino` (or wherever Arduino was installed).
+   1. Open the `hardware` folder or create it if it doesn't exist.
+   1. Download [this repository](https://github.com/rogerclarkmelbourne/Arduino_STM32). Click the green `Clone or download` button and `Download Zip`.
+   1. Open the zip file. Copy the folder `Arduino_STM32-master` to the `hardware` folder. Rename the folder to `Arduino_STM32` (get rid of `-master`).
+   1. Close the zip file. Open the newly copied `Arduino_STM32` folder. Inside the `drivers` folder, find `install_drivers.bat`.
+   1. Double click on `install_drivers.bat` and keep typing `yes` when prompted.
 
 ### Installing Libraries
 Several libraries are required by the software. They can be installed right from the Arduino IDE.
