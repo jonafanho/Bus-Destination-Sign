@@ -20,7 +20,7 @@ public:
 		}
 
 		// Read file
-		File bmpFile;
+		sdfat::File bmpFile;
 		if (!bmpFile.openNext(&folder)) {
 			folder.rewindDirectory();
 			if (!bmpFile.openNext(&folder))
@@ -54,7 +54,7 @@ public:
 		// Parse BMP header
 		if (read16(bmpFile) != 0x4D42) // BMP signature
 			return;
-		read32(bmpFile);                      // File size
+		read32(bmpFile);                      // sdfat::File size
 		read32(bmpFile);                      // Reserved
 		uint32_t bmpOffset = read32(bmpFile); // Start of image data
 		read32(bmpFile);                      // Number of bytes in DIB header
@@ -84,8 +84,8 @@ public:
 		uint32_t bmpReadTop = (bmpHeight - bmpReadHeight) / 2;
 		uint32_t bmpReadBottom = bmpHeight - bmpReadTop;
 
-		uint32_t screenWriteColumnStart = fancyScroll ? fancyScrollLeftOffset : ((WIDTH - min(bmpReadWidth / scale, WIDTH)) / 2);
-		uint32_t screenWriteRowStart = (HEIGHT - min(bmpReadHeight / scale, HEIGHT)) / 2;
+		uint32_t screenWriteColumnStart = fancyScroll ? fancyScrollLeftOffset : ((WIDTH - min((uint32_t)(bmpReadWidth / scale), (uint32_t) WIDTH)) / 2);
+		uint32_t screenWriteRowStart = (HEIGHT - min((uint32_t)(bmpReadHeight / scale), (uint32_t) HEIGHT)) / 2;
 
 		uint8_t sdBuffer[SD_BUFFER_SIZE];
 		uint8_t bufferIndex = SD_BUFFER_SIZE;
@@ -214,7 +214,7 @@ public:
 		folder.close();
 		folder.open(newFolder);
 
-		File testFile;
+		sdfat::File testFile;
 		boolean empty = !testFile.openNext(&folder);
 		testFile.close();
 
@@ -234,21 +234,21 @@ private:
 	boolean fancyScroll = false;
 	U8X8_PROGMEM uint8_t
 	image[4096] = {}; // first 2048 bytes for new image, next 2048 bytes for old image (except for scrolling)
-	File folder;
+	sdfat::File folder;
 
 	const uint16_t WIDTH, HEIGHT, IMAGE_BUFFER_SIZE = 2048;
 
 	static const uint8_t SD_BUFFER_SIZE = 3 * 20;
 	static const boolean XBM_MODE = false;
 
-	static uint16_t read16(File &f) {
+	static uint16_t read16(sdfat::File &f) {
 		uint16_t result;
 		((uint8_t * ) & result)[0] = f.read(); // LSB
 		((uint8_t * ) & result)[1] = f.read(); // MSB
 		return result;
 	}
 
-	static uint32_t read32(File &f) {
+	static uint32_t read32(sdfat::File &f) {
 		uint32_t result;
 		((uint8_t * ) & result)[0] = f.read(); // LSB
 		((uint8_t * ) & result)[1] = f.read();

@@ -1,11 +1,14 @@
 #include "Core.h"
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
 
-Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(256, 64, PA9, PA8);
-Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, PA10, PA8);
-Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, PA11, PA8);
+Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(256, 64, D3, D4);
+Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, D1, D4);
+Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, D0, D4);
 
-SdFatSoftSpiEX <PB9, PB4, PB5> sd; // MISO, MOSI, CLK
-File frontFolder, sideFolder, backFolder;
+sdfat::SdFat sd;
+sdfat::File frontFolder, sideFolder, backFolder;
 
 uint8_t currentFolder = 0, switchDelay = 2, scrollMode = 1;
 uint32_t ticks = 0;
@@ -27,8 +30,8 @@ const uint8_t DEFAULT_SETTINGS[] = {3, 20, 3, 19, 1, 0};
 const uint8_t DEFAULT_SETTINGS_MAIN[] = {1, 2};
 
 void writeDefaultSettings(const char *name, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount) {
-	File settingsFile;
-	settingsFile.open(name, O_WRONLY | O_CREAT | O_TRUNC);
+	sdfat::File settingsFile;
+	settingsFile.open(name, sdfat::O_WRONLY | sdfat::O_CREAT | sdfat::O_TRUNC);
 	for (uint8_t i = 0; i < settingsCount; i++)
 		settingsFile.println(settings[i] + String(defaultSettings[i]));
 	settingsFile.flush();
@@ -36,9 +39,9 @@ void writeDefaultSettings(const char *name, const String *settings, const uint8_
 }
 
 void readSettings(const char *name, uint8_t *settingsOut, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount) {
-	File settingsFile;
+	sdfat::File settingsFile;
 	boolean validFile = true;
-	if (settingsFile.open(name, O_RDONLY)) {
+	if (settingsFile.open(name, sdfat::O_RDONLY)) {
 		char buffer[128];
 		settingsFile.read(buffer, 128);
 		String text(buffer);
@@ -105,7 +108,7 @@ void setup() {
 	side.display.begin();
 	back.display.begin();
 
-	if (!sd.begin(PB6)) {
+	if (!sd.begin(D2, SPI_HALF_SPEED)) {
 		front.display.setFont(u8x8_font_5x7_f);
 		front.display.drawString(0, 0, "SD card initialization failed.");
 		while (true) {
@@ -124,8 +127,8 @@ void setup() {
 		sd.mkdir(name);
 
 		sprintf(name, "%d/image_settings.txt", i);
-		File settingsFile;
-		if (settingsFile.open(name, O_RDONLY))
+		sdfat::File settingsFile;
+		if (settingsFile.open(name, sdfat::O_RDONLY))
 			settingsFile.close();
 		else
 			writeDefaultSettings(name, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
