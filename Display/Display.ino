@@ -1,7 +1,7 @@
 #include "Core.h"
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <FS.h>
 
 Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(256, 64, D3, D4);
 Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, D1, D4);
@@ -13,7 +13,7 @@ sdfat::File frontFolder, sideFolder, backFolder;
 uint8_t currentFolder = 0, switchDelay = 2, scrollMode = 1;
 uint32_t ticks = 0;
 
-const uint8_t MAX_FOLDERS = 10, SETTINGS_COUNT = 6, SETTINGS_MAIN_COUNT = 2;
+const uint8_t MAX_FOLDERS = 10, SETTINGS_COUNT = 6, SETTINGS_MAIN_COUNT = 2, SETTINGS_WIFI_COUNT = 2;
 const String SETTINGS[] = {
 		"front_scale=",
 		"front_crop=",
@@ -26,10 +26,18 @@ const String SETTINGS_MAIN[] = {
 		"scroll_animation=",
 		"switch_delay=",
 };
+const String SETTINGS_WIFI[] = {
+		"ssid=",
+		"password=",
+};
 const uint8_t DEFAULT_SETTINGS[] = {3, 20, 3, 19, 1, 0};
 const uint8_t DEFAULT_SETTINGS_MAIN[] = {1, 2};
+const String DEFAULT_SETTINGS_WIFI[] = {"", ""};
 
-void writeDefaultSettings(const char *name, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount) {
+ESP8266WebServer server(80);
+
+template<class T>
+void writeDefaultSettings(const char *name, const String *settings, const T *defaultSettings, const uint8_t settingsCount) {
 	sdfat::File settingsFile;
 	settingsFile.open(name, sdfat::O_WRONLY | sdfat::O_CREAT | sdfat::O_TRUNC);
 	for (uint8_t i = 0; i < settingsCount; i++)
@@ -38,7 +46,18 @@ void writeDefaultSettings(const char *name, const String *settings, const uint8_
 	settingsFile.close();
 }
 
-void readSettings(const char *name, uint8_t *settingsOut, const String *settings, const uint8_t *defaultSettings, const uint8_t settingsCount) {
+template<class T>
+T convertString(String string) {
+	return string.toInt();
+}
+
+template<>
+String convertString<String>(String string) {
+	return string;
+}
+
+template<class T>
+void readSettings(const char *name, T *settingsOut, const String *settings, const T *defaultSettings, const uint8_t settingsCount) {
 	sdfat::File settingsFile;
 	boolean validFile = true;
 	if (settingsFile.open(name, sdfat::O_RDONLY)) {
@@ -63,7 +82,7 @@ void readSettings(const char *name, uint8_t *settingsOut, const String *settings
 				break;
 			}
 
-			settingsOut[i] = text.substring(0, crlfIndex).toInt();
+			settingsOut[i] = convertString<T>(text.substring(0, crlfIndex));
 		}
 
 		settingsFile.close();
@@ -72,7 +91,7 @@ void readSettings(const char *name, uint8_t *settingsOut, const String *settings
 	}
 
 	if (!validFile)
-		writeDefaultSettings(name, settings, defaultSettings, settingsCount);
+		writeDefaultSettings<T>(name, settings, defaultSettings, settingsCount);
 }
 
 void openAndIncrementFolder() {
@@ -96,11 +115,20 @@ void openAndIncrementFolder() {
 	}
 
 	uint8_t settingValues[SETTINGS_COUNT];
-	readSettings(name, settingValues, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
+	readSettings<uint8_t>(name, settingValues, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
 
 	front.setScaleCrop(settingValues[0], settingValues[1]);
 	side.setScaleCrop(settingValues[2], settingValues[3]);
 	back.setScaleCrop(settingValues[4], settingValues[5]);
+}
+
+String getContentType(String
+					  filename) {
+	if (filename.endsWith(".html")) return "text/html";
+	else if (filename.endsWith(".css")) return "text/css";
+	else if (filename.endsWith(".js")) return "application/javascript";
+	else if (filename.endsWith(".ico")) return "image/x-icon";
+	else return "text/plain";
 }
 
 void setup() {
@@ -108,10 +136,43 @@ void setup() {
 	side.display.begin();
 	back.display.begin();
 
+	// sd card
 	if (!sd.begin(D2, SPI_HALF_SPEED)) {
 		front.display.setFont(u8x8_font_5x7_f);
 		front.display.drawString(0, 0, "SD card initialization failed.");
 		while (true) {
+		}
+	}
+
+	SPIFFS.begin();
+
+	// wifi
+	String settingValuesWifi[SETTINGS_WIFI_COUNT];
+	readSettings<String>("wifi.txt", settingValuesWifi, SETTINGS_WIFI, DEFAULT_SETTINGS_WIFI, SETTINGS_WIFI_COUNT);
+	WiFi.begin(settingValuesWifi[0], settingValuesWifi[1]);
+	for (uint8_t i = 0; i < 20; i++) {
+		if (WiFi.status() != WL_CONNECTED) {
+			delay(500);
+			front.display.setFont(u8x8_font_5x7_f);
+			char connecting[128];
+			sprintf(connecting, "Connecting to %s...", settingValuesWifi[0].c_str());
+			front.display.drawString(0, 0, connecting);
+		} else {
+			server.onNotFound([]() {
+				String path = server.uri();
+				if (!SPIFFS.exists(path)) {
+					path = "/index.html";
+				}
+				File file = SPIFFS.open(path, "r");
+				size_t sent = server.streamFile(file, getContentType(path));
+				file.close();
+			});
+			server.begin();
+			char connected[128];
+			sprintf(connected, "http://%s", WiFi.localIP().toString().c_str());
+			front.display.clear();
+			front.display.drawString(0, 0, connected);
+			break;
 		}
 	}
 
@@ -131,11 +192,11 @@ void setup() {
 		if (settingsFile.open(name, sdfat::O_RDONLY))
 			settingsFile.close();
 		else
-			writeDefaultSettings(name, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
+			writeDefaultSettings<uint8_t>(name, SETTINGS, DEFAULT_SETTINGS, SETTINGS_COUNT);
 	}
 
 	uint8_t settingValues[SETTINGS_MAIN_COUNT];
-	readSettings("global_settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
+	readSettings<uint8_t>("global_settings.txt", settingValues, SETTINGS_MAIN, DEFAULT_SETTINGS_MAIN, SETTINGS_MAIN_COUNT);
 	scrollMode = settingValues[0];
 	switchDelay = settingValues[1];
 
@@ -144,6 +205,7 @@ void setup() {
 
 void loop() {
 	for (uint8_t j = 0; j < 3; j++) {
+		server.handleClient();
 		front.loadBmp();
 		side.loadBmp();
 		back.loadBmp();
