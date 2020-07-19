@@ -68,47 +68,48 @@
 }
 
 body {
-	-webkit-align-content: center;
-	-ms-flex-line-pack: center;
-	align-content: center;
 	background-color: var(--backgroundColor);
 	color: var(--textColor);
-	padding: 2em;
-	text-align: center;
+	margin: 0;
 }
 
 p {
 	font-size: var(--textSize);
 }
 
-a {
+.row {
+	display: flex;
+	height: 100%;
+}
+
+.menu {
+	background: var(--accentColorDisabled);
+	text-align: center;
+}
+
+.content {
+	flex: 100%;
+	padding: 1em;
+	text-align: center;
+}
+
+.tab {
+	background: var(--accentColor);
+	color: white;
 	cursor: pointer;
-	color: var(--textColorLink);
-	text-decoration: underline;
+	margin: 0;
+	padding: 1em;
+	text-align: center;
+	transition: background 0.1s;
+	width: 10em;
 }
 
-a:hover {
-	color: var(--accentColorLinkHover);
+.tab:hover {
+	background: var(--accentColorButtonHover);
 }
 
-a:active {
-	color: var(--accentColor);
-}
-
-a.no_underline {
-	text-decoration: none;
-}
-
-input {
-	margin: 0.25em;
-}
-
-.align_left {
-	margin: auto;
-	text-align: left;
-	width: -webkit-fit-content;
-	width: -moz-fit-content;
-	width: fit-content;
+.tab.selected {
+	background: var(--accentColorButtonHover);
 }
 
 .input_button {
@@ -123,7 +124,6 @@ input {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: center;
-	width: 12em;
 }
 
 .input_button:hover {
@@ -147,10 +147,4 @@ input {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: left;
-	width: 12em;
-}
-
-.input_text:disabled {
-	border: 1px solid var(--textColorDisabled);
-	color: var(--textColorDisabled);
 }
