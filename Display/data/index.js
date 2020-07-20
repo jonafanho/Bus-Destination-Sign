@@ -91,32 +91,16 @@ function setup() {
 		constructor(props) {
 			super(props);
 			this.uploadImage = this.uploadImage.bind(this);
-			this.state = {file: ""};
+			this.state = {file: "", height: 0, width: 0, x: 0, y: 0, scale: 1, threshold: 128};
 		}
 
 		uploadImage(event) {
-			const canvasHeight = this.props.height;
-			const canvasWidth = this.props.width;
-			const fileList = document.querySelector("#image_upload").files;
+			const fileList = document.querySelector("#button_upload").files;
 			if (fileList.length > 0) {
 				const reader = new FileReader();
-				reader.onload = (e) => {
-					this.setState({file: e.target.result});
-					const canvasContext = document.querySelector("#image_canvas").getContext("2d");
-					const image = new Image();
-					image.onload = () => {
-						canvasContext.drawImage(image, 0, 0);
-						const imgData = canvasContext.getImageData(0, 0, canvasWidth, canvasHeight);
-						for (let i = 0; i < imgData.data.length; i += 4) {
-							const color = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
-							imgData.data[i] = color;
-							imgData.data[i + 1] = color;
-							imgData.data[i + 2] = color;
-							imgData.data[i + 3] = 255;
-						}
-						canvasContext.putImageData(imgData, 0, 0);
-					};
-					image.src = e.target.result;
+				reader.onload = (progressEvent) => {
+					this.setState({file: progressEvent.target.result});
+					this.updateImage();
 				};
 				reader.readAsDataURL(fileList[0]);
 			} else {
@@ -124,18 +108,114 @@ function setup() {
 			}
 		}
 
+		updateImageParameter(parameter, value) {
+			const updateDictionary = {};
+			updateDictionary[parameter] = value;
+			this.setState(updateDictionary);
+			this.updateImage();
+		}
+
+		updateImage() {
+			const canvasHeight = this.props["height"];
+			const canvasWidth = this.props["width"];
+			const canvasContext = document.querySelector("#canvas_hidden").getContext("2d");
+			const image = new Image();
+			image.onload = () => {
+				this.setState({height: image.height, width: image.width});
+				canvasContext.drawImage(image, 0, 0);
+				const imgData = canvasContext.getImageData(this.state.x, this.state.y, canvasWidth, canvasHeight);
+				for (let i = 0; i < imgData.data.length; i += 4) {
+					const color = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) > this.state.threshold * 3 ? 255 : 0;
+					imgData.data[i] = color;
+					imgData.data[i + 1] = color;
+					imgData.data[i + 2] = color;
+					imgData.data[i + 3] = 255;
+				}
+				document.querySelector("#canvas_edited").getContext("2d").putImageData(imgData, 0, 0);
+			};
+			image.src = this.state.file;
+		}
+
 		render() {
 			return (
 				<div>
-					<input type="file" id="image_upload" accept="image/*" name="filename"/>
-					<label htmlFor="image_upload">Choose an Image</label>
+					<input type="file" id="button_upload" accept="image/*" name="filename"/>
+					<label htmlFor="button_upload">Choose an Image</label>
 					<br/>
 					<input className="input_button" type="submit" onClick={this.uploadImage}/>
 					<br/>
-					<img hidden={this.state.file === ""} id="image_preview" src={this.state.file} alt="Source Image"/>
-					<br/>
-					<canvas hidden={this.state.file === ""} id="image_canvas" height={this.props.height}
-							width={this.props.width}/>
+					<div hidden={this.state.file === ""}>
+						<img src={this.state.file} alt="Source Image"/>
+						<br/>
+						<Slider
+							title="Threshold"
+							min={0}
+							max={255}
+							default={128}
+							onChange={(value) => this.updateImageParameter("threshold", value)}
+						/>
+						<Slider
+							title="X Offset"
+							min={0}
+							max={this.state.width - this.props["width"]}
+							default={0}
+							onChange={(value) => this.updateImageParameter("x", value)}
+						/>
+						<Slider
+							title="Y Offset"
+							min={0}
+							max={this.state.height - this.props["height"]}
+							default={0}
+							onChange={(value) => this.updateImageParameter("y", value)}
+						/>
+						<br/>
+						<canvas
+							hidden
+							id="canvas_hidden"
+							height={this.state.height}
+							width={this.state.width}
+						/>
+						<canvas id="canvas_edited" height={this.props["height"]} width={this.props["width"]}/>
+						<br/>
+					</div>
+				</div>
+			);
+		}
+	}
+
+	class Slider extends React.Component {
+
+		constructor(props) {
+			super(props);
+			this.updateValue = this.updateValue.bind(this);
+			this.state = {value: props["default"]};
+		}
+
+		updateValue(event) {
+			const valueString = event.target.value.toString().replace(/[^0-9]/g, "");
+			const value = valueString === "" ? this.props["min"] - 1 : Math.min(Math.max(parseInt(valueString), this.props["min"]), this.props["max"]);
+			this.setState({value: value});
+			this.props["onChange"](Math.max(value, this.props["min"]));
+		}
+
+		render() {
+			return (
+				<div>
+					<h2>{this.props["title"]}</h2>
+					<input
+						className="input_text"
+						type="text"
+						value={this.state.value < this.props["min"] ? "" : this.state.value}
+						onChange={this.updateValue}
+						placeholder={this.props["min"]}
+					/>
+					<input
+						type="range"
+						min={this.props["min"]}
+						max={this.props["max"]}
+						value={this.state.value}
+						onChange={this.updateValue}
+					/>
 				</div>
 			);
 		}
