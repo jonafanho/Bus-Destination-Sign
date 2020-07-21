@@ -85,6 +85,7 @@ a {
 	cursor: pointer;
 	color: var(--textColorLink);
 	text-decoration: underline;
+	transition: color 0.1s;
 }
 
 a:hover {
@@ -110,18 +111,38 @@ table {
 	text-align: center;
 }
 
-th, td {
-	padding: 1em 0.5em;
-	white-space: pre-line;
+table, th, td {
+	border-collapse: collapse;
 }
 
-td.min_width {
+th, td {
+	padding: 0.5em 0.25em;
+}
+
+td.text_width {
+	min-width: 9em;
+}
+
+td.min_width_3 {
 	min-width: 3em;
 }
 
-canvas {
+td.min_width_4 {
+	min-width: 4em;
+}
+
+td.fill_width {
+	max-width: 0;
+	width: 100%;
+}
+
+canvas.extra_borders {
 	border-bottom: 1px solid black;
 	border-right: 1px solid black;
+}
+
+canvas.all_borders {
+	border: 1px solid black;
 }
 
 img {
@@ -177,6 +198,7 @@ img {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: center;
+	transition: background 0.1s;
 }
 
 .input_button:hover {
@@ -200,6 +222,7 @@ img {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: left;
+	width: 100%;
 }
 
 .input_file::-webkit-file-upload-button {
@@ -228,6 +251,7 @@ img {
 	margin: 0.25em;
 	padding: 1em;
 	text-align: center;
+	transition: background 0.1s;
 }
 
 .input_file:hover + label {
@@ -238,9 +262,10 @@ img {
 	-webkit-appearance: none;
 	appearance: none;
 	background: var(--accentColorDisabled);
+	margin: 0;
 	outline: none;
 	transition: background 0.1s;
-	width: 50em;
+	width: 100%;
 }
 
 .slider:hover {
@@ -263,11 +288,20 @@ img {
 	width: 1em;
 }
 
-.canvas_box {
+.bottom_line {
+	border-bottom: 1px solid var(--textColorDisabled);
+}
+
+.scroll_box {
+	max-width: 100%;
+	overflow-x: scroll;
+	white-space: nowrap;
+	width: fit-content;
+}
+
+.scroll_box.canvas_box {
 	border: 1px white solid;
 	box-sizing: border-box;
 	margin: auto;
-	max-width: 100%;
 	overflow-x: auto;
-	width: fit-content;
 }

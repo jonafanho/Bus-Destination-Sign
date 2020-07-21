@@ -15,7 +15,7 @@ function setup() {
 			this.addDisplay = this.addDisplay.bind(this);
 			this.selectDisplay = this.selectDisplay.bind(this);
 			this.renameDisplay = this.renameDisplay.bind(this);
-			this.state = {displays: [], selected: -1};
+			this.state = {displays: [], selected: -1, selectedImage: -1};
 		}
 
 		addDisplay(event) {
@@ -75,11 +75,47 @@ function setup() {
 									value={getArray("name", selectedDisplay, "")}
 									onChange={this.renameDisplay}
 									placeholder="Name"
-									maxLength="20"
 								/>
 							</label>
 							<br/>
-							<ImageUploader height={FRONT_HEIGHT} width={FRONT_WIDTH}/>
+							<table>
+								<tbody>
+								<tr className="bottom_line">
+									<td className="min_width_4"><h2>Front</h2>256 &#215; 64</td>
+									<td className="fill_width">
+										<div className="scroll_box">
+											{getArray("front_images", selectedDisplay, []).map(image =>
+												<canvas height={64} width={256}/>
+											)}
+										</div>
+									</td>
+									<td><h1><a className="no_underline">+</a></h1></td>
+								</tr>
+								<tr className="bottom_line">
+									<td className="min_width_4"><h2>Side</h2>256 &#215; 64</td>
+									<td className="fill_width">
+										<div className="scroll_box">
+											{getArray("side_images", selectedDisplay, []).map(image =>
+												<canvas height={64} width={256}/>
+											)}
+										</div>
+									</td>
+									<td><h1><a className="no_underline">+</a></h1></td>
+								</tr>
+								<tr className="bottom_line">
+									<td className="min_width_4"><h2>Back</h2>128 &#215; 64</td>
+									<td className="fill_width">
+										<div className="scroll_box">
+											{getArray("back_images", selectedDisplay, []).map(image =>
+												<canvas height={64} width={256}/>
+											)}
+										</div>
+									</td>
+									<td><h1><a className="no_underline">+</a></h1></td>
+								</tr>
+								</tbody>
+							</table>
+							<ImageEditor height={FRONT_HEIGHT} width={FRONT_WIDTH}/>
 						</div>
 					</div>
 				</div>
@@ -87,7 +123,7 @@ function setup() {
 		}
 	}
 
-	class ImageUploader extends React.Component {
+	class ImageEditor extends React.Component {
 
 		constructor(props) {
 			super(props);
@@ -101,6 +137,10 @@ function setup() {
 				scale_up: 1,
 				scale_down: 1,
 				threshold: 128,
+				crop_top: 0,
+				crop_right: 0,
+				crop_bottom: 0,
+				crop_left: 0,
 				zoom: 3
 			};
 		}
@@ -144,12 +184,14 @@ function setup() {
 				const newImageData = new ImageData(zoomWidth, zoomHeight);
 				for (let row = 0; row <= zoomHeight; row++) {
 					for (let column = 0; column <= zoomWidth; column++) {
+						const actualRow = row / zoom;
+						const actualColumn = column / zoom;
 						let color;
-						if (zoom > 1 && (row % zoom === 0 || column % zoom === 0)) {
+						if (zoom > 1 && (row % zoom === 0 || column % zoom === 0) || actualRow < this.state.crop_top || actualRow > height - this.state.crop_bottom || actualColumn < this.state.crop_left || actualColumn > width - this.state.crop_right) {
 							color = 0;
 						} else {
-							const index = (Math.floor(Math.floor(row / zoom) * scale) * scaleWidth + Math.floor(Math.floor(column / zoom) * scale)) * 4;
-							color = oldImageData.data[index] + oldImageData.data[index + 1] + oldImageData.data[index + 2] > this.state.threshold * 3 ? 255 : 0;
+							const index = (Math.floor(Math.floor(actualRow) * scale) * scaleWidth + Math.floor(Math.floor(actualColumn) * scale)) * 4;
+							color = oldImageData.data[index] + oldImageData.data[index + 1] + oldImageData.data[index + 2] >= this.state.threshold * 3 ? 255 : 0;
 						}
 						const index = (row * zoomWidth + column) * 4;
 						newImageData.data[index] = color;
@@ -186,27 +228,12 @@ function setup() {
 							<tbody>
 							<Slider
 								id="slider_threshold"
+								className="bottom_line"
 								title="Threshold"
 								min={0}
-								max={255}
+								max={256}
 								default={128}
 								onChange={(value) => this.updateImageParameter("threshold", value)}
-							/>
-							<Slider
-								id="slider_x"
-								title="Horizontal Offset"
-								min={-horizontalOffsetMax}
-								max={horizontalOffsetMax}
-								default={0}
-								onChange={(value) => this.updateImageParameter("x", value)}
-							/>
-							<Slider
-								id="slider_y"
-								title="Vertical Offset"
-								min={-verticalOffsetMax}
-								max={verticalOffsetMax}
-								default={0}
-								onChange={(value) => this.updateImageParameter("y", value)}
 							/>
 							<Slider
 								id="slider_scale_up"
@@ -218,6 +245,7 @@ function setup() {
 							/>
 							<Slider
 								id="slider_scale_down"
+								className="bottom_line"
 								title="Scale Down"
 								min={1}
 								max={30}
@@ -225,7 +253,58 @@ function setup() {
 								onChange={(value) => this.updateImageParameter("scale_down", value)}
 							/>
 							<Slider
+								id="slider_x"
+								title="Horizontal Offset"
+								min={-horizontalOffsetMax}
+								max={horizontalOffsetMax}
+								default={0}
+								onChange={(value) => this.updateImageParameter("x", value)}
+							/>
+							<Slider
+								id="slider_y"
+								className="bottom_line"
+								title="Vertical Offset"
+								min={-verticalOffsetMax}
+								max={verticalOffsetMax}
+								default={0}
+								onChange={(value) => this.updateImageParameter("y", value)}
+							/>
+							<Slider
+								id="crop_top"
+								title="Crop Top"
+								min={0}
+								max={this.props["height"]}
+								default={0}
+								onChange={(value) => this.updateImageParameter("crop_top", value)}
+							/>
+							<Slider
+								id="crop_right"
+								title="Crop Right"
+								min={0}
+								max={this.props["width"]}
+								default={0}
+								onChange={(value) => this.updateImageParameter("crop_right", value)}
+							/>
+							<Slider
+								id="crop_bottom"
+								title="Crop Bottom"
+								min={0}
+								max={this.props["height"]}
+								default={0}
+								onChange={(value) => this.updateImageParameter("crop_bottom", value)}
+							/>
+							<Slider
+								id="crop_left"
+								className="bottom_line"
+								title="Crop Left"
+								min={0}
+								max={this.props["width"]}
+								default={0}
+								onChange={(value) => this.updateImageParameter("crop_left", value)}
+							/>
+							<Slider
 								id="slider_zoom"
+								className="bottom_line"
 								title="Zoom"
 								min={1}
 								max={10}
@@ -234,8 +313,10 @@ function setup() {
 							/>
 							</tbody>
 						</table>
-						<div className="canvas_box">
+						<br/>
+						<div className="scroll_box canvas_box">
 							<canvas
+								className={zoom > 1 ? "extra_borders" : "all_borders"}
 								id="canvas_edited"
 								height={this.props["height"] * zoom}
 								width={this.props["width"] * zoom}
@@ -281,10 +362,10 @@ function setup() {
 
 		render() {
 			return (
-				<tr>
-					<td><label htmlFor={this.props["id"]}>{this.props["title"]}</label></td>
+				<tr className={this.props["className"]}>
+					<td className="text_width"><label htmlFor={this.props["id"]}>{this.props["title"]}</label></td>
 					<td><a className="no_underline" onClick={this.decrementValue}>&#9664;</a></td>
-					<td>
+					<td className="fill_width">
 						<input
 							className="slider"
 							type="range"
@@ -296,8 +377,8 @@ function setup() {
 						/>
 					</td>
 					<td><a className="no_underline" onClick={this.incrementValue}>&#9654;</a></td>
-					<td className="min_width"><p>{this.state.value}</p></td>
-					<td className="min_width">
+					<td className="min_width_3"><p>{this.state.value}</p></td>
+					<td className="min_width_3">
 						<a
 							className={parseInt(this.state.value) === this.props["default"] ? "disabled" : ""}
 							onClick={this.resetValue}
