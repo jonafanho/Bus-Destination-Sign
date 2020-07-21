@@ -78,6 +78,7 @@ function setup() {
 									maxLength="20"
 								/>
 							</label>
+							<br/>
 							<ImageUploader height={FRONT_HEIGHT} width={FRONT_WIDTH}/>
 						</div>
 					</div>
@@ -163,65 +164,83 @@ function setup() {
 		}
 
 		render() {
+			const scale = this.state.scale_down / this.state.scale_up;
+			const horizontalOffsetMax = Math.ceil((this.state.width + this.props["width"] * scale) / 2);
+			const verticalOffsetMax = Math.ceil((this.state.height + this.props["height"] * scale) / 2);
+			const file = this.state.file;
+			const zoom = this.state.zoom;
 			return (
 				<div>
-					<input type="file" id="button_upload" accept="image/*" name="filename"/>
-					<label htmlFor="button_upload">Choose an Image</label>
-					<br/>
-					<input className="input_button" type="submit" onClick={this.uploadImage}/>
-					<br/>
-					<div hidden={this.state.file === ""}>
-						<img src={this.state.file} alt="Source Image"/>
-						<br/>
-						<Slider
-							title="Threshold"
-							min={0}
-							max={255}
-							default={128}
-							onChange={(value) => this.updateImageParameter("threshold", value)}
-						/>
-						<Slider
-							title="X Offset"
-							min={-Math.ceil(this.state.width / 2)}
-							max={Math.ceil(this.state.width / 2)}
-							default={0}
-							onChange={(value) => this.updateImageParameter("x", value)}
-						/>
-						<Slider
-							title="Y Offset"
-							min={-Math.ceil(this.state.height / 2)}
-							max={Math.ceil(this.state.height / 2)}
-							default={0}
-							onChange={(value) => this.updateImageParameter("y", value)}
-						/>
-						<Slider
-							title="Scale Up"
-							min={1}
-							max={10}
-							default={1}
-							onChange={(value) => this.updateImageParameter("scale_up", value)}
-						/>
-						<Slider
-							title="Scale Down"
-							min={1}
-							max={10}
-							default={1}
-							onChange={(value) => this.updateImageParameter("scale_down", value)}
-						/>
-						<Slider
-							title="Zoom"
-							min={1}
-							max={10}
-							default={3}
-							onChange={(value) => this.updateImageParameter("zoom", value)}
-						/>
-						<br/>
-						<canvas
-							id="canvas_edited"
-							height={this.props["height"] * this.state.zoom}
-							width={this.props["width"] * this.state.zoom}
-						/>
-						<br/>
+					<input
+						className="input_file"
+						type="file"
+						id="button_upload"
+						accept="image/*"
+						name="filename"
+						onChange={this.uploadImage}
+					/>
+					<label htmlFor="button_upload">{file === "" ? "Choose an Image" : "Change Image"}</label>
+					<div hidden={file === ""}>
+						<img width="10%" src={file} alt="Source Image"/>
+						<table>
+							<tbody>
+							<Slider
+								id="slider_threshold"
+								title="Threshold"
+								min={0}
+								max={255}
+								default={128}
+								onChange={(value) => this.updateImageParameter("threshold", value)}
+							/>
+							<Slider
+								id="slider_x"
+								title="Horizontal Offset"
+								min={-horizontalOffsetMax}
+								max={horizontalOffsetMax}
+								default={0}
+								onChange={(value) => this.updateImageParameter("x", value)}
+							/>
+							<Slider
+								id="slider_y"
+								title="Vertical Offset"
+								min={-verticalOffsetMax}
+								max={verticalOffsetMax}
+								default={0}
+								onChange={(value) => this.updateImageParameter("y", value)}
+							/>
+							<Slider
+								id="slider_scale_up"
+								title="Scale Up"
+								min={1}
+								max={30}
+								default={1}
+								onChange={(value) => this.updateImageParameter("scale_up", value)}
+							/>
+							<Slider
+								id="slider_scale_down"
+								title="Scale Down"
+								min={1}
+								max={30}
+								default={1}
+								onChange={(value) => this.updateImageParameter("scale_down", value)}
+							/>
+							<Slider
+								id="slider_zoom"
+								title="Zoom"
+								min={1}
+								max={10}
+								default={3}
+								onChange={(value) => this.updateImageParameter("zoom", value)}
+							/>
+							</tbody>
+						</table>
+						<div className="canvas_box">
+							<canvas
+								id="canvas_edited"
+								height={this.props["height"] * zoom}
+								width={this.props["width"] * zoom}
+							/>
+						</div>
 					</div>
 				</div>
 			);
@@ -233,28 +252,58 @@ function setup() {
 		constructor(props) {
 			super(props);
 			this.updateValue = this.updateValue.bind(this);
+			this.resetValue = this.resetValue.bind(this);
+			this.incrementValue = this.incrementValue.bind(this);
+			this.decrementValue = this.decrementValue.bind(this);
 			this.state = {value: props["default"]};
 		}
 
 		updateValue(event) {
-			const value = event.target.value;
+			this.setValue(event.target.value);
+		}
+
+		resetValue(event) {
+			this.setValue(this.props["default"]);
+		}
+
+		incrementValue(event) {
+			this.setValue(Math.min(parseInt(this.state.value) + 1, this.props["max"]));
+		}
+
+		decrementValue(event) {
+			this.setValue(Math.max(parseInt(this.state.value) - 1, this.props["min"]));
+		}
+
+		setValue(value) {
 			this.setState({value: value});
 			this.props["onChange"](parseInt(value));
 		}
 
 		render() {
 			return (
-				<div>
-					<h2>{this.props["title"]}</h2>
-					<p>{this.state.value}</p>
-					<input
-						type="range"
-						min={this.props["min"]}
-						max={this.props["max"]}
-						value={this.state.value}
-						onChange={this.updateValue}
-					/>
-				</div>
+				<tr>
+					<td><label htmlFor={this.props["id"]}>{this.props["title"]}</label></td>
+					<td><a className="no_underline" onClick={this.decrementValue}>&#9664;</a></td>
+					<td>
+						<input
+							className="slider"
+							type="range"
+							id={this.props["id"]}
+							min={this.props["min"]}
+							max={this.props["max"]}
+							value={this.state.value}
+							onChange={this.updateValue}
+						/>
+					</td>
+					<td><a className="no_underline" onClick={this.incrementValue}>&#9654;</a></td>
+					<td className="min_width"><p>{this.state.value}</p></td>
+					<td className="min_width">
+						<a
+							className={parseInt(this.state.value) === this.props["default"] ? "disabled" : ""}
+							onClick={this.resetValue}
+						>Reset</a>
+					</td>
+				</tr>
 			);
 		}
 	}

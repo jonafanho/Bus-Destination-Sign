@@ -77,6 +77,57 @@ p {
 	font-size: var(--textSize);
 }
 
+input {
+	margin: 0.25em;
+}
+
+a {
+	cursor: pointer;
+	color: var(--textColorLink);
+	text-decoration: underline;
+}
+
+a:hover {
+	color: var(--accentColorLinkHover);
+}
+
+a:active {
+	color: var(--accentColor);
+}
+
+a.no_underline {
+	text-decoration: none;
+}
+
+a.disabled {
+	color: var(--textColorDisabled);
+	cursor: auto;
+	text-decoration: none;
+}
+
+table {
+	margin: auto;
+	text-align: center;
+}
+
+th, td {
+	padding: 1em 0.5em;
+	white-space: pre-line;
+}
+
+td.min_width {
+	min-width: 3em;
+}
+
+canvas {
+	border-bottom: 1px solid black;
+	border-right: 1px solid black;
+}
+
+img {
+	border: 1px solid var(--textColor);
+}
+
 .row {
 	display: flex;
 	height: 100%;
@@ -89,7 +140,9 @@ p {
 
 .content {
 	flex: 100%;
-	padding: 1em;
+	max-height: 100%;
+	overflow-y: auto;
+	padding: 2em;
 	text-align: center;
 }
 
@@ -147,4 +200,74 @@ p {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: left;
+}
+
+.input_file::-webkit-file-upload-button {
+	visibility: hidden;
+}
+
+.input_file {
+	height: 0.1px;
+	width: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.input_file + label {
+	background-color: var(--accentColor);
+	border: none;
+	-webkit-border-radius: 0.5em;
+	-moz-border-radius: 0.5em;
+	border-radius: 0.5em;
+	color: white;
+	cursor: pointer;
+	display: inline-block;
+	font-size: var(--textSize);
+	margin: 0.25em;
+	padding: 1em;
+	text-align: center;
+}
+
+.input_file:hover + label {
+	background-color: var(--accentColorButtonHover);
+}
+
+.slider {
+	-webkit-appearance: none;
+	appearance: none;
+	background: var(--accentColorDisabled);
+	outline: none;
+	transition: background 0.1s;
+	width: 50em;
+}
+
+.slider:hover {
+	background: var(--accentColor);
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	background: var(--textColorLink);
+	cursor: pointer;
+	height: 1em;
+	width: 1em;
+}
+
+.slider::-moz-range-thumb {
+	background: var(--textColorLink);
+	cursor: pointer;
+	height: 1em;
+	width: 1em;
+}
+
+.canvas_box {
+	border: 1px white solid;
+	box-sizing: border-box;
+	margin: auto;
+	max-width: 100%;
+	overflow-x: auto;
+	width: fit-content;
 }
