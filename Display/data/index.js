@@ -91,7 +91,17 @@ function setup() {
 		constructor(props) {
 			super(props);
 			this.uploadImage = this.uploadImage.bind(this);
-			this.state = {file: "", height: 0, width: 0, x: 0, y: 0, scale: 1, threshold: 128};
+			this.state = {
+				file: "",
+				height: 0,
+				width: 0,
+				x: 0,
+				y: 0,
+				scale_up: 1,
+				scale_down: 1,
+				threshold: 128,
+				zoom: 3
+			};
 		}
 
 		uploadImage(event) {
@@ -116,22 +126,38 @@ function setup() {
 		}
 
 		updateImage() {
-			const canvasHeight = this.props["height"];
-			const canvasWidth = this.props["width"];
-			const canvasContext = document.querySelector("#canvas_hidden").getContext("2d");
+			const height = this.props["height"];
+			const width = this.props["width"];
 			const image = new Image();
 			image.onload = () => {
 				this.setState({height: image.height, width: image.width});
+				const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
 				canvasContext.drawImage(image, 0, 0);
-				const imgData = canvasContext.getImageData(this.state.x, this.state.y, canvasWidth, canvasHeight);
-				for (let i = 0; i < imgData.data.length; i += 4) {
-					const color = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) > this.state.threshold * 3 ? 255 : 0;
-					imgData.data[i] = color;
-					imgData.data[i + 1] = color;
-					imgData.data[i + 2] = color;
-					imgData.data[i + 3] = 255;
+				const scale = this.state.scale_down / this.state.scale_up;
+				const scaleHeight = Math.floor(height * scale);
+				const scaleWidth = Math.floor(width * scale);
+				const oldImageData = canvasContext.getImageData(this.state.x + (image.width - scaleWidth) / 2, this.state.y + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight);
+				const zoom = this.state.zoom;
+				const zoomHeight = height * zoom;
+				const zoomWidth = width * zoom;
+				const newImageData = new ImageData(zoomWidth, zoomHeight);
+				for (let row = 0; row <= zoomHeight; row++) {
+					for (let column = 0; column <= zoomWidth; column++) {
+						let color;
+						if (zoom > 1 && (row % zoom === 0 || column % zoom === 0)) {
+							color = 0;
+						} else {
+							const index = (Math.floor(Math.floor(row / zoom) * scale) * scaleWidth + Math.floor(Math.floor(column / zoom) * scale)) * 4;
+							color = oldImageData.data[index] + oldImageData.data[index + 1] + oldImageData.data[index + 2] > this.state.threshold * 3 ? 255 : 0;
+						}
+						const index = (row * zoomWidth + column) * 4;
+						newImageData.data[index] = color;
+						newImageData.data[index + 1] = color;
+						newImageData.data[index + 2] = color;
+						newImageData.data[index + 3] = 255;
+					}
 				}
-				document.querySelector("#canvas_edited").getContext("2d").putImageData(imgData, 0, 0);
+				document.querySelector("#canvas_edited").getContext("2d").putImageData(newImageData, 0, 0);
 			};
 			image.src = this.state.file;
 		}
@@ -156,26 +182,45 @@ function setup() {
 						/>
 						<Slider
 							title="X Offset"
-							min={0}
-							max={this.state.width - this.props["width"]}
+							min={-Math.ceil(this.state.width / 2)}
+							max={Math.ceil(this.state.width / 2)}
 							default={0}
 							onChange={(value) => this.updateImageParameter("x", value)}
 						/>
 						<Slider
 							title="Y Offset"
-							min={0}
-							max={this.state.height - this.props["height"]}
+							min={-Math.ceil(this.state.height / 2)}
+							max={Math.ceil(this.state.height / 2)}
 							default={0}
 							onChange={(value) => this.updateImageParameter("y", value)}
 						/>
+						<Slider
+							title="Scale Up"
+							min={1}
+							max={10}
+							default={1}
+							onChange={(value) => this.updateImageParameter("scale_up", value)}
+						/>
+						<Slider
+							title="Scale Down"
+							min={1}
+							max={10}
+							default={1}
+							onChange={(value) => this.updateImageParameter("scale_down", value)}
+						/>
+						<Slider
+							title="Zoom"
+							min={1}
+							max={10}
+							default={3}
+							onChange={(value) => this.updateImageParameter("zoom", value)}
+						/>
 						<br/>
 						<canvas
-							hidden
-							id="canvas_hidden"
-							height={this.state.height}
-							width={this.state.width}
+							id="canvas_edited"
+							height={this.props["height"] * this.state.zoom}
+							width={this.props["width"] * this.state.zoom}
 						/>
-						<canvas id="canvas_edited" height={this.props["height"]} width={this.props["width"]}/>
 						<br/>
 					</div>
 				</div>
@@ -192,23 +237,16 @@ function setup() {
 		}
 
 		updateValue(event) {
-			const valueString = event.target.value.toString().replace(/[^0-9]/g, "");
-			const value = valueString === "" ? this.props["min"] - 1 : Math.min(Math.max(parseInt(valueString), this.props["min"]), this.props["max"]);
+			const value = event.target.value;
 			this.setState({value: value});
-			this.props["onChange"](Math.max(value, this.props["min"]));
+			this.props["onChange"](parseInt(value));
 		}
 
 		render() {
 			return (
 				<div>
 					<h2>{this.props["title"]}</h2>
-					<input
-						className="input_text"
-						type="text"
-						value={this.state.value < this.props["min"] ? "" : this.state.value}
-						onChange={this.updateValue}
-						placeholder={this.props["min"]}
-					/>
+					<p>{this.state.value}</p>
 					<input
 						type="range"
 						min={this.props["min"]}
