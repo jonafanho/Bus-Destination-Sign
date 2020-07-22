@@ -146,8 +146,8 @@ canvas.all_borders {
 }
 
 img {
-	border: 1px solid var(--textColor);
-	max-width: 100%;
+	border: 2px solid var(--textColor);
+	max-height: 5em;
 }
 
 .row {
@@ -294,8 +294,12 @@ img {
 	width: fit-content;
 }
 
+.canvas_box {
+	border: 2px solid white;
+	display: inline-block;
+}
+
 .scroll_box.canvas_box {
-	border: 1px white solid;
 	box-sizing: border-box;
 	margin: auto;
 	overflow-x: auto;
