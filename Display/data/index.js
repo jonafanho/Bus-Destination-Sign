@@ -15,7 +15,8 @@ function setup() {
 			this.addDisplay = this.addDisplay.bind(this);
 			this.selectDisplay = this.selectDisplay.bind(this);
 			this.renameDisplay = this.renameDisplay.bind(this);
-			this.state = {displays: [], selected: -1, selectedImage: -1};
+			this.uploadImage = this.uploadImage.bind(this);
+			this.state = {displays: [], selected_group: -1, selected_image: -1};
 		}
 
 		addDisplay(event) {
@@ -26,11 +27,11 @@ function setup() {
 				side_images: [],
 				back_images: [],
 			})
-			this.setState({displays: currentDisplays, selected: currentDisplays.length - 1});
+			this.setState({displays: currentDisplays, selected_group: currentDisplays.length - 1});
 		}
 
 		selectDisplay(event) {
-			this.setState({selected: parseInt(event.target.id.replace(/tab_/g, ""))});
+			this.setState({selected_group: parseInt(event.target.id.replace(/tab_/g, ""))});
 		}
 
 		renameDisplay(event) {
@@ -39,12 +40,26 @@ function setup() {
 
 		changeValue(name, value) {
 			const currentDisplays = this.state.displays;
-			currentDisplays[this.state.selected][name] = value;
+			currentDisplays[this.state.selected_group][name] = value;
 			this.setState({displays: currentDisplays});
 		}
 
+		uploadImage(event) {
+			const fileList = document.querySelector(`#${event.target.id}`).files;
+			const name = event.target.id.replace(/button_upload_/g, "");
+			if (fileList.length > 0) {
+				const reader = new FileReader();
+				reader.onload = (progressEvent) => {
+					const displayList = this.state.displays[this.state.selected_group][name];
+					displayList.push(progressEvent.target.result);
+					this.changeValue(name, displayList);
+				};
+				reader.readAsDataURL(fileList[0]);
+			}
+		}
+
 		render() {
-			const selectedDisplay = this.state.displays[this.state.selected];
+			const selectedDisplay = this.state.displays[this.state.selected_group];
 			return (
 				<div className="row">
 					<div className="menu">
@@ -53,7 +68,7 @@ function setup() {
 							return (
 								<h2
 									key={index}
-									className={`tab ${this.state.selected === index ? "selected" : ""}`}
+									className={`tab ${this.state.selected_group === index ? "selected" : ""}`}
 									id={`tab_${index}`}
 									onClick={this.selectDisplay}
 								>{displayName === "" ? `Group ${index}` : displayName}</h2>
@@ -62,76 +77,114 @@ function setup() {
 						<h2 className="tab" onClick={this.addDisplay}>+</h2>
 					</div>
 					<div className="content">
-						<div hidden={this.state.selected !== -1}>
-							<h1>Let's get started with your Bus Destination Sign.</h1>
-							<p>Add a display group using the + button on the left.</p>
-						</div>
-						<div hidden={this.state.selected === -1}>
-							<label>
-								<input
-									id="input_name"
-									className="input_text"
-									type="text"
-									value={getArray("name", selectedDisplay, "")}
-									onChange={this.renameDisplay}
-									placeholder="Name"
+						{this.state.selected_group === -1 ?
+							<div>
+								<h1>Let's get started with your Bus Destination Sign.</h1>
+								<p>Add a display group using the + button on the left.</p>
+							</div> :
+							<div>
+								<label>
+									<input
+										id="input_name"
+										className="input_text"
+										type="text"
+										value={getArray("name", selectedDisplay, "")}
+										onChange={this.renameDisplay}
+										placeholder="Name"
+									/>
+								</label>
+								<br/>
+								<table>
+									<tbody>
+									<tr className="bottom_line">
+										<td className="min_width_4"><h2>Front</h2>256 &#215; 64</td>
+										<td className="fill_width">
+											<div className="scroll_box">
+												{[...Array(getArray("front_images", selectedDisplay, []).length)].map((u, index) =>
+													<canvas key={index} height={64} width={256}/>
+												)}
+											</div>
+										</td>
+										<td>
+											<UploadButton
+												id={"button_upload_front_images"}
+												onChange={this.uploadImage}
+											/>
+										</td>
+									</tr>
+									<tr className="bottom_line">
+										<td className="min_width_4"><h2>Side</h2>256 &#215; 64</td>
+										<td className="fill_width">
+											<div className="scroll_box">
+												{[...Array(getArray("side_images", selectedDisplay, []).length)].map((u, index) =>
+													<canvas key={index} height={64} width={256}/>
+												)}
+											</div>
+										</td>
+										<td>
+											<UploadButton
+												id={"button_upload_side_images"}
+												onChange={this.uploadImage}
+											/>
+										</td>
+									</tr>
+									<tr className="bottom_line">
+										<td className="min_width_4"><h2>Back</h2>128 &#215; 64</td>
+										<td className="fill_width">
+											<div className="scroll_box">
+												{[...Array(getArray("back_images", selectedDisplay, []).length)].map((u, index) =>
+													<canvas key={index} height={64} width={256}/>
+												)}
+											</div>
+										</td>
+										<td>
+											<UploadButton
+												id={"button_upload_back_images"}
+												onChange={this.uploadImage}
+											/>
+										</td>
+									</tr>
+									</tbody>
+								</table>
+								<br/>
+								<ImageEditor
+									file={selectedDisplay["front_images"][0]}
+									height={FRONT_HEIGHT}
+									width={FRONT_WIDTH}
 								/>
-							</label>
-							<br/>
-							<table>
-								<tbody>
-								<tr className="bottom_line">
-									<td className="min_width_4"><h2>Front</h2>256 &#215; 64</td>
-									<td className="fill_width">
-										<div className="scroll_box">
-											{getArray("front_images", selectedDisplay, []).map(image =>
-												<canvas height={64} width={256}/>
-											)}
-										</div>
-									</td>
-									<td><h1><a className="no_underline">+</a></h1></td>
-								</tr>
-								<tr className="bottom_line">
-									<td className="min_width_4"><h2>Side</h2>256 &#215; 64</td>
-									<td className="fill_width">
-										<div className="scroll_box">
-											{getArray("side_images", selectedDisplay, []).map(image =>
-												<canvas height={64} width={256}/>
-											)}
-										</div>
-									</td>
-									<td><h1><a className="no_underline">+</a></h1></td>
-								</tr>
-								<tr className="bottom_line">
-									<td className="min_width_4"><h2>Back</h2>128 &#215; 64</td>
-									<td className="fill_width">
-										<div className="scroll_box">
-											{getArray("back_images", selectedDisplay, []).map(image =>
-												<canvas height={64} width={256}/>
-											)}
-										</div>
-									</td>
-									<td><h1><a className="no_underline">+</a></h1></td>
-								</tr>
-								</tbody>
-							</table>
-							<ImageEditor height={FRONT_HEIGHT} width={FRONT_WIDTH}/>
-						</div>
+							</div>
+						}
 					</div>
 				</div>
 			);
 		}
 	}
 
+	function UploadButton(props) {
+		return (
+			<div>
+				<input
+					className="input_file"
+					type="file"
+					id={props["id"]}
+					accept="image/*"
+					name="filename"
+					onChange={props["onChange"]}
+				/>
+				<label htmlFor={props["id"]}>+</label>
+			</div>
+		)
+	}
+
 	class ImageEditor extends React.Component {
 
 		constructor(props) {
 			super(props);
-			this.uploadImage = this.uploadImage.bind(this);
+			this.loadImage = this.loadImage.bind(this);
 			this.state = {
-				file: "",
 				height: 0,
 				width: 0,
+				canvas_context: null,
 				x: 0,
 				y: 0,
 				scale_up: 1,
@@ -145,39 +198,14 @@ function setup() {
 			};
 		}
 
-		uploadImage(event) {
-			const fileList = document.querySelector("#button_upload").files;
-			if (fileList.length > 0) {
-				const reader = new FileReader();
-				reader.onload = (progressEvent) => {
-					this.setState({file: progressEvent.target.result});
-					this.updateImage();
-				};
-				reader.readAsDataURL(fileList[0]);
-			} else {
-				this.setState({file: ""});
-			}
-		}
-
-		updateImageParameter(parameter, value) {
-			const updateDictionary = {};
-			updateDictionary[parameter] = value;
-			this.setState(updateDictionary);
-			this.updateImage();
-		}
-
-		updateImage() {
-			const height = this.props["height"];
-			const width = this.props["width"];
-			const image = new Image();
-			image.onload = () => {
-				this.setState({height: image.height, width: image.width});
-				const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
-				canvasContext.drawImage(image, 0, 0);
+		componentDidUpdate() {
+			if (this.state.canvas_context) {
+				const height = this.props["height"];
+				const width = this.props["width"];
 				const scale = this.state.scale_down / this.state.scale_up;
 				const scaleHeight = Math.floor(height * scale);
 				const scaleWidth = Math.floor(width * scale);
-				const oldImageData = canvasContext.getImageData(this.state.x + (image.width - scaleWidth) / 2, this.state.y + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight);
+				const oldImageData = this.state.canvas_context.getImageData(this.state.x + (this.state.width - scaleWidth) / 2, this.state.y + (this.state.height - scaleHeight) / 2, scaleWidth, scaleHeight);
 				const zoom = this.state.zoom;
 				const zoomHeight = height * zoom;
 				const zoomWidth = width * zoom;
@@ -201,127 +229,128 @@ function setup() {
 					}
 				}
 				document.querySelector("#canvas_edited").getContext("2d").putImageData(newImageData, 0, 0);
-			};
-			image.src = this.state.file;
+			}
+		}
+
+		loadImage(event) {
+			const image = event.target;
+			const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
+			canvasContext.drawImage(image, 0, 0);
+			this.setState({height: image.height, width: image.width, canvas_context: canvasContext});
+		}
+
+		updateImageParameter(parameter, value) {
+			const updateDictionary = {};
+			updateDictionary[parameter] = value;
+			this.setState(updateDictionary);
 		}
 
 		render() {
 			const scale = this.state.scale_down / this.state.scale_up;
 			const horizontalOffsetMax = Math.ceil((this.state.width + this.props["width"] * scale) / 2);
 			const verticalOffsetMax = Math.ceil((this.state.height + this.props["height"] * scale) / 2);
-			const file = this.state.file;
+			const file = this.props["file"];
 			const zoom = this.state.zoom;
 			return (
-				<div>
-					<input
-						className="input_file"
-						type="file"
-						id="button_upload"
-						accept="image/*"
-						name="filename"
-						onChange={this.uploadImage}
-					/>
-					<label htmlFor="button_upload">{file === "" ? "Choose an Image" : "Change Image"}</label>
-					<div hidden={file === ""}>
-						<img width="10%" src={file} alt="Source Image"/>
-						<table>
-							<tbody>
-							<Slider
-								id="slider_threshold"
-								className="bottom_line"
-								title="Threshold"
-								min={0}
-								max={256}
-								default={128}
-								onChange={(value) => this.updateImageParameter("threshold", value)}
-							/>
-							<Slider
-								id="slider_scale_up"
-								title="Scale Up"
-								min={1}
-								max={30}
-								default={1}
-								onChange={(value) => this.updateImageParameter("scale_up", value)}
-							/>
-							<Slider
-								id="slider_scale_down"
-								className="bottom_line"
-								title="Scale Down"
-								min={1}
-								max={30}
-								default={1}
-								onChange={(value) => this.updateImageParameter("scale_down", value)}
-							/>
-							<Slider
-								id="slider_x"
-								title="Horizontal Offset"
-								min={-horizontalOffsetMax}
-								max={horizontalOffsetMax}
-								default={0}
-								onChange={(value) => this.updateImageParameter("x", value)}
-							/>
-							<Slider
-								id="slider_y"
-								className="bottom_line"
-								title="Vertical Offset"
-								min={-verticalOffsetMax}
-								max={verticalOffsetMax}
-								default={0}
-								onChange={(value) => this.updateImageParameter("y", value)}
-							/>
-							<Slider
-								id="crop_top"
-								title="Crop Top"
-								min={0}
-								max={this.props["height"]}
-								default={0}
-								onChange={(value) => this.updateImageParameter("crop_top", value)}
-							/>
-							<Slider
-								id="crop_right"
-								title="Crop Right"
-								min={0}
-								max={this.props["width"]}
-								default={0}
-								onChange={(value) => this.updateImageParameter("crop_right", value)}
-							/>
-							<Slider
-								id="crop_bottom"
-								title="Crop Bottom"
-								min={0}
-								max={this.props["height"]}
-								default={0}
-								onChange={(value) => this.updateImageParameter("crop_bottom", value)}
-							/>
-							<Slider
-								id="crop_left"
-								className="bottom_line"
-								title="Crop Left"
-								min={0}
-								max={this.props["width"]}
-								default={0}
-								onChange={(value) => this.updateImageParameter("crop_left", value)}
-							/>
-							<Slider
-								id="slider_zoom"
-								className="bottom_line"
-								title="Zoom"
-								min={1}
-								max={10}
-								default={3}
-								onChange={(value) => this.updateImageParameter("zoom", value)}
-							/>
-							</tbody>
-						</table>
-						<br/>
-						<div className="scroll_box canvas_box">
-							<canvas
-								className={zoom > 1 ? "extra_borders" : "all_borders"}
-								id="canvas_edited"
-								height={this.props["height"] * zoom}
-								width={this.props["width"] * zoom}
-							/>
-						</div>
+				<div hidden={file === ""}>
+					<img src={file} alt="Source Image" onLoad={this.loadImage}/>
+					<table>
+						<tbody>
+						<Slider
+							id="slider_threshold"
+							className="bottom_line"
+							title="Threshold"
+							min={0}
+							max={256}
+							default={128}
+							onChange={(value) => this.updateImageParameter("threshold", value)}
+						/>
+						<Slider
+							id="slider_scale_up"
+							title="Scale Up"
+							min={1}
+							max={30}
+							default={1}
+							onChange={(value) => this.updateImageParameter("scale_up", value)}
+						/>
+						<Slider
+							id="slider_scale_down"
+							className="bottom_line"
+							title="Scale Down"
+							min={1}
+							max={30}
+							default={1}
+							onChange={(value) => this.updateImageParameter("scale_down", value)}
+						/>
+						<Slider
+							id="slider_x"
+							title="Horizontal Offset"
+							min={-horizontalOffsetMax}
+							max={horizontalOffsetMax}
+							default={0}
+							onChange={(value) => this.updateImageParameter("x", value)}
+						/>
+						<Slider
+							id="slider_y"
+							className="bottom_line"
+							title="Vertical Offset"
+							min={-verticalOffsetMax}
+							max={verticalOffsetMax}
+							default={0}
+							onChange={(value) => this.updateImageParameter("y", value)}
+						/>
+						<Slider
+							id="crop_top"
+							title="Crop Top"
+							min={0}
+							max={this.props["height"]}
+							default={0}
+							onChange={(value) => this.updateImageParameter("crop_top", value)}
+						/>
+						<Slider
+							id="crop_right"
+							title="Crop Right"
+							min={0}
+							max={this.props["width"]}
+							default={0}
+							onChange={(value) => this.updateImageParameter("crop_right", value)}
+						/>
+						<Slider
+							id="crop_bottom"
+							title="Crop Bottom"
+							min={0}
+							max={this.props["height"]}
+							default={0}
+							onChange={(value) => this.updateImageParameter("crop_bottom", value)}
+						/>
+						<Slider
+							id="crop_left"
+							className="bottom_line"
+							title="Crop Left"
+							min={0}
+							max={this.props["width"]}
+							default={0}
+							onChange={(value) => this.updateImageParameter("crop_left", value)}
+						/>
+						<Slider
+							id="slider_zoom"
+							className="bottom_line"
+							title="Zoom"
+							min={1}
+							max={10}
+							default={3}
+							onChange={(value) => this.updateImageParameter("zoom", value)}
+						/>
+						</tbody>
+					</table>
+					<br/>
+					<div className="scroll_box canvas_box">
+						<canvas
+							className={zoom > 1 ? "extra_borders" : "all_borders"}
+							id="canvas_edited"
+							height={this.props["height"] * zoom}
+							width={this.props["width"] * zoom}
+						/>
 					</div>
 				</div>
 			);

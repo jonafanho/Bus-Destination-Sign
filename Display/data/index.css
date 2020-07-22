@@ -147,6 +147,7 @@ canvas.all_borders {
 
 img {
 	border: 1px solid var(--textColor);
+	max-width: 100%;
 }
 
 .row {
@@ -239,23 +240,17 @@ img {
 }
 
 .input_file + label {
-	background-color: var(--accentColor);
 	border: none;
-	-webkit-border-radius: 0.5em;
-	-moz-border-radius: 0.5em;
-	border-radius: 0.5em;
-	color: white;
+	color: var(--textColorLink);
 	cursor: pointer;
 	display: inline-block;
-	font-size: var(--textSize);
+	font-size: 3em;
 	margin: 0.25em;
-	padding: 1em;
-	text-align: center;
-	transition: background 0.1s;
+	transition: color 0.1s;
 }
 
 .input_file:hover + label {
-	background-color: var(--accentColorButtonHover);
+	color: var(--accentColorLinkHover);
 }
 
 .slider {
