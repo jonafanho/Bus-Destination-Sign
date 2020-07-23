@@ -86,6 +86,20 @@ function setup() {
 			};
 		}
 
+		componentDidUpdate() {
+			Object.keys(DISPLAYS).map(key => {
+				const selectedDisplay = this.getSelectedGroup()[key];
+				[...Array(selectedDisplay.length)].map((u, index) => {
+					const image = new Image();
+					image.onload = () => {
+						const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, image);
+						document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
+					}
+					image.src = selectedDisplay[index]["src"];
+				});
+			});
+		}
+
 		addGroup(event) {
 			const currentGroups = this.state.groups;
 			const groupObject = {name: "Group " + currentGroups.length};
@@ -121,7 +135,7 @@ function setup() {
 			if (fileList.length > 0) {
 				const reader = new FileReader();
 				reader.onload = (progressEvent) => {
-					const displayList = this.state.groups[this.state.selected_group][name];
+					const displayList = this.getSelectedGroup()[name];
 					displayList.push({src: progressEvent.target.result, settings: Object.assign({}, IMAGE_SETTINGS)});
 					this.changeValue(name, displayList);
 				};
@@ -129,19 +143,28 @@ function setup() {
 			}
 		}
 
-		imageChanged(newImageData, event) {
-			const selectedImage = this.state.selected_image;
-			const name = selectedImage["display"];
-			const canvas = document.querySelector(`#${name}_${selectedImage["index"]}`);
-			if (canvas) {
-				canvas.getContext("2d").putImageData(newImageData, 0, 0);
+		imageChanged(event) {
+			this.componentDidUpdate();
+		}
+
+		getSelectedGroup() {
+			return this.state.groups[this.state.selected_group];
+		}
+
+		getSelectedImage() {
+			const {display, index} = this.state.selected_image;
+			const selectedGroup = this.getSelectedGroup();
+			if (selectedGroup) {
+				return selectedGroup[display][index];
+			} else {
+				return undefined;
 			}
 		}
 
 		render() {
-			const selectedGroup = this.state.groups[this.state.selected_group];
-			const selectedDisplay = this.state.selected_image["display"];
-			const selectedImage = getArray(this.state.selected_image["index"], getArray(selectedDisplay, selectedGroup, []), {});
+			const selectedGroup = this.getSelectedGroup();
+			const {display, index} = this.state.selected_image;
+			const selectedImage = this.getSelectedImage();
 			return (
 				<div className="row">
 					<div className="menu">
@@ -191,7 +214,7 @@ function setup() {
 															<div key={index} className="canvas_box">
 																<canvas
 																	className="all_borders"
-																	id={`${key}_${index}`}
+																	id={`${key}_${index}_canvas`}
 																	height={display["height"]}
 																	width={display["width"]}
 																	onClick={(event) => this.selectImage(key, index, event)}
@@ -215,8 +238,8 @@ function setup() {
 								<ImageEditor
 									src={getArray("src", selectedImage, "")}
 									settings={getArray("settings", selectedImage, Object.assign({}, IMAGE_SETTINGS))}
-									height={DISPLAYS[selectedDisplay]["height"]}
-									width={DISPLAYS[selectedDisplay]["width"]}
+									height={DISPLAYS[display]["height"]}
+									width={DISPLAYS[display]["width"]}
 									onChange={this.imageChanged}
 								/>
 							</div>
@@ -247,88 +270,42 @@ function setup() {
 
 		constructor(props) {
 			super(props);
-			this.loadImage = this.loadImage.bind(this);
-			this.state = {
-				height: 0,
-				width: 0,
-				canvas_context: null,
-				zoom: 3
-			};
+			this.state = {zoom: 3, image: null};
 		}
 
 		componentDidUpdate() {
-			if (this.state.canvas_context) {
-				const height = this.props["height"];
-				const width = this.props["width"];
-				const settings = this.props["settings"];
-				const scale = settings["scale_down"] / settings["scale_up"];
-				const scaleHeight = Math.floor(height * scale);
-				const scaleWidth = Math.floor(width * scale);
-				const oldImageData = this.state.canvas_context.getImageData(settings["x"] + (this.state.width - scaleWidth) / 2, settings["y"] + (this.state.height - scaleHeight) / 2, scaleWidth, scaleHeight);
-				const zoom = this.state.zoom;
-				const zoomHeight = height * zoom;
-				const zoomWidth = width * zoom;
-				const newImageData = new ImageData(zoomWidth, zoomHeight);
-				const newImageDataSmall = new ImageData(width, height);
-				for (let row = 0; row <= zoomHeight; row++) {
-					for (let column = 0; column <= zoomWidth; column++) {
-						const actualRow = row / zoom;
-						const actualColumn = column / zoom;
-						let color;
-						if (zoom > 1 && (row % zoom === 0 || column % zoom === 0) || actualRow < settings["crop_top"] || actualRow > height - settings["crop_bottom"] || actualColumn < settings["crop_left"] || actualColumn > width - settings["crop_right"]) {
-							color = 0;
-						} else {
-							const index = (Math.floor(Math.floor(actualRow) * scale) * scaleWidth + Math.floor(Math.floor(actualColumn) * scale)) * 4;
-							color = oldImageData.data[index] + oldImageData.data[index + 1] + oldImageData.data[index + 2] >= settings["threshold"] * 3 ? 255 : 0;
-						}
-						const index = (row * zoomWidth + column) * 4;
-						newImageData.data[index] = color;
-						newImageData.data[index + 1] = color;
-						newImageData.data[index + 2] = color;
-						newImageData.data[index + 3] = 255;
-						if (zoom === 1 || (row % zoom === 1 && column % zoom === 1)) {
-							const indexSmall = (Math.floor(row / zoom) * width + Math.floor(column / zoom)) * 4;
-							newImageDataSmall.data[indexSmall] = color;
-							newImageDataSmall.data[indexSmall + 1] = color;
-							newImageDataSmall.data[indexSmall + 2] = color;
-							newImageDataSmall.data[indexSmall + 3] = 255;
-						}
-					}
-				}
-				this.props["onChange"](newImageDataSmall);
-				document.querySelector("#canvas_edited").getContext("2d").putImageData(newImageData, 0, 0);
+			const {height, width, src, settings} = this.props;
+			const image = new Image();
+			image.onload = () => {
+				this.setState({image: image});
+				const imageData = getImageData(height, width, settings, this.state.zoom, image);
+				document.querySelector("#canvas_edited").getContext("2d").putImageData(imageData, 0, 0);
 			}
+			image.src = src;
 		}
 
-		loadImage(event) {
-			const image = event.target;
-			const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
-			canvasContext.drawImage(image, 0, 0);
-			this.setState({height: image.height, width: image.width, canvas_context: canvasContext});
-		}
-
-		updateImageState(parameter, value) {
-			const updateDictionary = {};
-			updateDictionary[parameter] = value;
-			this.setState(updateDictionary);
+		updateZoom(zoom) {
+			this.setState({zoom: zoom});
 		}
 
 		updateImageSettings(parameter, value) {
-			this.props["settings"][parameter] = value;
-			this.setState({});
+			const {settings, onChange} = this.props;
+			settings[parameter] = value;
+			onChange();
 		}
 
 		render() {
-			const settings = this.props["settings"];
+			const {height, width, settings, src} = this.props;
+			if (!this.state.image) {
+				return <div/>;
+			}
 			const scale = settings["scale_down"] / settings["scale_up"];
-			const horizontalOffsetMax = Math.ceil((this.state.width + this.props["width"] * scale) / 2);
-			const verticalOffsetMax = Math.ceil((this.state.height + this.props["height"] * scale) / 2);
-			const file = this.props["src"];
+			const horizontalOffsetMax = Math.ceil((this.state.image.width + width * scale) / 2);
+			const verticalOffsetMax = Math.ceil((this.state.image.height + height * scale) / 2);
 			const zoom = this.state.zoom;
 			return (
-				<div hidden={file === ""}>
-					<img hidden src={file} alt="Source Image" onLoad={this.loadImage}/>
-					<img src={file} alt="Source Image"/>
+				<div hidden={!this.state.image}>
+					<img src={src} alt="Source Image"/>
 					<table>
 						<tbody>
 						<Slider
@@ -383,7 +360,7 @@ function setup() {
 							id="crop_top"
 							title="Crop Top"
 							min={0}
-							max={this.props["height"]}
+							max={height}
 							default={IMAGE_SETTINGS["crop_top"]}
 							value={settings["crop_top"]}
 							onChange={(value) => this.updateImageSettings("crop_top", value)}
@@ -392,7 +369,7 @@ function setup() {
 							id="crop_right"
 							title="Crop Right"
 							min={0}
-							max={this.props["width"]}
+							max={width}
 							default={IMAGE_SETTINGS["crop_right"]}
 							value={settings["crop_right"]}
 							onChange={(value) => this.updateImageSettings("crop_right", value)}
@@ -401,7 +378,7 @@ function setup() {
 							id="crop_bottom"
 							title="Crop Bottom"
 							min={0}
-							max={this.props["height"]}
+							max={height}
 							default={IMAGE_SETTINGS["crop_bottom"]}
 							value={settings["crop_bottom"]}
 							onChange={(value) => this.updateImageSettings("crop_bottom", value)}
@@ -411,7 +388,7 @@ function setup() {
 							className="bottom_line"
 							title="Crop Left"
 							min={0}
-							max={this.props["width"]}
+							max={width}
 							default={IMAGE_SETTINGS["crop_left"]}
 							value={settings["crop_left"]}
 							onChange={(value) => this.updateImageSettings("crop_left", value)}
@@ -424,7 +401,7 @@ function setup() {
 							max={10}
 							default={3}
 							value={this.state.zoom}
-							onChange={(value) => this.updateImageState("zoom", value)}
+							onChange={(value) => this.updateZoom(value)}
 						/>
 						</tbody>
 					</table>
@@ -433,8 +410,8 @@ function setup() {
 						<canvas
 							className={zoom > 1 ? "extra_borders" : "all_borders"}
 							id="canvas_edited"
-							height={this.props["height"] * zoom}
-							width={this.props["width"] * zoom}
+							height={height * zoom}
+							width={width * zoom}
 						/>
 					</div>
 				</div>
@@ -491,6 +468,37 @@ function setup() {
 		window.location.pathname = "/";
 	}
 	ReactDOM.render(<MainScreen/>, document.querySelector("#react-root"));
+}
+
+function getImageData(height, width, settings, zoom, image) {
+	const scale = settings["scale_down"] / settings["scale_up"];
+	const scaleHeight = Math.floor(height * scale);
+	const scaleWidth = Math.floor(width * scale);
+	const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
+	canvasContext.drawImage(image, 0, 0);
+	const oldImageData = canvasContext.getImageData(settings["x"] + (image.width - scaleWidth) / 2, settings["y"] + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight);
+	const zoomHeight = height * zoom;
+	const zoomWidth = width * zoom;
+	const newImageData = new ImageData(zoomWidth, zoomHeight);
+	for (let row = 0; row <= zoomHeight; row++) {
+		for (let column = 0; column <= zoomWidth; column++) {
+			const actualRow = row / zoom;
+			const actualColumn = column / zoom;
+			let color;
+			if (zoom > 1 && (row % zoom === 0 || column % zoom === 0) || actualRow < settings["crop_top"] || actualRow > height - settings["crop_bottom"] || actualColumn < settings["crop_left"] || actualColumn > width - settings["crop_right"]) {
+				color = 0;
+			} else {
+				const index = (Math.floor(Math.floor(actualRow) * scale) * scaleWidth + Math.floor(Math.floor(actualColumn) * scale)) * 4;
+				color = oldImageData.data[index] + oldImageData.data[index + 1] + oldImageData.data[index + 2] >= settings["threshold"] * 3 ? 255 : 0;
+			}
+			const index = (row * zoomWidth + column) * 4;
+			newImageData.data[index] = color;
+			newImageData.data[index + 1] = color;
+			newImageData.data[index + 2] = color;
+			newImageData.data[index + 3] = 255;
+		}
+	}
+	return newImageData;
 }
 
 function getArray(key, array, defaultValue) {
