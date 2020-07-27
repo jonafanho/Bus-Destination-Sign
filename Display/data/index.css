@@ -147,7 +147,6 @@ canvas.all_borders {
 
 img {
 	border: 2px solid var(--textColor);
-	max-height: 5em;
 }
 
 .row {
@@ -303,4 +302,17 @@ img {
 	box-sizing: border-box;
 	margin: auto;
 	overflow-x: auto;
+}
+
+.canvas_box.selectable {
+	cursor: pointer;
+	transition: border 0.1s;
+}
+
+.canvas_box.selectable:hover, .canvas_box.selectable.selected:hover {
+	border-color: var(--accentColorButtonHover);
+}
+
+.canvas_box.selectable.selected {
+	border-color: var(--accentColor);
 }

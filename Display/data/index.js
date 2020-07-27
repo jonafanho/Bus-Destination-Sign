@@ -105,7 +105,11 @@ function setup() {
 			const groupObject = {name: "Group " + currentGroups.length};
 			Object.keys(DISPLAYS).map(key => groupObject[key] = []);
 			currentGroups.push(groupObject);
-			this.setState({groups: currentGroups, selected_group: currentGroups.length - 1});
+			this.setState({
+				groups: currentGroups,
+				selected_group: currentGroups.length - 1,
+				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1}
+			});
 		}
 
 		selectGroup(event) {
@@ -168,15 +172,15 @@ function setup() {
 			return (
 				<div className="row">
 					<div className="menu">
-						{[...Array(this.state.groups.length)].map((u, index) => {
-							const displayName = getArray("name", this.state.groups[index], "");
+						{[...Array(this.state.groups.length)].map((u, groupIndex) => {
+							const displayName = getArray("name", this.state.groups[groupIndex], "");
 							return (
 								<h2
-									key={index}
-									className={`tab ${this.state.selected_group === index ? "selected" : ""}`}
-									id={`tab_${index}`}
+									key={groupIndex}
+									className={`tab ${this.state.selected_group === groupIndex ? "selected" : ""}`}
+									id={`tab_${groupIndex}`}
 									onClick={this.selectGroup}
-								>{displayName === "" ? `Group ${index}` : displayName}</h2>
+								>{displayName === "" ? `Group ${groupIndex}` : displayName}</h2>
 							);
 						})}
 						<h2 className="tab" onClick={this.addGroup}>+</h2>
@@ -202,22 +206,25 @@ function setup() {
 								<table>
 									<tbody>
 									{Object.keys(DISPLAYS).map(key => {
-										const display = DISPLAYS[key];
+										const displayObject = DISPLAYS[key];
 										return (
 											<tr key={key} className="bottom_line">
 												<td className="min_width_4">
-													<h2>{display["name"]}</h2>{display["width"]} &#215; {display["height"]}
+													<h2>{displayObject["name"]}</h2>{displayObject["width"]} &#215; {displayObject["height"]}
 												</td>
 												<td className="fill_width">
 													<div className="scroll_box">
-														{[...Array(getArray(key, selectedGroup, []).length)].map((u, index) =>
-															<div key={index} className="canvas_box">
+														{[...Array(getArray(key, selectedGroup, []).length)].map((u, imageIndex) =>
+															<div
+																key={imageIndex}
+																className={`canvas_box selectable ${display === key && index === imageIndex ? "selected" : ""}`}
+															>
 																<canvas
 																	className="all_borders"
-																	id={`${key}_${index}_canvas`}
-																	height={display["height"]}
-																	width={display["width"]}
-																	onClick={(event) => this.selectImage(key, index, event)}
+																	id={`${key}_${imageIndex}_canvas`}
+																	height={displayObject["height"]}
+																	width={displayObject["width"]}
+																	onClick={(event) => this.selectImage(key, imageIndex, event)}
 																/>
 															</div>
 														)}
@@ -236,6 +243,7 @@ function setup() {
 								</table>
 								<br/>
 								<ImageEditor
+									hidden={index === -1}
 									src={getArray("src", selectedImage, "")}
 									settings={getArray("settings", selectedImage, Object.assign({}, IMAGE_SETTINGS))}
 									height={DISPLAYS[display]["height"]}
@@ -295,17 +303,24 @@ function setup() {
 		}
 
 		render() {
-			const {height, width, settings, src} = this.props;
-			if (!this.state.image) {
-				return <div/>;
-			}
+			const {hidden, height, width, settings, src} = this.props;
 			const scale = settings["scale_down"] / settings["scale_up"];
-			const horizontalOffsetMax = Math.ceil((this.state.image.width + width * scale) / 2);
-			const verticalOffsetMax = Math.ceil((this.state.image.height + height * scale) / 2);
+			const horizontalOffsetMax = Math.ceil((getArray("width", this.state.image, 0) + width * scale) / 2);
+			const verticalOffsetMax = Math.ceil((getArray("height", this.state.image, 0) + height * scale) / 2);
 			const zoom = this.state.zoom;
 			return (
-				<div hidden={!this.state.image}>
-					<img src={src} alt="Source Image"/>
+				<div hidden={hidden}>
+					<img src={src} height={height * zoom + (zoom === 1 ? 2 : 1)} alt="Source Image"/>
+					&nbsp;
+					<div className="scroll_box canvas_box">
+						<canvas
+							className={zoom > 1 ? "extra_borders" : "all_borders"}
+							id="canvas_edited"
+							height={height * zoom}
+							width={width * zoom}
+						/>
+					</div>
+					<br/>
 					<table>
 						<tbody>
 						<Slider
@@ -405,15 +420,6 @@ function setup() {
 						/>
 						</tbody>
 					</table>
-					<br/>
-					<div className="scroll_box canvas_box">
-						<canvas
-							className={zoom > 1 ? "extra_borders" : "all_borders"}
-							id="canvas_edited"
-							height={height * zoom}
-							width={width * zoom}
-						/>
-					</div>
 				</div>
 			);
 		}
