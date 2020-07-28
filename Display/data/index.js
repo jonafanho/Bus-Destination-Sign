@@ -282,6 +282,15 @@ function setup() {
 			this.state = {zoom: 3, image: null, test_disabled: false};
 		}
 
+		componentDidUpdate() {
+			const {height, width, src, settings} = this.props;
+			const image = new Image();
+			image.onload = () => {
+				this.drawCanvas(getImageBitArray(height, width, settings, image), this);
+			}
+			image.src = src;
+		}
+
 		drawImageBitArray(callback) {
 			const {height, width, src, settings} = this.props;
 			const image = new Image();
@@ -354,6 +363,7 @@ function setup() {
 							width={width * zoom}
 						/>
 					</div>
+					<br/>
 					<input
 						className="input_button"
 						type="submit"
