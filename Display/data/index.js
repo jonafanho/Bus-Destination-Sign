@@ -248,6 +248,7 @@ function setup() {
 									settings={getArray("settings", selectedImage, Object.assign({}, IMAGE_SETTINGS))}
 									height={DISPLAYS[display]["height"]}
 									width={DISPLAYS[display]["width"]}
+									selectedDisplay={Object.keys(DISPLAYS).indexOf(display)}
 									onChange={this.imageChanged}
 								/>
 							</div>
@@ -293,19 +294,22 @@ function setup() {
 
 		sendImagePost(imageData, context) {
 			context.setState({test_disabled: true});
+			const {height, width, selectedDisplay} = context.props;
 			let bitArray = "";
-			for (let i = 0; i < imageData.length; i += 4) {
-				let sum = 0;
-				for (let j = 0; j < 4; j++) {
-					sum += imageData[i + j] << (3 - j);
+			for (let row = 0; row < height; row += 8) {
+				for (let column = 0; column < width; column++) {
+					for (let j = 0; j < 8; j += 4) {
+						let sum = 0;
+						for (let i = 0; i < 4; i++) {
+							sum += (imageData[column + (i + j) * width + row * width] << i);
+						}
+						bitArray += sum.toString(16);
+					}
 				}
-				bitArray += sum.toString(16);
 			}
-			fetch("/test", {
+			fetch(`/test?display=${selectedDisplay}`, {
 				method: "POST",
-				body: JSON.stringify({
-					data: bitArray
-				}),
+				body: bitArray,
 				headers: {
 					"Content-type": "application/json; charset=UTF-8"
 				}

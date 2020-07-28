@@ -163,6 +163,10 @@ public:
 		bmpFile.close();
 	}
 
+	void setImage(uint16_t index, uint8_t value) {
+		image[index] = value;
+	}
+
 	void draw() {
 		const uint16_t widthChunk = WIDTH / 8;
 		const uint16_t heightChunk = HEIGHT / 8;
