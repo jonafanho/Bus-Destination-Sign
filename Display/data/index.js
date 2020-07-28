@@ -278,28 +278,58 @@ function setup() {
 
 		constructor(props) {
 			super(props);
-			this.state = {zoom: 3, image: null};
+			this.state = {zoom: 3, image: null, test_disabled: false};
 		}
 
-		componentDidUpdate() {
+		drawImageBitArray(callback) {
 			const {height, width, src, settings} = this.props;
 			const image = new Image();
 			image.onload = () => {
 				this.setState({image: image});
-				const imageData = getImageData(height, width, settings, this.state.zoom, image);
-				document.querySelector("#canvas_edited").getContext("2d").putImageData(imageData, 0, 0);
+				callback(getImageBitArray(height, width, settings, image), this);
 			}
 			image.src = src;
 		}
 
+		sendImagePost(imageData, context) {
+			context.setState({test_disabled: true});
+			let bitArray = "";
+			for (let i = 0; i < imageData.length; i += 4) {
+				let sum = 0;
+				for (let j = 0; j < 4; j++) {
+					sum += imageData[i + j] << (3 - j);
+				}
+				bitArray += sum.toString(16);
+			}
+			fetch("/test", {
+				method: "POST",
+				body: JSON.stringify({
+					data: bitArray
+				}),
+				headers: {
+					"Content-type": "application/json; charset=UTF-8"
+				}
+			}).then(response => response.json()).then(data => {
+				context.setState({test_disabled: false});
+			});
+		}
+
+		drawCanvas(imageData, context) {
+			const {height, width} = context.props;
+			const zoomedImageData = getZoomedImageData(imageData, height, width, context.state.zoom);
+			document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
+		}
+
 		updateZoom(zoom) {
 			this.setState({zoom: zoom});
+			this.drawImageBitArray(this.drawCanvas);
 		}
 
 		updateImageSettings(parameter, value) {
 			const {settings, onChange} = this.props;
 			settings[parameter] = value;
 			onChange();
+			this.drawImageBitArray(this.drawCanvas);
 		}
 
 		render() {
@@ -320,6 +350,13 @@ function setup() {
 							width={width * zoom}
 						/>
 					</div>
+					<input
+						className="input_button"
+						type="submit"
+						value="Test"
+						disabled={this.state.test_disabled}
+						onClick={() => this.drawImageBitArray(this.sendImagePost)}
+					/>
 					<br/>
 					<table>
 						<tbody>
@@ -476,26 +513,42 @@ function setup() {
 	ReactDOM.render(<MainScreen/>, document.querySelector("#react-root"));
 }
 
-function getImageData(height, width, settings, zoom, image) {
+function getImageBitArray(height, width, settings, image) {
 	const scale = settings["scale_down"] / settings["scale_up"];
 	const scaleHeight = Math.floor(height * scale);
 	const scaleWidth = Math.floor(width * scale);
 	const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
 	canvasContext.drawImage(image, 0, 0);
-	const oldImageData = canvasContext.getImageData(settings["x"] + (image.width - scaleWidth) / 2, settings["y"] + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight);
+	const oldImageData = canvasContext.getImageData(settings["x"] + (image.width - scaleWidth) / 2, settings["y"] + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight)["data"];
+	const newBitArray = [];
+	for (let row = 0; row < height; row++) {
+		for (let column = 0; column < width; column++) {
+			let color;
+			if (row < settings["crop_top"] || row >= height - settings["crop_bottom"] || column < settings["crop_left"] || column >= width - settings["crop_right"]) {
+				color = 0;
+			} else {
+				const index = (Math.floor(row * scale) * scaleWidth + Math.floor(column * scale)) * 4;
+				color = oldImageData[index] + oldImageData[index + 1] + oldImageData[index + 2] >= settings["threshold"] * 3 ? 1 : 0;
+			}
+			newBitArray.push(color);
+		}
+	}
+	return newBitArray;
+}
+
+function getZoomedImageData(oldBitArray, height, width, zoom) {
 	const zoomHeight = height * zoom;
 	const zoomWidth = width * zoom;
 	const newImageData = new ImageData(zoomWidth, zoomHeight);
-	for (let row = 0; row <= zoomHeight; row++) {
-		for (let column = 0; column <= zoomWidth; column++) {
+	for (let row = 0; row < zoomHeight; row++) {
+		for (let column = 0; column < zoomWidth; column++) {
 			const actualRow = row / zoom;
 			const actualColumn = column / zoom;
 			let color;
-			if (zoom > 1 && (row % zoom === 0 || column % zoom === 0) || actualRow < settings["crop_top"] || actualRow > height - settings["crop_bottom"] || actualColumn < settings["crop_left"] || actualColumn > width - settings["crop_right"]) {
+			if (zoom > 1 && (row % zoom === 0 || column % zoom === 0)) {
 				color = 0;
 			} else {
-				const index = (Math.floor(Math.floor(actualRow) * scale) * scaleWidth + Math.floor(Math.floor(actualColumn) * scale)) * 4;
-				color = oldImageData.data[index] + oldImageData.data[index + 1] + oldImageData.data[index + 2] >= settings["threshold"] * 3 ? 255 : 0;
+				color = oldBitArray[Math.floor(actualRow) * width + Math.floor(actualColumn)] * 255;
 			}
 			const index = (row * zoomWidth + column) * 4;
 			newImageData.data[index] = color;
@@ -505,6 +558,10 @@ function getImageData(height, width, settings, zoom, image) {
 		}
 	}
 	return newImageData;
+}
+
+function getImageData(height, width, settings, zoom, image) {
+	return getZoomedImageData(getImageBitArray(height, width, settings, image), height, width, zoom);
 }
 
 function getArray(key, array, defaultValue) {
