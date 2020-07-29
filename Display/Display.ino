@@ -95,8 +95,11 @@ void setup() {
 
 				char connected[128];
 				sprintf(connected, "http://%s", WiFi.localIP().toString().c_str());
+				char mac[32];
+				sprintf(mac, "MAC: %s", WiFi.macAddress().c_str());
 				front.display.clear();
 				front.display.drawString(0, 0, connected);
+				front.display.drawString(0, 1, mac);
 				break;
 			}
 		}
