@@ -79,10 +79,12 @@ function setup() {
 			this.selectImage = this.selectImage.bind(this);
 			this.uploadImage = this.uploadImage.bind(this);
 			this.imageChanged = this.imageChanged.bind(this);
+			this.testImages = this.testImages.bind(this);
 			this.state = {
 				groups: [],
 				selected_group: -1,
-				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1}
+				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1},
+				test_disabled: false
 			};
 		}
 
@@ -151,6 +153,63 @@ function setup() {
 			this.componentDidUpdate();
 		}
 
+		testImages(imageData) {
+			this.setState({test_disabled: true});
+			fetch(`/delete?group=${this.state.selected_group}`, {
+				method: "POST",
+				body: "",
+				headers: {
+					"Content-type": "application/json; charset=UTF-8"
+				}
+			}).then(response => response.json()).then(data => {
+				this.sendImagePost(0, 0, () => {
+					this.setState({test_disabled: false});
+				}, this);
+			});
+		}
+
+		sendImagePost(display, index, callback, context) {
+			const groupIndex = context.state.selected_group;
+			const displayKeys = Object.keys(DISPLAYS);
+			if (display >= displayKeys.length) {
+				callback();
+				return;
+			}
+			const displayName = displayKeys[display];
+			const groupDisplays = context.getSelectedGroup()[displayName];
+			if (index >= Object.keys(groupDisplays).length) {
+				context.sendImagePost(display + 1, 0, callback, context);
+				return;
+			}
+			const {height, width} = DISPLAYS[displayName];
+			const image = new Image();
+			image.onload = () => {
+				const imageData = getImageBitArray(height, width, groupDisplays[index]["settings"], image);
+				let bitArray = "";
+				for (let row = 0; row < height; row += 8) {
+					for (let column = 0; column < width; column++) {
+						for (let j = 0; j < 8; j += 4) {
+							let sum = 0;
+							for (let i = 0; i < 4; i++) {
+								sum += (imageData[column + (i + j) * width + row * width] << i);
+							}
+							bitArray += sum.toString(16);
+						}
+					}
+				}
+				fetch(`/write?group=${groupIndex}&display=${display}&index=${index}`, {
+					method: "POST",
+					body: bitArray,
+					headers: {
+						"Content-type": "application/json; charset=UTF-8"
+					}
+				}).then(response => response.json()).then(data => {
+					context.sendImagePost(display, index + 1, callback, context);
+				});
+			}
+			image.src = groupDisplays[index]["src"];
+		}
+
 		getSelectedGroup() {
 			return this.state.groups[this.state.selected_group];
 		}
@@ -201,6 +260,13 @@ function setup() {
 										onChange={this.renameGroup}
 										placeholder="Name"
 									/>
+									<input
+										className="input_button"
+										type="submit"
+										value="Test All Displays"
+										disabled={this.state.test_disabled}
+										onClick={this.testImages}
+									/>
 								</label>
 								<br/>
 								<table>
@@ -248,7 +314,6 @@ function setup() {
 									settings={getArray("settings", selectedImage, Object.assign({}, IMAGE_SETTINGS))}
 									height={DISPLAYS[display]["height"]}
 									width={DISPLAYS[display]["width"]}
-									selectedDisplay={Object.keys(DISPLAYS).indexOf(display)}
 									onChange={this.imageChanged}
 								/>
 							</div>
@@ -283,66 +348,32 @@ function setup() {
 		}
 
 		componentDidUpdate() {
+			this.drawCanvas(false);
+		}
+
+		drawCanvas(setState) {
 			const {height, width, src, settings} = this.props;
 			const image = new Image();
 			image.onload = () => {
-				this.drawCanvas(getImageBitArray(height, width, settings, image), this);
+				if (setState) {
+					this.setState({image: image});
+				}
+				const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
+				document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
 			}
 			image.src = src;
-		}
-
-		drawImageBitArray(callback) {
-			const {height, width, src, settings} = this.props;
-			const image = new Image();
-			image.onload = () => {
-				this.setState({image: image});
-				callback(getImageBitArray(height, width, settings, image), this);
-			}
-			image.src = src;
-		}
-
-		sendImagePost(imageData, context) {
-			context.setState({test_disabled: true});
-			const {height, width, selectedDisplay} = context.props;
-			let bitArray = "";
-			for (let row = 0; row < height; row += 8) {
-				for (let column = 0; column < width; column++) {
-					for (let j = 0; j < 8; j += 4) {
-						let sum = 0;
-						for (let i = 0; i < 4; i++) {
-							sum += (imageData[column + (i + j) * width + row * width] << i);
-						}
-						bitArray += sum.toString(16);
-					}
-				}
-			}
-			fetch(`/test?display=${selectedDisplay}`, {
-				method: "POST",
-				body: bitArray,
-				headers: {
-					"Content-type": "application/json; charset=UTF-8"
-				}
-			}).then(response => response.json()).then(data => {
-				context.setState({test_disabled: false});
-			});
-		}
-
-		drawCanvas(imageData, context) {
-			const {height, width} = context.props;
-			const zoomedImageData = getZoomedImageData(imageData, height, width, context.state.zoom);
-			document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
 		}
 
 		updateZoom(zoom) {
 			this.setState({zoom: zoom});
-			this.drawImageBitArray(this.drawCanvas);
+			this.drawCanvas(true);
 		}
 
 		updateImageSettings(parameter, value) {
 			const {settings, onChange} = this.props;
 			settings[parameter] = value;
 			onChange();
-			this.drawImageBitArray(this.drawCanvas);
+			this.drawCanvas(true);
 		}
 
 		render() {
@@ -363,14 +394,6 @@ function setup() {
 							width={width * zoom}
 						/>
 					</div>
-					<br/>
-					<input
-						className="input_button"
-						type="submit"
-						value="Test"
-						disabled={this.state.test_disabled}
-						onClick={() => this.drawImageBitArray(this.sendImagePost)}
-					/>
 					<br/>
 					<table>
 						<tbody>

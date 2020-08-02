@@ -6,6 +6,8 @@
 Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(256, 64, D3, D4);
 Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, D1, D4);
 Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, D0, D4);
+const uint8_t DISPLAY_COUNT = 3;
+uint8_t fileIndices[DISPLAY_COUNT] = {0};
 ESP8266WebServer server(80);
 
 String getContentType(String filename) {
@@ -17,13 +19,21 @@ String getContentType(String filename) {
 }
 
 uint8_t char2int(char input) {
-	if (input >= '0' && input <= '9')
-		return input - '0';
-	if (input >= 'A' && input <= 'F')
-		return input - 'A' + 10;
-	if (input >= 'a' && input <= 'f')
-		return input - 'a' + 10;
-	return 0;
+	if (input >= '0' && input <= '9') return input - '0';
+	else if (input >= 'A' && input <= 'F') return input - 'A' + 10;
+	else if (input >= 'a' && input <= 'f') return input - 'a' + 10;
+	else return 0;
+}
+
+void deleteFilesFromGroup(uint8_t group, uint8_t display) {
+	char path[16];
+	uint8_t index = 0;
+	while (true) {
+		sprintf(path, "/%d-%d-%d.txt", group, display, index);
+		if (!SPIFFS.exists(path)) break;
+		SPIFFS.remove(path);
+		index++;
+	}
 }
 
 void setup() {
@@ -61,35 +71,24 @@ void setup() {
 					server.streamFile(file, getContentType(path));
 					file.close();
 				});
-				server.on("/test", HTTP_POST, []() {
+				server.on("/write", HTTP_POST, []() {
+					const uint8_t group = server.arg("group").toInt();
 					const uint8_t display = server.arg("display").toInt();
+					const uint8_t index = server.arg("index").toInt();
+					char path[16];
+					sprintf(path, "/%d-%d-%d.txt", group, display, index);
+					File file = SPIFFS.open(path, "w");
 					const char *image = server.arg("plain").c_str();
-					for (uint16_t i = 0; i < 2048; i++) {
-						const uint8_t value = char2int(*(image + i * 2)) + (char2int(*(image + i * 2 + 1)) << 4);
-						switch (display) {
-							default:
-								front.setImage(i, value);
-								break;
-							case 1:
-								side.setImage(i, value);
-								break;
-							case 2:
-								back.setImage(i, value);
-								break;
-						}
+					file.print(image);
+					file.close();
+					server.send(200, "text/html", "{\"success\":\"/write\"}");
+				});
+				server.on("/delete", HTTP_POST, []() {
+					const uint8_t group = server.arg("group").toInt();
+					for (uint8_t i = 0; i < DISPLAY_COUNT; i++) {
+						deleteFilesFromGroup(group, i);
 					}
-					switch (display) {
-						default:
-							front.draw();
-							break;
-						case 1:
-							side.draw();
-							break;
-						case 2:
-							back.draw();
-							break;
-					}
-					server.send(200, "text/html", "{\"success\":\"/test\"}");
+					server.send(200, "text/html", "{\"success\":\"/delete\"}");
 				});
 				server.begin();
 
@@ -108,4 +107,41 @@ void setup() {
 
 void loop() {
 	server.handleClient();
+	for (uint8_t display = 0; display < DISPLAY_COUNT; display++) {
+		char path[16];
+		while (true) {
+			sprintf(path, "/%d-%d-%d.txt", 0, display, fileIndices[display]);
+			if (!SPIFFS.exists(path) && fileIndices[display] > 0) {
+				fileIndices[display] = 0;
+			} else {
+				break;
+			}
+		}
+		File file = SPIFFS.open(path, "r");
+		if (file) {
+			uint16_t i = 0;
+			while (file.available() && i < 2048) {
+				uint8_t data = char2int(file.read()) + (char2int(file.read()) << 4);
+				switch (display) {
+					default:
+						front.setImage(i, data);
+						break;
+					case 1:
+						side.setImage(i, data);
+						break;
+					case 2:
+						back.setImage(i, data);
+						break;
+				}
+				i++;
+			}
+			fileIndices[display]++;
+		}
+		file.close();
+	}
+	for (uint16_t i = 0; i < 256; i++) {
+		front.step(i);
+		side.step(i);
+		back.step(i);
+	}
 }

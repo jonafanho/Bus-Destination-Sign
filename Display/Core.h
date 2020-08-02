@@ -164,6 +164,7 @@ public:
 	}
 
 	void setImage(uint16_t index, uint8_t value) {
+		image[IMAGE_BUFFER_SIZE + index] = image[index];
 		image[index] = value;
 	}
 

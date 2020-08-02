@@ -188,7 +188,7 @@ img {
 
 .input_button {
 	background-color: var(--accentColor);
-	border: none;
+	border: 1px solid var(--accentColor);
 	-webkit-border-radius: 0.5em;
 	-moz-border-radius: 0.5em;
 	border-radius: 0.5em;
@@ -198,15 +198,17 @@ img {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: center;
-	transition: background 0.1s;
+	transition: background 0.1s, border 0.1s;
 }
 
 .input_button:hover {
 	background-color: var(--accentColorButtonHover);
+	border: 1px solid var(--accentColorButtonHover);
 }
 
 .input_button:disabled {
 	background-color: var(--accentColorDisabled);
+	border: 1px solid var(--accentColorDisabled);
 	color: var(--textColorDisabled);
 	cursor: auto;
 }
@@ -222,7 +224,6 @@ img {
 	font-size: var(--textSize);
 	padding: 1em;
 	text-align: left;
-	width: 100%;
 }
 
 .input_file::-webkit-file-upload-button {
