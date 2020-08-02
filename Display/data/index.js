@@ -88,20 +88,6 @@ function setup() {
 			};
 		}
 
-		componentDidUpdate() {
-			Object.keys(DISPLAYS).map(key => {
-				const selectedDisplay = this.getSelectedGroup()[key];
-				[...Array(selectedDisplay.length)].map((u, index) => {
-					const image = new Image();
-					image.onload = () => {
-						const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, image);
-						document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
-					}
-					image.src = selectedDisplay[index]["src"];
-				});
-			});
-		}
-
 		addGroup(event) {
 			const currentGroups = this.state.groups;
 			const groupObject = {name: "Group " + currentGroups.length};
@@ -115,9 +101,21 @@ function setup() {
 		}
 
 		selectGroup(event) {
+			const selectedGroup = parseInt(event.target.id.replace(/tab_/g, ""));
 			this.setState({
-				selected_group: parseInt(event.target.id.replace(/tab_/g, "")),
+				selected_group: selectedGroup,
 				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1}
+			});
+			Object.keys(DISPLAYS).map(key => {
+				const selectedDisplay = this.state.groups[selectedGroup][key];
+				[...Array(selectedDisplay.length)].map((u, index) => {
+					const image = new Image();
+					image.onload = () => {
+						const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, image);
+						document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
+					}
+					image.src = selectedDisplay[index]["src"];
+				});
 			});
 		}
 
@@ -150,7 +148,14 @@ function setup() {
 		}
 
 		imageChanged(event) {
-			this.componentDidUpdate();
+			const {display, index} = this.state.selected_image;
+			const selectedImage = this.getSelectedImage();
+			const image = new Image();
+			image.onload = () => {
+				const newImageData = getImageData(DISPLAYS[display]["height"], DISPLAYS[display]["width"], selectedImage["settings"], 1, image);
+				document.querySelector(`#${display}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
+			}
+			image.src = selectedImage["src"];
 		}
 
 		testImages(imageData) {
