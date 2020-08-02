@@ -99,6 +99,7 @@ void setup() {
 				front.display.clear();
 				front.display.drawString(0, 0, connected);
 				front.display.drawString(0, 1, mac);
+				delay(2000);
 				break;
 			}
 		}
@@ -143,5 +144,10 @@ void loop() {
 		front.step(i);
 		side.step(i);
 		back.step(i);
+		server.handleClient();
+	}
+	for (uint8_t i = 0; i < 32; i++) {
+		delay(100);
+		server.handleClient();
 	}
 }
