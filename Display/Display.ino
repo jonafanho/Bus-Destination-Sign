@@ -9,6 +9,7 @@ Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, D0, D4);
 const uint8_t DISPLAY_COUNT = 3;
 uint8_t fileIndices[DISPLAY_COUNT] = {0};
 ESP8266WebServer server(80);
+File fileUpload;
 
 String getContentType(String filename) {
 	if (filename.endsWith(".html")) return "text/html";
@@ -33,6 +34,22 @@ void deleteFilesFromGroup(uint8_t group, uint8_t display) {
 		if (!SPIFFS.exists(path)) break;
 		SPIFFS.remove(path);
 		index++;
+	}
+}
+
+void uploadFile() {
+	HTTPUpload &upload = server.upload();
+	if (upload.status == UPLOAD_FILE_START) {
+		char fileName[16];
+		sprintf(fileName, "/%s", upload.filename.c_str());
+		fileUpload = SPIFFS.open(fileName, "w");
+	} else if (upload.status == UPLOAD_FILE_WRITE && fileUpload) {
+		fileUpload.write(upload.buf, upload.currentSize);
+	} else if (upload.status == UPLOAD_FILE_END && fileUpload) {
+		fileUpload.close();
+		server.send(200, "text/html", "{\"status\":\"success\"}");
+	} else {
+		server.send(500, "text/plain", "500: Couldn't write file.");
 	}
 }
 
@@ -71,24 +88,15 @@ void setup() {
 					server.streamFile(file, getContentType(path));
 					file.close();
 				});
-				server.on("/write", HTTP_POST, []() {
-					const uint8_t group = server.arg("group").toInt();
-					const uint8_t display = server.arg("display").toInt();
-					const uint8_t index = server.arg("index").toInt();
-					char path[16];
-					sprintf(path, "/%d-%d-%d.txt", group, display, index);
-					File file = SPIFFS.open(path, "w");
-					const char *image = server.arg("plain").c_str();
-					file.print(image);
-					file.close();
-					server.send(200, "text/html", "{\"success\":\"/write\"}");
-				});
+				server.on("/upload", HTTP_POST, []() {
+					server.send(200, "text/html", "{\"status\":\"ready\"}");
+				}, uploadFile);
 				server.on("/delete", HTTP_POST, []() {
 					const uint8_t group = server.arg("group").toInt();
 					for (uint8_t i = 0; i < DISPLAY_COUNT; i++) {
 						deleteFilesFromGroup(group, i);
 					}
-					server.send(200, "text/html", "{\"success\":\"/delete\"}");
+					server.send(200, "text/html", "{\"status\":\"success\"}");
 				});
 				server.begin();
 

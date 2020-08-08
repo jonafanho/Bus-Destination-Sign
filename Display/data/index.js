@@ -80,12 +80,11 @@ function setup() {
 			this.uploadImage = this.uploadImage.bind(this);
 			this.imageChanged = this.imageChanged.bind(this);
 			this.testImages = this.testImages.bind(this);
-			this.state = {
-				groups: [],
+			this.state = Object.assign(STORED_SETTINGS, {
 				selected_group: -1,
 				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1},
 				test_disabled: false
-			};
+			});
 		}
 
 		addGroup(event) {
@@ -168,7 +167,9 @@ function setup() {
 				}
 			}).then(response => response.json()).then(data => {
 				this.sendImagePost(0, 0, () => {
-					this.setState({test_disabled: false});
+					this.postFile("settings.js", "const STORED_SETTINGS={\"groups\":" + JSON.stringify(this.state["groups"]) + "}", () => {
+						this.setState({test_disabled: false});
+					});
 				}, this);
 			});
 		}
@@ -202,17 +203,22 @@ function setup() {
 						}
 					}
 				}
-				fetch(`/write?group=${groupIndex}&display=${display}&index=${index}`, {
-					method: "POST",
-					body: bitArray,
-					headers: {
-						"Content-type": "application/json; charset=UTF-8"
-					}
-				}).then(response => response.json()).then(data => {
+				this.postFile(`${groupIndex}-${display}-${index}.txt`, bitArray, () => {
 					context.sendImagePost(display, index + 1, callback, context);
 				});
 			}
 			image.src = groupDisplays[index]["src"];
+		}
+
+		postFile(fileName, fileContent, callback) {
+			const form = new FormData();
+			form.append("file", new File([fileContent], fileName));
+			fetch("/upload", {
+				method: "POST",
+				body: form
+			}).then(response => response.json()).then(data => {
+				callback();
+			});
 		}
 
 		getSelectedGroup() {
