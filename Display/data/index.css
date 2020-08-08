@@ -199,6 +199,7 @@ img {
 	padding: 1em;
 	text-align: center;
 	transition: background 0.1s, border 0.1s;
+	width: 12em;
 }
 
 .input_button:hover {

@@ -116,6 +116,14 @@ function setup() {
 					image.src = selectedDisplay[index]["src"];
 				});
 			});
+			fetch(`/select?group=${selectedGroup}`, {
+				method: "POST",
+				body: "",
+				headers: {
+					"Content-type": "application/json; charset=UTF-8"
+				}
+			}).then(response => response.json()).then(data => {
+			});
 		}
 
 		renameGroup(event) {
@@ -274,7 +282,7 @@ function setup() {
 									<input
 										className="input_button"
 										type="submit"
-										value="Test All Displays"
+										value={this.state.test_disabled ? "Please Wait" : "Save and Upload"}
 										disabled={this.state.test_disabled}
 										onClick={this.testImages}
 									/>

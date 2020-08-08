@@ -8,6 +8,7 @@ Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, D1, D4);
 Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, D0, D4);
 const uint8_t DISPLAY_COUNT = 3;
 uint8_t fileIndices[DISPLAY_COUNT] = {0};
+uint8_t selectedGroup = 0;
 ESP8266WebServer server(80);
 File fileUpload;
 
@@ -91,6 +92,10 @@ void setup() {
 				server.on("/upload", HTTP_POST, []() {
 					server.send(200, "text/html", "{\"status\":\"ready\"}");
 				}, uploadFile);
+				server.on("/select", HTTP_POST, []() {
+					selectedGroup = server.arg("group").toInt();
+					server.send(200, "text/html", "{\"status\":\"ready\"}");
+				}, uploadFile);
 				server.on("/delete", HTTP_POST, []() {
 					const uint8_t group = server.arg("group").toInt();
 					for (uint8_t i = 0; i < DISPLAY_COUNT; i++) {
@@ -119,7 +124,7 @@ void loop() {
 	for (uint8_t display = 0; display < DISPLAY_COUNT; display++) {
 		char path[16];
 		while (true) {
-			sprintf(path, "/%d-%d-%d.txt", 0, display, fileIndices[display]);
+			sprintf(path, "/%d-%d-%d.txt", selectedGroup, display, fileIndices[display]);
 			if (!SPIFFS.exists(path) && fileIndices[display] > 0) {
 				fileIndices[display] = 0;
 			} else {
