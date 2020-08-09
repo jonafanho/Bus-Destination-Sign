@@ -214,6 +214,16 @@ img {
 	cursor: auto;
 }
 
+.input_button.delete {
+	background-color: var(--red);
+	border: 1px solid var(--red);
+}
+
+.input_button.delete:hover {
+	background-color: var(--redHover);
+	border: 1px solid var(--redHover);
+}
+
 .input_text {
 	background-color: transparent;
 	border: 1px solid var(--accentColor);

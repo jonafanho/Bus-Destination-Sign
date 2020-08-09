@@ -74,10 +74,12 @@ function setup() {
 		constructor(props) {
 			super(props);
 			this.addGroup = this.addGroup.bind(this);
+			this.deleteGroup = this.deleteGroup.bind(this);
 			this.selectGroup = this.selectGroup.bind(this);
 			this.renameGroup = this.renameGroup.bind(this);
 			this.selectImage = this.selectImage.bind(this);
 			this.uploadImage = this.uploadImage.bind(this);
+			this.deleteImage = this.deleteImage.bind(this);
 			this.imageChanged = this.imageChanged.bind(this);
 			this.testImages = this.testImages.bind(this);
 			this.state = Object.assign(STORED_SETTINGS, {
@@ -86,6 +88,8 @@ function setup() {
 				test_disabled: false
 			});
 		}
+
+		// ===== Bound Events =====
 
 		addGroup(event) {
 			const currentGroups = this.state.groups;
@@ -99,23 +103,25 @@ function setup() {
 			});
 		}
 
+		deleteGroup(event) {
+			const currentGroups = this.state.groups;
+			const index = this.state.selected_group;
+			if (index >= 0) {
+				currentGroups.splice(this.state.selected_group, 1);
+			}
+			this.setState({
+				groups: currentGroups,
+				selected_group: -1,
+				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1}
+			});
+		}
+
 		selectGroup(event) {
 			const selectedGroup = parseInt(event.target.id.replace(/tab_/g, ""));
 			this.setState({
 				selected_group: selectedGroup,
 				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1}
-			});
-			Object.keys(DISPLAYS).map(key => {
-				const selectedDisplay = this.state.groups[selectedGroup][key];
-				[...Array(selectedDisplay.length)].map((u, index) => {
-					const image = new Image();
-					image.onload = () => {
-						const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, image);
-						document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
-					}
-					image.src = selectedDisplay[index]["src"];
-				});
-			});
+			}, this.renderSelectedGroup);
 			fetch(`/select?group=${selectedGroup}`, {
 				method: "POST",
 				body: "",
@@ -134,12 +140,6 @@ function setup() {
 			this.setState({selected_image: {display: display, index: index}});
 		}
 
-		changeValue(name, value) {
-			const currentGroups = this.state.groups;
-			currentGroups[this.state.selected_group][name] = value;
-			this.setState({groups: currentGroups});
-		}
-
 		uploadImage(event) {
 			const fileList = document.querySelector(`#${event.target.id}`).files;
 			const name = event.target.id.replace(/button_upload_/g, "");
@@ -152,6 +152,17 @@ function setup() {
 				};
 				reader.readAsDataURL(fileList[0]);
 			}
+			document.querySelector(`#${event.target.id}`).value = "";
+		}
+
+		deleteImage(event) {
+			const {display, index} = this.state.selected_image["display"];
+			const displayList = this.getSelectedGroup()[display];
+			if (index >= 0) {
+				displayList.splice(index, 1);
+			}
+			this.changeValue(display, displayList);
+			this.setState({selected_image: {display: display, index: -1}});
 		}
 
 		imageChanged(event) {
@@ -165,6 +176,28 @@ function setup() {
 			image.src = selectedImage["src"];
 		}
 
+		// ===== Utilities =====
+
+		renderSelectedGroup() {
+			Object.keys(DISPLAYS).map(key => {
+				const selectedDisplay = this.getSelectedGroup()[key];
+				[...Array(selectedDisplay.length)].map((u, index) => {
+					const image = new Image();
+					image.onload = () => {
+						const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, image);
+						document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
+					}
+					image.src = selectedDisplay[index]["src"];
+				});
+			});
+		}
+
+		changeValue(name, value) {
+			const currentGroups = this.state.groups;
+			currentGroups[this.state.selected_group][name] = value;
+			this.setState({groups: currentGroups}, this.renderSelectedGroup);
+		}
+
 		testImages(imageData) {
 			this.setState({test_disabled: true});
 			fetch(`/delete?group=${this.state.selected_group}`, {
@@ -174,7 +207,7 @@ function setup() {
 					"Content-type": "application/json; charset=UTF-8"
 				}
 			}).then(response => response.json()).then(data => {
-				this.sendImagePost(0, 0, () => {
+				this.sendImagePostRecursive(0, 0, () => {
 					this.postFile("settings.js", "const STORED_SETTINGS={\"groups\":" + JSON.stringify(this.state["groups"]) + "}", () => {
 						this.setState({test_disabled: false});
 					});
@@ -182,7 +215,7 @@ function setup() {
 			});
 		}
 
-		sendImagePost(display, index, callback, context) {
+		sendImagePostRecursive(display, index, callback, context) {
 			const groupIndex = context.state.selected_group;
 			const displayKeys = Object.keys(DISPLAYS);
 			if (display >= displayKeys.length) {
@@ -192,7 +225,7 @@ function setup() {
 			const displayName = displayKeys[display];
 			const groupDisplays = context.getSelectedGroup()[displayName];
 			if (index >= Object.keys(groupDisplays).length) {
-				context.sendImagePost(display + 1, 0, callback, context);
+				context.sendImagePostRecursive(display + 1, 0, callback, context);
 				return;
 			}
 			const {height, width} = DISPLAYS[displayName];
@@ -212,22 +245,13 @@ function setup() {
 					}
 				}
 				this.postFile(`${groupIndex}-${display}-${index}.txt`, bitArray, () => {
-					context.sendImagePost(display, index + 1, callback, context);
+					context.sendImagePostRecursive(display, index + 1, callback, context);
 				});
 			}
 			image.src = groupDisplays[index]["src"];
 		}
 
-		postFile(fileName, fileContent, callback) {
-			const form = new FormData();
-			form.append("file", new File([fileContent], fileName));
-			fetch("/upload", {
-				method: "POST",
-				body: form
-			}).then(response => response.json()).then(data => {
-				callback();
-			});
-		}
+		// ===== Get Utilities =====
 
 		getSelectedGroup() {
 			return this.state.groups[this.state.selected_group];
@@ -242,6 +266,8 @@ function setup() {
 				return undefined;
 			}
 		}
+
+		// ===== Render =====
 
 		render() {
 			const selectedGroup = this.getSelectedGroup();
@@ -280,11 +306,11 @@ function setup() {
 										placeholder="Name"
 									/>
 									<input
-										className="input_button"
+										className="input_button delete"
 										type="submit"
-										value={this.state.test_disabled ? "Please Wait" : "Save and Upload"}
+										value="Delete Group"
 										disabled={this.state.test_disabled}
-										onClick={this.testImages}
+										onClick={this.deleteGroup}
 									/>
 								</label>
 								<br/>
@@ -334,6 +360,7 @@ function setup() {
 									height={DISPLAYS[display]["height"]}
 									width={DISPLAYS[display]["width"]}
 									onChange={this.imageChanged}
+									onDelete={this.deleteImage}
 								/>
 							</div>
 						}
@@ -396,7 +423,7 @@ function setup() {
 		}
 
 		render() {
-			const {hidden, height, width, settings, src} = this.props;
+			const {hidden, height, width, settings, src, onDelete} = this.props;
 			const scale = settings["scale_down"] / settings["scale_up"];
 			const horizontalOffsetMax = Math.ceil((getArray("width", this.state.image, 0) + width * scale) / 2);
 			const verticalOffsetMax = Math.ceil((getArray("height", this.state.image, 0) + height * scale) / 2);
@@ -513,6 +540,14 @@ function setup() {
 						/>
 						</tbody>
 					</table>
+					<br/>
+					<input
+						className="input_button delete"
+						type="submit"
+						value="Delete Image"
+						disabled={this.state.test_disabled}
+						onClick={onDelete}
+					/>
 				</div>
 			);
 		}
@@ -618,6 +653,17 @@ function getZoomedImageData(oldBitArray, height, width, zoom) {
 
 function getImageData(height, width, settings, zoom, image) {
 	return getZoomedImageData(getImageBitArray(height, width, settings, image), height, width, zoom);
+}
+
+function postFile(fileName, fileContent, callback) {
+	const form = new FormData();
+	form.append("file", new File([fileContent], fileName));
+	fetch("/upload", {
+		method: "POST",
+		body: form
+	}).then(response => response.json()).then(data => {
+		callback();
+	});
 }
 
 function getArray(key, array, defaultValue) {
