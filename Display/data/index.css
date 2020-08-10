@@ -186,6 +186,13 @@ img {
 	background: var(--accentColorButtonHover);
 }
 
+.tab_link {
+	margin: auto;
+	padding: 1em;
+	text-align: center;
+	width: 10em;
+}
+
 .input_button {
 	background-color: var(--accentColor);
 	border: 1px solid var(--accentColor);

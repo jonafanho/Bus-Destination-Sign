@@ -85,7 +85,8 @@ function setup() {
 			this.state = Object.assign(STORED_SETTINGS, {
 				selected_group: -1,
 				selected_image: {display: Object.keys(DISPLAYS)[0], index: -1},
-				test_disabled: false
+				delete_disabled: false,
+				test_state: ""
 			});
 		}
 
@@ -156,7 +157,7 @@ function setup() {
 		}
 
 		deleteImage(event) {
-			const {display, index} = this.state.selected_image["display"];
+			const {display, index} = this.state.selected_image;
 			const displayList = this.getSelectedGroup()[display];
 			if (index >= 0) {
 				displayList.splice(index, 1);
@@ -199,35 +200,42 @@ function setup() {
 		}
 
 		testImages(imageData) {
-			this.setState({test_disabled: true});
-			fetch(`/delete?group=${this.state.selected_group}`, {
-				method: "POST",
-				body: "",
-				headers: {
-					"Content-type": "application/json; charset=UTF-8"
-				}
-			}).then(response => response.json()).then(data => {
-				this.sendImagePostRecursive(0, 0, () => {
-					this.postFile("settings.js", "const STORED_SETTINGS={\"groups\":" + JSON.stringify(this.state["groups"]) + "}", () => {
-						this.setState({test_disabled: false});
-					});
-				}, this);
-			});
+			this.setState({test_state: "Please Wait..."});
+			this.sendImagePostRecursive(0, 0, 0, () => {
+				this.setState({test_state: "Saving Settings..."});
+				postFile("settings.js", "const STORED_SETTINGS={\"groups\":" + JSON.stringify(this.state["groups"]) + "}", () => {
+					this.setState({test_state: ""});
+				});
+			}, this);
 		}
 
-		sendImagePostRecursive(display, index, callback, context) {
-			const groupIndex = context.state.selected_group;
-			const displayKeys = Object.keys(DISPLAYS);
-			if (display >= displayKeys.length) {
+		sendImagePostRecursive(group, display, index, callback, context) {
+			const groupKeys = Object.keys(this.state.groups);
+			if (group >= groupKeys.length) {
 				callback();
 				return;
 			}
-			const displayName = displayKeys[display];
-			const groupDisplays = context.getSelectedGroup()[displayName];
-			if (index >= Object.keys(groupDisplays).length) {
-				context.sendImagePostRecursive(display + 1, 0, callback, context);
+			const displayKeys = Object.keys(DISPLAYS);
+			if (display >= displayKeys.length) {
+				context.sendImagePostRecursive(group + 1, 0, 0, callback, context);
 				return;
 			}
+			const displayName = displayKeys[display];
+			const groupDisplays = this.state.groups[groupKeys[group]][displayName];
+			const groupDisplayCount = Object.keys(groupDisplays).length;
+			if (index >= groupDisplayCount) {
+				fetch(`/delete?group=${group}&display=${display}&index=${index}`, {
+					method: "POST",
+					body: "",
+					headers: {
+						"Content-type": "application/json; charset=UTF-8"
+					}
+				}).then(response => response.json()).then(data => {
+					context.sendImagePostRecursive(group, display + 1, 0, callback, context);
+				});
+				return;
+			}
+			this.setState({test_state: `Uploading Displays... (${Math.round((group + (display + index / groupDisplayCount) / displayKeys.length) * 100 / groupKeys.length)}%)`});
 			const {height, width} = DISPLAYS[displayName];
 			const image = new Image();
 			image.onload = () => {
@@ -244,8 +252,8 @@ function setup() {
 						}
 					}
 				}
-				this.postFile(`${groupIndex}-${display}-${index}.txt`, bitArray, () => {
-					context.sendImagePostRecursive(display, index + 1, callback, context);
+				postFile(`${group}-${display}-${index}.txt`, bitArray, () => {
+					context.sendImagePostRecursive(group, display, index + 1, callback, context);
 				});
 			}
 			image.src = groupDisplays[index]["src"];
@@ -288,6 +296,12 @@ function setup() {
 							);
 						})}
 						<h2 className="tab" onClick={this.addGroup}>+</h2>
+						<div hidden={Object.keys(this.state.groups).length === 0} className="tab_link">
+							{this.state.test_state === "" ?
+								<a onClick={this.testImages}>Save and Upload</a> :
+								this.state.test_state
+							}
+						</div>
 					</div>
 					<div className="content">
 						{this.state.selected_group === -1 ?
@@ -309,7 +323,7 @@ function setup() {
 										className="input_button delete"
 										type="submit"
 										value="Delete Group"
-										disabled={this.state.test_disabled}
+										disabled={this.state.delete_disabled}
 										onClick={this.deleteGroup}
 									/>
 								</label>
@@ -391,7 +405,7 @@ function setup() {
 
 		constructor(props) {
 			super(props);
-			this.state = {zoom: 3, image: null, test_disabled: false};
+			this.state = {zoom: 3, image: null, delete_disabled: false};
 		}
 
 		componentDidMount() {
@@ -543,7 +557,7 @@ function setup() {
 						className="input_button delete"
 						type="submit"
 						value="Delete Image"
-						disabled={this.state.test_disabled}
+						disabled={this.state.delete_disabled}
 						onClick={onDelete}
 					/>
 				</div>

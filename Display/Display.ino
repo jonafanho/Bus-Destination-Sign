@@ -27,17 +27,6 @@ uint8_t char2int(char input) {
 	else return 0;
 }
 
-void deleteFilesFromGroup(uint8_t group, uint8_t display) {
-	char path[16];
-	uint8_t index = 0;
-	while (true) {
-		sprintf(path, "/%d-%d-%d.txt", group, display, index);
-		if (!SPIFFS.exists(path)) break;
-		SPIFFS.remove(path);
-		index++;
-	}
-}
-
 void uploadFile() {
 	HTTPUpload &upload = server.upload();
 	if (upload.status == UPLOAD_FILE_START) {
@@ -98,8 +87,12 @@ void setup() {
 				}, uploadFile);
 				server.on("/delete", HTTP_POST, []() {
 					const uint8_t group = server.arg("group").toInt();
-					for (uint8_t i = 0; i < DISPLAY_COUNT; i++) {
-						deleteFilesFromGroup(group, i);
+					const uint8_t display = server.arg("display").toInt();
+					const uint8_t index = server.arg("index").toInt();
+					char path[16];
+					sprintf(path, "/%d-%d-%d.txt", group, display, index);
+					if (SPIFFS.exists(path)) {
+						SPIFFS.remove(path);
 					}
 					server.send(200, "text/html", "{\"status\":\"success\"}");
 				});
@@ -125,33 +118,50 @@ void loop() {
 		char path[16];
 		while (true) {
 			sprintf(path, "/%d-%d-%d.txt", selectedGroup, display, fileIndices[display]);
-			if (!SPIFFS.exists(path) && fileIndices[display] > 0) {
-				fileIndices[display] = 0;
+			if (!SPIFFS.exists(path)) {
+				if (fileIndices[display] > 0) {
+					fileIndices[display] = 0;
+				} else {
+					for (uint16_t i = 0; i < 2048; i++) {
+						switch (display) {
+							default:
+								front.setImage(i, 0);
+								break;
+							case 1:
+								side.setImage(i, 0);
+								break;
+							case 2:
+								back.setImage(i, 0);
+								break;
+						}
+					}
+					break;
+				}
 			} else {
+				File file = SPIFFS.open(path, "r");
+				if (file) {
+					uint16_t i = 0;
+					while (file.available() && i < 2048) {
+						uint8_t data = char2int(file.read()) + (char2int(file.read()) << 4);
+						switch (display) {
+							default:
+								front.setImage(i, data);
+								break;
+							case 1:
+								side.setImage(i, data);
+								break;
+							case 2:
+								back.setImage(i, data);
+								break;
+						}
+						i++;
+					}
+					fileIndices[display]++;
+				}
+				file.close();
 				break;
 			}
 		}
-		File file = SPIFFS.open(path, "r");
-		if (file) {
-			uint16_t i = 0;
-			while (file.available() && i < 2048) {
-				uint8_t data = char2int(file.read()) + (char2int(file.read()) << 4);
-				switch (display) {
-					default:
-						front.setImage(i, data);
-						break;
-					case 1:
-						side.setImage(i, data);
-						break;
-					case 2:
-						back.setImage(i, data);
-						break;
-				}
-				i++;
-			}
-			fileIndices[display]++;
-		}
-		file.close();
 	}
 	for (uint16_t i = 0; i < 256; i++) {
 		front.step(i);
