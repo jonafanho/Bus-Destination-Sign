@@ -355,6 +355,7 @@ function setup() {
 								<br/>
 								<ImageEditor
 									hidden={index === -1}
+									key={display + index}
 									src={getArray("src", selectedImage, "")}
 									settings={getArray("settings", selectedImage, Object.assign({}, IMAGE_SETTINGS))}
 									height={DISPLAYS[display]["height"]}
@@ -393,17 +394,15 @@ function setup() {
 			this.state = {zoom: 3, image: null, test_disabled: false};
 		}
 
-		componentDidUpdate() {
-			this.drawCanvas(false);
+		componentDidMount() {
+			this.drawCanvas();
 		}
 
-		drawCanvas(setState) {
+		drawCanvas() {
 			const {height, width, src, settings} = this.props;
 			const image = new Image();
 			image.onload = () => {
-				if (setState) {
-					this.setState({image: image});
-				}
+				this.setState({image: image});
 				const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
 				document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
 			}
@@ -411,15 +410,14 @@ function setup() {
 		}
 
 		updateZoom(zoom) {
-			this.setState({zoom: zoom});
-			this.drawCanvas(true);
+			this.setState({zoom: zoom}, this.drawCanvas);
 		}
 
 		updateImageSettings(parameter, value) {
 			const {settings, onChange} = this.props;
 			settings[parameter] = value;
 			onChange();
-			this.drawCanvas(true);
+			this.drawCanvas();
 		}
 
 		render() {
