@@ -39,7 +39,7 @@ void uploadFile() {
 		fileUpload.close();
 		server.send(200, "text/html", "{\"status\":\"success\"}");
 	} else {
-		server.send(500, "text/plain", "500: Couldn't write file.");
+		server.send(500, "text/html", "{\"status\":\"couldn't write file\"}");
 	}
 }
 
@@ -84,7 +84,7 @@ void setup() {
 				server.on("/select", HTTP_POST, []() {
 					selectedGroup = server.arg("group").toInt();
 					server.send(200, "text/html", "{\"status\":\"ready\"}");
-				}, uploadFile);
+				});
 				server.on("/delete", HTTP_POST, []() {
 					const uint8_t group = server.arg("group").toInt();
 					const uint8_t display = server.arg("display").toInt();

@@ -669,11 +669,12 @@ function getImageData(height, width, settings, zoom, image) {
 
 function postFile(fileName, fileContent, callback) {
 	const form = new FormData();
-	form.append("file", new File([fileContent], fileName));
+	form.append("file", new File([fileContent], fileName, {type: "plain/text"}));
 	fetch("/upload", {
 		method: "POST",
 		body: form
-	}).then(response => response.json()).then(data => {
+	}).then(response => response.json()).then(data => callback()).catch(error => {
+		console.error(error);
 		callback();
 	});
 }
