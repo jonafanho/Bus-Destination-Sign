@@ -34,7 +34,11 @@ const EXAMPLE_STATE = {
 			name: "Group 0",
 			front: [
 				{
-					src: "base64",
+					image: {
+						height: 16,
+						width: 32,
+						src: "greyscale string"
+					},
 					settings: {
 						x: 0,
 						y: 0,
@@ -148,8 +152,22 @@ function setup() {
 				const reader = new FileReader();
 				reader.onload = (progressEvent) => {
 					const displayList = this.getSelectedGroup()[name];
-					displayList.push({src: progressEvent.target.result, settings: Object.assign({}, IMAGE_SETTINGS)});
-					this.changeValue(name, displayList);
+					const image = new Image();
+					image.onload = () => {
+						const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
+						canvasContext.drawImage(image, 0, 0);
+						const oldImageData = canvasContext.getImageData(0, 0, image.width, image.height)["data"];
+						let newImageString = "";
+						for (let i = 0; i < oldImageData.length; i += 4) {
+							newImageString += Math.round((oldImageData[i] + oldImageData[i + 1] + oldImageData[i + 2]) / 3).toString(16).padStart(2, "0");
+						}
+						displayList.push({
+							image: {height: image.height, width: image.width, src: newImageString},
+							settings: Object.assign({}, IMAGE_SETTINGS)
+						});
+						this.changeValue(name, displayList);
+					}
+					image.src = progressEvent.target.result;
 				};
 				reader.readAsDataURL(fileList[0]);
 			}
@@ -169,12 +187,8 @@ function setup() {
 		imageChanged(event) {
 			const {display, index} = this.state.selected_image;
 			const selectedImage = this.getSelectedImage();
-			const image = new Image();
-			image.onload = () => {
-				const newImageData = getImageData(DISPLAYS[display]["height"], DISPLAYS[display]["width"], selectedImage["settings"], 1, image);
-				document.querySelector(`#${display}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
-			}
-			image.src = selectedImage["src"];
+			const newImageData = getImageData(DISPLAYS[display]["height"], DISPLAYS[display]["width"], selectedImage["settings"], 1, selectedImage["image"]);
+			document.querySelector(`#${display}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
 		}
 
 		// ===== Utilities =====
@@ -183,12 +197,8 @@ function setup() {
 			Object.keys(DISPLAYS).map(key => {
 				const selectedDisplay = this.getSelectedGroup()[key];
 				[...Array(selectedDisplay.length)].map((u, index) => {
-					const image = new Image();
-					image.onload = () => {
-						const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, image);
-						document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
-					}
-					image.src = selectedDisplay[index]["src"];
+					const newImageData = getImageData(DISPLAYS[key]["height"], DISPLAYS[key]["width"], selectedDisplay[index]["settings"], 1, selectedDisplay[index]["image"]);
+					document.querySelector(`#${key}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
 				});
 			});
 		}
@@ -237,26 +247,22 @@ function setup() {
 			}
 			this.setState({test_state: `Uploading Displays... (${Math.round((group + (display + index / groupDisplayCount) / displayKeys.length) * 100 / groupKeys.length)}%)`});
 			const {height, width} = DISPLAYS[displayName];
-			const image = new Image();
-			image.onload = () => {
-				const imageData = getImageBitArray(height, width, groupDisplays[index]["settings"], image);
-				let bitArray = "";
-				for (let row = 0; row < height; row += 8) {
-					for (let column = 0; column < width; column++) {
-						for (let j = 0; j < 8; j += 4) {
-							let sum = 0;
-							for (let i = 0; i < 4; i++) {
-								sum += (imageData[column + (i + j) * width + row * width] << i);
-							}
-							bitArray += sum.toString(16);
+			const imageData = getImageBitArray(height, width, groupDisplays[index]["settings"], groupDisplays[index]["image"]);
+			let bitArray = "";
+			for (let row = 0; row < height; row += 8) {
+				for (let column = 0; column < width; column++) {
+					for (let j = 0; j < 8; j += 4) {
+						let sum = 0;
+						for (let i = 0; i < 4; i++) {
+							sum += (imageData[column + (i + j) * width + row * width] << i);
 						}
+						bitArray += sum.toString(16);
 					}
 				}
-				postFile(`${group}-${display}-${index}.txt`, bitArray, () => {
-					context.sendImagePostRecursive(group, display, index + 1, callback, context);
-				});
 			}
-			image.src = groupDisplays[index]["src"];
+			postFile(`${group}-${display}-${index}.txt`, bitArray, () => {
+				context.sendImagePostRecursive(group, display, index + 1, callback, context);
+			});
 		}
 
 		// ===== Get Utilities =====
@@ -370,7 +376,7 @@ function setup() {
 								<ImageEditor
 									hidden={index === -1}
 									key={display + index}
-									src={getArray("src", selectedImage, "")}
+									image={getArray("image", selectedImage, {height: 1, width: 1, src: ""})}
 									settings={getArray("settings", selectedImage, Object.assign({}, IMAGE_SETTINGS))}
 									height={DISPLAYS[display]["height"]}
 									width={DISPLAYS[display]["width"]}
@@ -413,14 +419,11 @@ function setup() {
 		}
 
 		drawCanvas() {
-			const {height, width, src, settings} = this.props;
-			const image = new Image();
-			image.onload = () => {
-				this.setState({image: image});
-				const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
-				document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
-			}
-			image.src = src;
+			const {height, width, image, settings} = this.props;
+			this.setState({image: image});
+			document.querySelector("#canvas_original").getContext("2d").putImageData(greyscaleCompressedToImageData(image), 0, 0);
+			const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
+			document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
 		}
 
 		updateZoom(zoom) {
@@ -435,14 +438,19 @@ function setup() {
 		}
 
 		render() {
-			const {hidden, height, width, settings, src, onDelete} = this.props;
+			const {hidden, height, width, settings, image, onDelete} = this.props;
 			const scale = settings["scale_down"] / settings["scale_up"];
 			const horizontalOffsetMax = Math.ceil((getArray("width", this.state.image, 0) + width * scale) / 2);
 			const verticalOffsetMax = Math.ceil((getArray("height", this.state.image, 0) + height * scale) / 2);
 			const zoom = this.state.zoom;
 			return (
 				<div hidden={hidden}>
-					<img src={src} height={height * zoom + (zoom === 1 ? 2 : 1)} alt="Source Image"/>
+					<canvas
+						className="canvas_box"
+						id="canvas_original"
+						height={height * zoom + (zoom > 1 ? 1 : 2)}
+						width={image["width"]}
+					/>
 					&nbsp;
 					<div className="scroll_box canvas_box">
 						<canvas
@@ -616,12 +624,25 @@ function setup() {
 	ReactDOM.render(<MainScreen/>, document.querySelector("#react-root"));
 }
 
+function greyscaleCompressedToImageData(compressed) {
+	const {height, width, src} = compressed;
+	const newImageData = new ImageData(width, height);
+	for (let i = 0; i < src.length / 2; i++) {
+		const charCode = parseInt(src.substring(i * 2, i * 2 + 2), 16);
+		newImageData.data[i * 4] = charCode;
+		newImageData.data[i * 4 + 1] = charCode;
+		newImageData.data[i * 4 + 2] = charCode;
+		newImageData.data[i * 4 + 3] = 255;
+	}
+	return newImageData;
+}
+
 function getImageBitArray(height, width, settings, image) {
 	const scale = settings["scale_down"] / settings["scale_up"];
 	const scaleHeight = Math.floor(height * scale);
 	const scaleWidth = Math.floor(width * scale);
 	const canvasContext = new OffscreenCanvas(image.width, image.height).getContext("2d");
-	canvasContext.drawImage(image, 0, 0);
+	canvasContext.putImageData(greyscaleCompressedToImageData(image), 0, 0);
 	const oldImageData = canvasContext.getImageData(settings["x"] + (image.width - scaleWidth) / 2, settings["y"] + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight)["data"];
 	const newBitArray = [];
 	for (let row = 0; row < height; row++) {
