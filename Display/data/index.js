@@ -26,6 +26,7 @@ const IMAGE_SETTINGS = {
 	crop_right: 0,
 	crop_bottom: 0,
 	crop_left: 0,
+	fancy_scroll: 0
 };
 
 const EXAMPLE_STATE = {
@@ -428,7 +429,17 @@ function setup() {
 				canvas.getContext("2d").putImageData(greyscaleCompressedToImageData(image), 0, 0);
 				document.querySelector("#image_original").src = canvas.toDataURL();
 				const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
-				document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
+				const editedContext = document.querySelector("#canvas_edited").getContext("2d");
+				editedContext.putImageData(zoomedImageData, 0, 0);
+				const fancyScroll = settings["fancy_scroll"];
+				if (fancyScroll < 0) {
+					editedContext.beginPath();
+					const x = (width + fancyScroll * 8) * this.state.zoom;
+					editedContext.moveTo(x, 0);
+					editedContext.lineTo(x, height * this.state.zoom);
+					editedContext.strokeStyle = "red";
+					editedContext.stroke();
+				}
 			}
 		}
 
@@ -555,6 +566,16 @@ function setup() {
 								default={IMAGE_SETTINGS["crop_left"]}
 								value={settings["crop_left"]}
 								onChange={(value) => this.updateImageSettings("crop_left", value)}
+							/>
+							<Slider
+								id="slider_fancy_scroll"
+								className="bottom_line"
+								title="Scroll Point"
+								min={-width / 8}
+								max={0}
+								default={IMAGE_SETTINGS["fancy_scroll"]}
+								value={settings["fancy_scroll"]}
+								onChange={(value) => this.updateImageSettings("fancy_scroll", value)}
 							/>
 							<Slider
 								id="slider_zoom"
