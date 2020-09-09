@@ -421,7 +421,11 @@ function setup() {
 		drawCanvas() {
 			const {height, width, image, settings} = this.props;
 			this.setState({image: image});
-			document.querySelector("#canvas_original").getContext("2d").putImageData(greyscaleCompressedToImageData(image), 0, 0);
+			const canvas = document.createElement("canvas");
+			canvas.height = image.height;
+			canvas.width = image.width;
+			canvas.getContext("2d").putImageData(greyscaleCompressedToImageData(image), 0, 0);
+			document.querySelector("#image_original").src = canvas.toDataURL();
 			const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
 			document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
 		}
@@ -445,12 +449,7 @@ function setup() {
 			const zoom = this.state.zoom;
 			return (
 				<div hidden={hidden}>
-					<canvas
-						className="canvas_box"
-						id="canvas_original"
-						height={height * zoom + (zoom > 1 ? 1 : 2)}
-						width={image["width"]}
-					/>
+					<img id="image_original" height={height * zoom + (zoom === 1 ? 2 : 1)} alt="Source Image"/>
 					&nbsp;
 					<div className="scroll_box canvas_box">
 						<canvas
