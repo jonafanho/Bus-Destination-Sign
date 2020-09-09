@@ -419,15 +419,17 @@ function setup() {
 		}
 
 		drawCanvas() {
-			const {height, width, image, settings} = this.props;
-			this.setState({image: image});
-			const canvas = document.createElement("canvas");
-			canvas.height = image.height;
-			canvas.width = image.width;
-			canvas.getContext("2d").putImageData(greyscaleCompressedToImageData(image), 0, 0);
-			document.querySelector("#image_original").src = canvas.toDataURL();
-			const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
-			document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
+			const {hidden, height, width, image, settings} = this.props;
+			if (!hidden) {
+				this.setState({image: image});
+				const canvas = document.createElement("canvas");
+				canvas.height = image.height;
+				canvas.width = image.width;
+				canvas.getContext("2d").putImageData(greyscaleCompressedToImageData(image), 0, 0);
+				document.querySelector("#image_original").src = canvas.toDataURL();
+				const zoomedImageData = getImageData(height, width, settings, this.state.zoom, image);
+				document.querySelector("#canvas_edited").getContext("2d").putImageData(zoomedImageData, 0, 0);
+			}
 		}
 
 		updateZoom(zoom) {
@@ -442,132 +444,139 @@ function setup() {
 		}
 
 		render() {
-			const {hidden, height, width, settings, image, onDelete} = this.props;
+			const {hidden, height, width, settings, onDelete} = this.props;
 			const scale = settings["scale_down"] / settings["scale_up"];
 			const horizontalOffsetMax = Math.ceil((getArray("width", this.state.image, 0) + width * scale) / 2);
 			const verticalOffsetMax = Math.ceil((getArray("height", this.state.image, 0) + height * scale) / 2);
 			const zoom = this.state.zoom;
 			return (
-				<div hidden={hidden}>
-					<img id="image_original" height={height * zoom + (zoom === 1 ? 2 : 1)} alt="Source Image"/>
-					&nbsp;
-					<div className="scroll_box canvas_box">
-						<canvas
-							className={zoom > 1 ? "extra_borders" : "all_borders"}
-							id="canvas_edited"
-							height={height * zoom}
-							width={width * zoom}
+				hidden ?
+					<div>
+						<h1>Manage your destination group.</h1>
+						<p>Select an uploaded display to edit, or add a display using the + button for each screen.</p>
+						<p>Click on "Save and Upload" on the left to save your changes and see your displays in
+							action.</p>
+					</div> :
+					<div>
+						<img id="image_original" height={height * zoom + (zoom === 1 ? 2 : 1)} alt="Source Image"/>
+						&nbsp;
+						<div className="scroll_box canvas_box">
+							<canvas
+								className={zoom > 1 ? "extra_borders" : "all_borders"}
+								id="canvas_edited"
+								height={height * zoom}
+								width={width * zoom}
+							/>
+						</div>
+						<br/>
+						<table>
+							<tbody>
+							<Slider
+								id="slider_threshold"
+								className="bottom_line"
+								title="Threshold"
+								min={0}
+								max={256}
+								default={IMAGE_SETTINGS["threshold"]}
+								value={settings["threshold"]}
+								onChange={(value) => this.updateImageSettings("threshold", value)}
+							/>
+							<Slider
+								id="slider_scale_up"
+								title="Scale Up"
+								min={1}
+								max={30}
+								default={IMAGE_SETTINGS["scale_up"]}
+								value={settings["scale_up"]}
+								onChange={(value) => this.updateImageSettings("scale_up", value)}
+							/>
+							<Slider
+								id="slider_scale_down"
+								className="bottom_line"
+								title="Scale Down"
+								min={1}
+								max={30}
+								default={IMAGE_SETTINGS["scale_down"]}
+								value={settings["scale_down"]}
+								onChange={(value) => this.updateImageSettings("scale_down", value)}
+							/>
+							<Slider
+								id="slider_x"
+								title="Horizontal Offset"
+								min={-horizontalOffsetMax}
+								max={horizontalOffsetMax}
+								default={IMAGE_SETTINGS["x"]}
+								value={settings["x"]}
+								onChange={(value) => this.updateImageSettings("x", value)}
+							/>
+							<Slider
+								id="slider_y"
+								className="bottom_line"
+								title="Vertical Offset"
+								min={-verticalOffsetMax}
+								max={verticalOffsetMax}
+								default={IMAGE_SETTINGS["y"]}
+								value={settings["y"]}
+								onChange={(value) => this.updateImageSettings("y", value)}
+							/>
+							<Slider
+								id="crop_top"
+								title="Crop Top"
+								min={0}
+								max={height}
+								default={IMAGE_SETTINGS["crop_top"]}
+								value={settings["crop_top"]}
+								onChange={(value) => this.updateImageSettings("crop_top", value)}
+							/>
+							<Slider
+								id="crop_right"
+								title="Crop Right"
+								min={0}
+								max={width}
+								default={IMAGE_SETTINGS["crop_right"]}
+								value={settings["crop_right"]}
+								onChange={(value) => this.updateImageSettings("crop_right", value)}
+							/>
+							<Slider
+								id="crop_bottom"
+								title="Crop Bottom"
+								min={0}
+								max={height}
+								default={IMAGE_SETTINGS["crop_bottom"]}
+								value={settings["crop_bottom"]}
+								onChange={(value) => this.updateImageSettings("crop_bottom", value)}
+							/>
+							<Slider
+								id="crop_left"
+								className="bottom_line"
+								title="Crop Left"
+								min={0}
+								max={width}
+								default={IMAGE_SETTINGS["crop_left"]}
+								value={settings["crop_left"]}
+								onChange={(value) => this.updateImageSettings("crop_left", value)}
+							/>
+							<Slider
+								id="slider_zoom"
+								className="bottom_line"
+								title="Zoom"
+								min={1}
+								max={10}
+								default={3}
+								value={this.state.zoom}
+								onChange={(value) => this.updateZoom(value)}
+							/>
+							</tbody>
+						</table>
+						<br/>
+						<input
+							className="input_button delete"
+							type="submit"
+							value="Delete Image"
+							disabled={this.state.delete_disabled}
+							onClick={onDelete}
 						/>
 					</div>
-					<br/>
-					<table>
-						<tbody>
-						<Slider
-							id="slider_threshold"
-							className="bottom_line"
-							title="Threshold"
-							min={0}
-							max={256}
-							default={IMAGE_SETTINGS["threshold"]}
-							value={settings["threshold"]}
-							onChange={(value) => this.updateImageSettings("threshold", value)}
-						/>
-						<Slider
-							id="slider_scale_up"
-							title="Scale Up"
-							min={1}
-							max={30}
-							default={IMAGE_SETTINGS["scale_up"]}
-							value={settings["scale_up"]}
-							onChange={(value) => this.updateImageSettings("scale_up", value)}
-						/>
-						<Slider
-							id="slider_scale_down"
-							className="bottom_line"
-							title="Scale Down"
-							min={1}
-							max={30}
-							default={IMAGE_SETTINGS["scale_down"]}
-							value={settings["scale_down"]}
-							onChange={(value) => this.updateImageSettings("scale_down", value)}
-						/>
-						<Slider
-							id="slider_x"
-							title="Horizontal Offset"
-							min={-horizontalOffsetMax}
-							max={horizontalOffsetMax}
-							default={IMAGE_SETTINGS["x"]}
-							value={settings["x"]}
-							onChange={(value) => this.updateImageSettings("x", value)}
-						/>
-						<Slider
-							id="slider_y"
-							className="bottom_line"
-							title="Vertical Offset"
-							min={-verticalOffsetMax}
-							max={verticalOffsetMax}
-							default={IMAGE_SETTINGS["y"]}
-							value={settings["y"]}
-							onChange={(value) => this.updateImageSettings("y", value)}
-						/>
-						<Slider
-							id="crop_top"
-							title="Crop Top"
-							min={0}
-							max={height}
-							default={IMAGE_SETTINGS["crop_top"]}
-							value={settings["crop_top"]}
-							onChange={(value) => this.updateImageSettings("crop_top", value)}
-						/>
-						<Slider
-							id="crop_right"
-							title="Crop Right"
-							min={0}
-							max={width}
-							default={IMAGE_SETTINGS["crop_right"]}
-							value={settings["crop_right"]}
-							onChange={(value) => this.updateImageSettings("crop_right", value)}
-						/>
-						<Slider
-							id="crop_bottom"
-							title="Crop Bottom"
-							min={0}
-							max={height}
-							default={IMAGE_SETTINGS["crop_bottom"]}
-							value={settings["crop_bottom"]}
-							onChange={(value) => this.updateImageSettings("crop_bottom", value)}
-						/>
-						<Slider
-							id="crop_left"
-							className="bottom_line"
-							title="Crop Left"
-							min={0}
-							max={width}
-							default={IMAGE_SETTINGS["crop_left"]}
-							value={settings["crop_left"]}
-							onChange={(value) => this.updateImageSettings("crop_left", value)}
-						/>
-						<Slider
-							id="slider_zoom"
-							className="bottom_line"
-							title="Zoom"
-							min={1}
-							max={10}
-							default={3}
-							value={this.state.zoom}
-							onChange={(value) => this.updateZoom(value)}
-						/>
-						</tbody>
-					</table>
-					<br/>
-					<input
-						className="input_button delete"
-						type="submit"
-						value="Delete Image"
-						disabled={this.state.delete_disabled}
-						onClick={onDelete}
-					/>
-				</div>
 			);
 		}
 	}
