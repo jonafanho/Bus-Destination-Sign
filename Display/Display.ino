@@ -160,7 +160,7 @@ void loop() {
 				if (fileIndices[display] > 0) {
 					fileIndices[display] = 0;
 				} else {
-					for (uint16_t i = 0; i < 2048; i++) {
+					for (uint16_t i = 0; i < Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI>::IMAGE_BUFFER_SIZE; i++) {
 						setImage(display, i, 0);
 					}
 					break;
@@ -171,7 +171,7 @@ void loop() {
 				if (file) {
 					hasFs = (char2int(file.read()) << 4) + char2int(file.read());
 					uint16_t i = 0;
-					while (file.available() && i < 2048) {
+					while (file.available() && i < Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI>::IMAGE_BUFFER_SIZE) {
 						setImage(display, i, char2int(file.read()) + (char2int(file.read()) << 4));
 						i++;
 					}
@@ -186,7 +186,7 @@ void loop() {
 							setFancyScrollImage(display, j, (char2int(fileFs.read()) << 4) + char2int(fileFs.read()));
 						}
 						uint16_t i = 6;
-						while (fileFs.available() && i < 2048) {
+						while (fileFs.available() && i < Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI>::SCROLL_BUFFER_SIZE) {
 							setFancyScrollImage(display, i, char2int(fileFs.read()) + (char2int(fileFs.read()) << 4));
 							i++;
 						}

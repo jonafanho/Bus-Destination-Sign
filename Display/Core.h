@@ -7,6 +7,8 @@
 template<class T>
 class Core {
 public:
+	static const uint16_t IMAGE_BUFFER_SIZE = 2048, SCROLL_BUFFER_SIZE = 4096;
+
 	T display;
 
 	Core(const uint16_t width, const uint16_t height, const uint8_t cs, const uint8_t dc) : WIDTH(width), HEIGHT(height), display(T(cs, dc)) {}
@@ -74,7 +76,6 @@ public:
 
 private:
 	const uint16_t WIDTH, HEIGHT;
-	static const uint16_t IMAGE_BUFFER_SIZE = 2048, SCROLL_BUFFER_SIZE = 2048;
 
 	U8X8_PROGMEM uint8_t
 	image[IMAGE_BUFFER_SIZE * 2 + SCROLL_BUFFER_SIZE] = {}; // first 2048 bytes for new image, next 2048 bytes for old image, next 4096 bytes for scroll
