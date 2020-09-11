@@ -43,6 +43,34 @@ void uploadFile() {
 	}
 }
 
+void setImage(uint8_t display, uint16_t index, uint8_t data) {
+	switch (display) {
+		default:
+			front.setImage(index, data);
+			break;
+		case 1:
+			side.setImage(index, data);
+			break;
+		case 2:
+			back.setImage(index, data);
+			break;
+	}
+}
+
+void setFancyScrollImage(uint8_t display, uint16_t index, uint8_t data) {
+	switch (display) {
+		default:
+			front.setFancyScrollImage(index, data);
+			break;
+		case 1:
+			side.setFancyScrollImage(index, data);
+			break;
+		case 2:
+			back.setFancyScrollImage(index, data);
+			break;
+	}
+}
+
 void setup() {
 	front.display.begin();
 	side.display.begin();
@@ -89,8 +117,12 @@ void setup() {
 					const uint8_t group = server.arg("group").toInt();
 					const uint8_t display = server.arg("display").toInt();
 					const uint8_t index = server.arg("index").toInt();
-					char path[16];
+					char path[32];
 					sprintf(path, "/%d-%d-%d.txt", group, display, index);
+					if (SPIFFS.exists(path)) {
+						SPIFFS.remove(path);
+					}
+					sprintf(path, "/%d-%d-%d-fs.txt", group, display, index);
 					if (SPIFFS.exists(path)) {
 						SPIFFS.remove(path);
 					}
@@ -114,63 +146,84 @@ void setup() {
 
 void loop() {
 	server.handleClient();
+
+	uint8_t useFancyScroll = 0;
+
 	for (uint8_t display = 0; display < DISPLAY_COUNT; display++) {
-		char path[16];
+		char path[32], pathFs[32];
+
 		while (true) {
 			sprintf(path, "/%d-%d-%d.txt", selectedGroup, display, fileIndices[display]);
+			sprintf(pathFs, "/%d-%d-%d-fs.txt", selectedGroup, display, fileIndices[display]);
+
 			if (!SPIFFS.exists(path)) {
 				if (fileIndices[display] > 0) {
 					fileIndices[display] = 0;
 				} else {
 					for (uint16_t i = 0; i < 2048; i++) {
-						switch (display) {
-							default:
-								front.setImage(i, 0);
-								break;
-							case 1:
-								side.setImage(i, 0);
-								break;
-							case 2:
-								back.setImage(i, 0);
-								break;
-						}
+						setImage(display, i, 0);
 					}
 					break;
 				}
 			} else {
+				bool hasFs = false;
 				File file = SPIFFS.open(path, "r");
 				if (file) {
+					hasFs = (char2int(file.read()) << 4) + char2int(file.read());
 					uint16_t i = 0;
 					while (file.available() && i < 2048) {
-						uint8_t data = char2int(file.read()) + (char2int(file.read()) << 4);
-						switch (display) {
-							default:
-								front.setImage(i, data);
-								break;
-							case 1:
-								side.setImage(i, data);
-								break;
-							case 2:
-								back.setImage(i, data);
-								break;
-						}
+						setImage(display, i, char2int(file.read()) + (char2int(file.read()) << 4));
 						i++;
 					}
 					fileIndices[display]++;
 				}
 				file.close();
+
+				if (SPIFFS.exists(pathFs) && hasFs) {
+					File fileFs = SPIFFS.open(pathFs, "r");
+					if (fileFs) {
+						for (uint8_t j = 0; j < 6; j++) {
+							setFancyScrollImage(display, j, (char2int(fileFs.read()) << 4) + char2int(fileFs.read()));
+						}
+						uint16_t i = 6;
+						while (fileFs.available() && i < 2048) {
+							setFancyScrollImage(display, i, char2int(fileFs.read()) + (char2int(fileFs.read()) << 4));
+							i++;
+						}
+						useFancyScroll += (1 << display);
+					}
+					fileFs.close();
+				}
+
 				break;
 			}
 		}
 	}
+
 	for (uint16_t i = 0; i < 256; i++) {
 		front.step(i);
 		side.step(i);
 		back.step(i);
 		server.handleClient();
 	}
-	for (uint8_t i = 0; i < 32; i++) {
-		delay(100);
+
+	if (useFancyScroll & 1) {
+		front.fancyScroll();
 		server.handleClient();
+	}
+	if (useFancyScroll & 2) {
+		side.fancyScroll();
+		server.handleClient();
+	}
+	if (useFancyScroll & 4) {
+		back.fancyScroll();
+		server.handleClient();
+	}
+
+	if (!useFancyScroll) {
+		for (uint8_t i = 0; i < 32; i++) {
+			delay(100);
+			server.handleClient();
+		}
 	}
 }

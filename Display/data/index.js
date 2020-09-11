@@ -248,22 +248,47 @@ function setup() {
 			}
 			this.setState({test_state: `Uploading Displays... (${Math.round((group + (display + index / groupDisplayCount) / displayKeys.length) * 100 / groupKeys.length)}%)`});
 			const {height, width} = DISPLAYS[displayName];
-			const imageData = getImageBitArray(height, width, groupDisplays[index]["settings"], groupDisplays[index]["image"]);
-			let bitArray = "";
+			const displaySettings = groupDisplays[index]["settings"];
+			const displayImage = groupDisplays[index]["image"];
+			const imageData = this.bitArrayToHexArray(getImageBitArray(height, width, displaySettings, displayImage), height, width);
+			const fancyScroll = displaySettings["fancy_scroll"];
+			postFile(`${group}-${display}-${index}.txt`, (fancyScroll < 0 ? "01" : "00") + imageData, () => {
+				if (fancyScroll < 0) {
+					const scale = displaySettings["scale_down"] / displaySettings["scale_up"];
+					const xOffsetRaw = (displayImage["width"] - Math.floor(width * scale)) / 2 + displaySettings["x"] + Math.floor((width + fancyScroll * 8) * scale);
+					const displayWindowWidthRaw = displayImage["width"] - xOffsetRaw;
+					const xOffset = Math.floor((displayWindowWidthRaw - displayImage["width"]) / 2 + xOffsetRaw);
+					const displayWindowWidth = Math.floor(displayWindowWidthRaw / scale);
+					const imageDataScroll = this.bitArrayToHexArray(getImageBitArray(height, displayWindowWidth, Object.assign({}, displaySettings, {
+						x: xOffset,
+						fancy_scroll: 0
+					}), displayImage, true), height, displayWindowWidth + 8);
+					const scrollStartString = (width + fancyScroll * 8).toString(16).padStart(4, "0");
+					const scrollWidthString = (displayWindowWidth + 8).toString(16).padStart(4, "0");
+					const scrollZoomString = Math.floor(displaySettings["scale_up"]).toString(16).padStart(4, "0");
+					postFile(`${group}-${display}-${index}-fs.txt`, scrollStartString + scrollWidthString + scrollZoomString + imageDataScroll, () => {
+						context.sendImagePostRecursive(group, display, index + 1, callback, context);
+					});
+				} else {
+					context.sendImagePostRecursive(group, display, index + 1, callback, context);
+				}
+			});
+		}
+
+		bitArrayToHexArray(bitArray, height, width) {
+			let hexArray = "";
 			for (let row = 0; row < height; row += 8) {
 				for (let column = 0; column < width; column++) {
 					for (let j = 0; j < 8; j += 4) {
 						let sum = 0;
 						for (let i = 0; i < 4; i++) {
-							sum += (imageData[column + (i + j) * width + row * width] << i);
+							sum += (bitArray[column + (i + j) * width + row * width] << i);
 						}
-						bitArray += sum.toString(16);
+						hexArray += sum.toString(16);
 					}
 				}
 			}
-			postFile(`${group}-${display}-${index}.txt`, bitArray, () => {
-				context.sendImagePostRecursive(group, display, index + 1, callback, context);
-			});
+			return hexArray;
 		}
 
 		// ===== Get Utilities =====
@@ -666,7 +691,7 @@ function greyscaleCompressedToImageData(compressed) {
 	return newImageData;
 }
 
-function getImageBitArray(height, width, settings, image) {
+function getImageBitArray(height, width, settings, image, padRows = false) {
 	const scale = settings["scale_down"] / settings["scale_up"];
 	const scaleHeight = Math.floor(height * scale);
 	const scaleWidth = Math.floor(width * scale);
@@ -675,9 +700,12 @@ function getImageBitArray(height, width, settings, image) {
 	const oldImageData = canvasContext.getImageData(settings["x"] + (image.width - scaleWidth) / 2, settings["y"] + (image.height - scaleHeight) / 2, scaleWidth, scaleHeight)["data"];
 	const newBitArray = [];
 	for (let row = 0; row < height; row++) {
+		if (padRows) {
+			newBitArray.push(0, 0, 0, 0, 0, 0, 0, 0);
+		}
 		for (let column = 0; column < width; column++) {
 			let color;
-			if (row < settings["crop_top"] || row >= height - settings["crop_bottom"] || column < settings["crop_left"] || column >= width - settings["crop_right"]) {
+			if (row < settings["crop_top"] || row >= height - settings["crop_bottom"] || column < settings["crop_left"] || column >= width - settings["crop_right"] || column >= width + 8 * settings["fancy_scroll"]) {
 				color = 0;
 			} else {
 				const index = (Math.floor(row * scale) * scaleWidth + Math.floor(column * scale)) * 4;
