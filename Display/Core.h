@@ -44,22 +44,28 @@ public:
 			scale = 1;
 		}
 
+		unsigned long duration = 0;
 		const uint16_t numTiles = widthChunk - fancyScrollDivideChunk;
 		for (uint16_t step = WIDTH - 1; step >= fancyScrollDivide; step -= scale) {
+			const unsigned long microsStart = micros();
 			const uint16_t startTile = step / 8;
 			uint8_t *imagePointer = image - 1 - (step % 8) + bufferOffset;
 			for (uint16_t row = 0; row < heightChunk; row++) {
 				display.drawTile(startTile, row, numTiles, imagePointer + row * scrollWidth);
 			}
+			duration = micros() - microsStart;
 			delay(1);
 		}
 
 		for (uint16_t step = 0; step < scrollWidth - 8; step += scale) {
+			const unsigned long microsStart = micros();
 			const uint16_t numTiles2 = (scrollWidth - step) / 8;
 			uint8_t *imagePointer = image + step + bufferOffset;
 			for (uint16_t row = 0; row < heightChunk; row++) {
 				display.drawTile(fancyScrollDivideChunk, row, numTiles < numTiles2 ? numTiles : numTiles2, imagePointer + row * scrollWidth);
 			}
+			const unsigned long delayTime = duration - (micros() - microsStart);
+			while (micros() - microsStart < duration) {}
 			delay(1);
 		}
 	}
