@@ -86,6 +86,8 @@ function setup() {
 			this.uploadImage = this.uploadImage.bind(this);
 			this.deleteImage = this.deleteImage.bind(this);
 			this.imageChanged = this.imageChanged.bind(this);
+			this.saveConfiguration = this.saveConfiguration.bind(this);
+			this.uploadConfiguration = this.uploadConfiguration.bind(this);
 			this.testImages = this.testImages.bind(this);
 			this.state = Object.assign(STORED_SETTINGS, {
 				selected_group: -1,
@@ -192,6 +194,17 @@ function setup() {
 			document.querySelector(`#${display}_${index}_canvas`).getContext("2d").putImageData(newImageData, 0, 0);
 		}
 
+		uploadConfiguration() {
+			const input = document.createElement("input");
+			input.setAttribute("type", "file");
+			input.onchange = (event1) => {
+				const reader = new FileReader();
+				reader.onload = (event2) => this.setState({groups: JSON.parse(event2.target.result)});
+				reader.readAsText(event1.target.files[0]);
+			}
+			input.click();
+		}
+
 		// ===== Utilities =====
 
 		renderSelectedGroup() {
@@ -212,12 +225,15 @@ function setup() {
 
 		testImages(imageData) {
 			this.setState({test_state: "Please Wait..."});
-			this.sendImagePostRecursive(0, 0, 0, () => {
-				this.setState({test_state: "Saving Settings..."});
-				postFile("settings.js", "const STORED_SETTINGS={\"groups\":" + JSON.stringify(this.state["groups"]) + "}", () => {
-					this.setState({test_state: ""});
-				});
-			}, this);
+			this.sendImagePostRecursive(0, 0, 0, () => this.setState({test_state: ""}), this);
+		}
+
+		saveConfiguration() {
+			const link = document.createElement("a");
+			const file = new Blob([JSON.stringify(this.state["groups"])], {type: "text/plain"});
+			link.href = URL.createObjectURL(file);
+			link.download = "bus_destination_display_settings.json";
+			link.click();
 		}
 
 		sendImagePostRecursive(group, display, index, callback, context) {
@@ -330,9 +346,11 @@ function setup() {
 						<h2 className="tab" onClick={this.addGroup}>+</h2>
 						<div hidden={Object.keys(this.state.groups).length === 0} className="tab_link">
 							{this.state.test_state === "" ?
-								<a onClick={this.testImages}>Save and Upload</a> :
+								<a onClick={this.testImages}>Upload</a> :
 								this.state.test_state
 							}
+							<br/>
+							<a onClick={this.saveConfiguration}>Save Configuration</a>
 						</div>
 					</div>
 					<div className="content">
@@ -340,6 +358,7 @@ function setup() {
 							<div>
 								<h1>Let's get started with your Bus Destination Sign.</h1>
 								<p>Add a display group using the + button on the left.</p>
+								<a onClick={this.uploadConfiguration}>Alternatively, upload an existing configuration.</a>
 							</div> :
 							<div>
 								<label>
@@ -490,8 +509,7 @@ function setup() {
 					<div>
 						<h1>Manage your destination group.</h1>
 						<p>Select an uploaded display to edit, or add a display using the + button for each screen.</p>
-						<p>Click on "Save and Upload" on the left to save your changes and see your displays in
-							action.</p>
+						<p>Click on "Upload" on the left to see your displays in action, or click on "Save Configuration" to save your changes to a file.</p>
 					</div> :
 					<div>
 						<img id="image_original" height={height * zoom + (zoom === 1 ? 2 : 1)} alt="Source Image"/>
