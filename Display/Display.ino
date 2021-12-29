@@ -7,6 +7,7 @@ Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> front(256, 64, D3, D4);
 Core<U8X8_SSD1322_NHD_256X64_4W_HW_SPI> side(256, 64, D1, D4);
 Core<U8X8_SH1106_128X64_VCOMH0_4W_HW_SPI> back(128, 64, D0, D4);
 const uint8_t DISPLAY_COUNT = 3;
+const uint8_t BUTTON_PIN = D6;
 uint8_t fileIndices[DISPLAY_COUNT] = {0};
 uint8_t selectedGroup = 0;
 ESP8266WebServer server(80);
@@ -71,12 +72,28 @@ void setFancyScrollImage(uint8_t display, uint16_t index, uint8_t data) {
 	}
 }
 
+void repeatingActions() {
+	if (!digitalRead(BUTTON_PIN)) {
+		selectedGroup++;
+		for (uint8_t i = 0; i < 4; i++) {
+			digitalWrite(LED_BUILTIN, HIGH);
+			delay(200);
+			digitalWrite(LED_BUILTIN, LOW);
+			delay(200);
+		}
+	}
+	server.handleClient();
+}
+
 void setup() {
 	front.display.begin();
 	side.display.begin();
 	back.display.begin();
 
 	SPIFFS.begin();
+	pinMode(BUTTON_PIN, INPUT_PULLUP);
+	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWrite(LED_BUILTIN, HIGH);
 
 	// wifi
 	File wifiFile = SPIFFS.open("/wifi.txt", "r");
@@ -145,9 +162,23 @@ void setup() {
 }
 
 void loop() {
-	server.handleClient();
+	repeatingActions();
 
 	uint8_t useFancyScroll = 0;
+	uint16_t displayCount = 0;
+
+	File fileCount = SPIFFS.open("/display_count.txt", "r");
+	if (fileCount) {
+		while (fileCount.available()) {
+			displayCount *= 10;
+			displayCount += fileCount.read() - 48;
+		}
+	}
+	fileCount.close();
+
+	if (selectedGroup >= displayCount) {
+		selectedGroup = 0;
+	}
 
 	for (uint8_t display = 0; display < DISPLAY_COUNT; display++) {
 		char path[32], pathFs[32];
@@ -204,26 +235,26 @@ void loop() {
 		front.step(i);
 		side.step(i);
 		back.step(i);
-		server.handleClient();
+		repeatingActions();
 	}
 
 	if (useFancyScroll & 1) {
 		front.fancyScroll();
-		server.handleClient();
+		repeatingActions();
 	}
 	if (useFancyScroll & 2) {
 		side.fancyScroll();
-		server.handleClient();
+		repeatingActions();
 	}
 	if (useFancyScroll & 4) {
 		back.fancyScroll();
-		server.handleClient();
+		repeatingActions();
 	}
 
 	if (!useFancyScroll) {
 		for (uint8_t i = 0; i < 32; i++) {
 			delay(100);
-			server.handleClient();
+			repeatingActions();
 		}
 	}
 }

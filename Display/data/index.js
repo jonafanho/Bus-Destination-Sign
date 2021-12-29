@@ -239,7 +239,7 @@ function setup() {
 		sendImagePostRecursive(group, display, index, callback, context) {
 			const groupKeys = Object.keys(this.state.groups);
 			if (group >= groupKeys.length) {
-				callback();
+				postFile("display_count.txt", groupKeys.length.toString(), callback);
 				return;
 			}
 			const displayKeys = Object.keys(DISPLAYS);
@@ -770,6 +770,7 @@ function postFile(fileName, fileContent, callback) {
 		method: "POST",
 		body: form
 	}).then(response => response.json()).then(data => callback()).catch(error => {
+		console.error(fileName);
 		console.error(error);
 		callback();
 	});
