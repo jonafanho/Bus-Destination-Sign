@@ -1,0 +1,13 @@
+<div class="column center main wrapper">
+	@if (getInitCompleted()) {
+		<div class="row gap cards wrapper">
+			@for (_ of getDisplays(); track $index) {
+				<app-display-config class="card" [index]="$index"/>
+			}
+		</div>
+	} @else {
+		<div class="spacing"></div>
+		<p-progressSpinner/>
+		<div class="spacing"></div>
+	}
+</div>

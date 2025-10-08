@@ -1,3 +1,10 @@
-.idea
-venv
-*.txt
+.gradle/
+.idea/
+.vscode/
+.pio/
+build/
+
+esp8266/.gitignore
+website/.gitignore
+
+src/main/resources/static/

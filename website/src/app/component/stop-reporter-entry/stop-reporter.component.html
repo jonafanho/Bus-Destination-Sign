@@ -1,0 +1,22 @@
+<div *transloco="let t" class="column gap">
+	<p-button [label]="t('stop-reporter-download')" (onClick)="fetchStopReporterDisplays()" [disabled]="getStopReporterLoading()"/>
+
+	<p-table [value]="getStopReporterList()" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[10, 50, 100]">
+		<ng-template #header>
+			<tr>
+				<th>{{ t("table.category") }}</th>
+				<th>{{ t("table.groups") }}</th>
+				<th>{{ t("table.preview") }}</th>
+			</tr>
+		</ng-template>
+		<ng-template #body let-stopReporter>
+			<tr>
+				<td>{{ stopReporter.category }}</td>
+				<td>{{ stopReporter.groups }}</td>
+				<td class="table-image">
+					<p-image [src]="getGoogleDriveImage(stopReporter.sources[0])" height="32" [alt]="stopReporter.category" [preview]="true"/>
+				</td>
+			</tr>
+		</ng-template>
+	</p-table>
+</div>

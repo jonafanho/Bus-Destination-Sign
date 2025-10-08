@@ -1,0 +1,28 @@
+<p-card *transloco="let t" [style]="{height: '100%'}" [header]="t('title.display') + ' ' + (index + 1)" [formGroup]="formGroup">
+	<div class="column gap">
+		<div></div>
+
+		<p-float-label variant="in">
+			<p-select inputId="displayType" [options]="types" formControlName="displayType" optionLabel="name" optionValue="value" [fluid]="true">
+				<ng-template let-type #item #selectedItem>{{ type.value === 'NONE' ? t(type.name) : type.name }}</ng-template>
+			</p-select>
+			<label for="displayType">{{ t('input.display-type') }}</label>
+		</p-float-label>
+
+		@if (getDisplay().displayType !== 'NONE') {
+			<p-float-label variant="in">
+				<p-input-number inputId="scale" [min]="1" formControlName="scale" [fluid]="true"/>
+				<label for="scale">{{ t('input.scale') }}</label>
+			</p-float-label>
+
+			<p-accordion value="0">
+				<p-accordion-panel value="0">
+					<p-accordion-header>{{ t('images') }} ({{ getDisplay().displayImages.length }})</p-accordion-header>
+					<p-accordion-content>
+						<div>test</div>
+					</p-accordion-content>
+				</p-accordion-panel>
+			</p-accordion>
+		}
+	</div>
+</p-card>
