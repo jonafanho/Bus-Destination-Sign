@@ -1,28 +1,63 @@
-<p-card *transloco="let t" [style]="{height: '100%'}" [header]="t('title.display') + ' ' + (index + 1)" [formGroup]="formGroup">
-	<div class="column gap">
-		<div></div>
+<p-card *transloco="let t" [style]="{height: '100%', overflow: 'hidden'}">
+	<ng-template #title>
+		<div class="row gap center">
+			<div class="column spacing">
+				<h3>{{ t('title.display') }} {{ displayIndex + 1 }}</h3>
+				<div class="subtitle">{{ getDisplayTypeName(getDisplay().displayType) }}</div>
+			</div>
+			@if (getDisplay().displayType === 'NONE') {
+				<p-message icon="pi pi-info-circle">{{ t('message.no-display-type-selected') }}</p-message>
+			}
+			<div class="row">
+				@if (getDisplay().displayType !== 'NONE') {
+					<p-button icon="pi pi-plus" [rounded]="true" [text]="true" [pTooltip]="t('title.add-image')" tooltipPosition="bottom" (onClick)="addImageDialogVisible = true"/>
+				}
+				<p-button icon="pi pi-cog" [rounded]="true" [text]="true" [pTooltip]="t('title.display-settings')" tooltipPosition="bottom" (onClick)="settingsDialogVisible = true; displaySettingsComponent.updateForm()"/>
+			</div>
+		</div>
+	</ng-template>
 
-		<p-float-label variant="in">
-			<p-select inputId="displayType" [options]="types" formControlName="displayType" optionLabel="name" optionValue="value" [fluid]="true">
-				<ng-template let-type #item #selectedItem>{{ type.value === 'NONE' ? t(type.name) : type.name }}</ng-template>
-			</p-select>
-			<label for="displayType">{{ t('input.display-type') }}</label>
-		</p-float-label>
+	@if (getDisplay().displayType !== 'NONE') {
+		<br/>
+		<div class="column gap-small content">
+			@for (displayImage of getDisplay().displayImages; track $index) {
+				<p-panel>
+					<ng-template #header>
+						<div class="row gap center panel-header">
+							<h4 class="spacing">{{ t('title.image') }} {{ $index + 1 }}</h4>
+							<div class="row">
+								<p-button icon="pi pi-pencil" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.edit')" tooltipPosition="bottom" (onClick)="editImage($index, editImageComponent)"/>
+								<p-button icon="pi pi-trash" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.delete')" tooltipPosition="bottom" (onClick)="deleteImage($index)"/>
+							</div>
+						</div>
+					</ng-template>
+					<ng-template #content>
+						<div class="row gap center">
+							<div class="spacing">
+								<p-image [src]="getUrlFromRawImageId(displayImage.rawImageId)" [imageStyle]="{height: '4rem'}"/>
+							</div>
+							@if ($count > 1) {
+								<div class="column">
+									<p-button icon="pi pi-angle-up" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-up')" tooltipPosition="bottom" [disabled]="$index === 0" (onClick)="moveImage($index, -1)"/>
+									<p-button icon="pi pi-angle-down" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-down')" tooltipPosition="bottom" [disabled]="$index === $count - 1" (onClick)="moveImage($index, 1)"/>
+								</div>
+							}
+						</div>
+					</ng-template>
+				</p-panel>
+			}
+		</div>
+	}
 
-		@if (getDisplay().displayType !== 'NONE') {
-			<p-float-label variant="in">
-				<p-input-number inputId="scale" [min]="1" formControlName="scale" [fluid]="true"/>
-				<label for="scale">{{ t('input.scale') }}</label>
-			</p-float-label>
+	<p-dialog [header]="t('title.add-image')" [(visible)]="addImageDialogVisible" [modal]="true" [dismissableMask]="true" [style]="{maxWidth: '96rem', width: '80%', height: '80%'}">
+		<app-image-gallery icon="pi pi-plus" (clickRawImage)="addImage($event, editImageComponent)"/>
+	</p-dialog>
 
-			<p-accordion value="0">
-				<p-accordion-panel value="0">
-					<p-accordion-header>{{ t('images') }} ({{ getDisplay().displayImages.length }})</p-accordion-header>
-					<p-accordion-content>
-						<div>test</div>
-					</p-accordion-content>
-				</p-accordion-panel>
-			</p-accordion>
-		}
-	</div>
+	<p-dialog [header]="t('title.edit-image')" [(visible)]="editImageDialogVisible" [modal]="true" [dismissableMask]="true" [style]="{maxWidth: '96rem', width: '80%', height: '80%'}">
+		<app-edit-image #editImageComponent [displayIndex]="displayIndex"/>
+	</p-dialog>
+
+	<p-dialog [header]="t('title.display-settings')" [(visible)]="settingsDialogVisible" [modal]="true" [dismissableMask]="true" [style]="{maxWidth: '24rem', maxHeight: '24rem', width: '80%', height: '80%'}">
+		<app-display-settings #displaySettingsComponent [displayIndex]="displayIndex"/>
+	</p-dialog>
 </p-card>

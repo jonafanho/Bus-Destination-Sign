@@ -21,7 +21,7 @@ public final class StopReporterController {
 	}
 
 	@GetMapping("/fetchStopReporterDisplays")
-	public Mono<ObjectArrayList<StopReporterDTO>> fetchStopReporterDisplays() {
+	public Mono<Void> fetchStopReporterDisplays() {
 		return stopReporterService.fetchDisplays();
 	}
 

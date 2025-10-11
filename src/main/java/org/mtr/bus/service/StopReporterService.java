@@ -54,7 +54,7 @@ public final class StopReporterService {
 	 *
 	 * @return a list of {@link StopReporterDTO} objects
 	 */
-	public Mono<ObjectArrayList<StopReporterDTO>> fetchDisplays() {
+	public Mono<Void> fetchDisplays() {
 		log.info("Fetching StopReporter displays");
 		return Mono.fromRunnable(stopReporterRepository::deleteAll).subscribeOn(Schedulers.boundedElastic()).then(parseWebsite(URL, document1 -> parseLinks(document1, getBaseUrl(URL), (document2, baseUrl1) -> {
 			final ObjectArrayList<StopReporterDTO> stopReporterDTOList1 = parseDocument(document2, document2.title());
@@ -72,7 +72,7 @@ public final class StopReporterService {
 			} else {
 				return saveToDatabase(stopReporterDTOList1);
 			}
-		}))).doOnSuccess(stopReporterDTOList -> log.info("StopReporter displays fetched"));
+		}))).doOnSuccess(stopReporterDTOList -> log.info("StopReporter displays fetched")).then();
 	}
 
 	/**

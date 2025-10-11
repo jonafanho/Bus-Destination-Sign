@@ -21,8 +21,33 @@ public final class DisplayImage {
 
 	@Getter
 	@Setter
+	@ManyToOne
+	private RawImage rawImage;
+
+	@Getter
+	@Setter
 	@Column(nullable = false)
-	private byte[] imageBytes;
+	private int editPixelX;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editPixelY;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editPixelCountX;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editPixelCountY;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private byte[] editedImageBytes;
 
 	@Getter
 	@Setter

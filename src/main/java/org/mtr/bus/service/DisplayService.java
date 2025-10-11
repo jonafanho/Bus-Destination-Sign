@@ -7,6 +7,7 @@ import org.mtr.bus.dto.DisplayDTO;
 import org.mtr.bus.dto.DisplayImageDTO;
 import org.mtr.bus.entity.Display;
 import org.mtr.bus.entity.DisplayImage;
+import org.mtr.bus.entity.RawImage;
 import org.mtr.bus.repository.DisplayImageRepository;
 import org.mtr.bus.repository.DisplayRepository;
 import org.springframework.stereotype.Service;
@@ -62,7 +63,12 @@ public class DisplayService {
 
 	private static DisplayDTO mapDisplay(Display display) {
 		return new DisplayDTO(display.getDisplayType(), Math.max(1, display.getScale()), display.getDisplayImages().stream().map(displayImage -> new DisplayImageDTO(
-				displayImage.getImageBytes(),
+				displayImage.getRawImage().getUuid(),
+				displayImage.getEditPixelX(),
+				displayImage.getEditPixelY(),
+				displayImage.getEditPixelCountX(),
+				displayImage.getEditPixelCountY(),
+				displayImage.getEditedImageBytes(),
 				displayImage.getWipeDuration(),
 				displayImage.getWidth(),
 				displayImage.getScrollLeftAnchor(),
@@ -77,7 +83,12 @@ public class DisplayService {
 
 		displayDTO.displayImages().forEach(displayImageDTO -> {
 			final DisplayImage displayImage = new DisplayImage(index);
-			displayImage.setImageBytes(displayImageDTO.imageBytes());
+			displayImage.setRawImage(new RawImage(displayImageDTO.rawImageId()));
+			displayImage.setEditPixelX(displayImageDTO.editPixelX());
+			displayImage.setEditPixelY(displayImageDTO.editPixelY());
+			displayImage.setEditPixelCountX(displayImageDTO.editPixelCountX());
+			displayImage.setEditPixelCountY(displayImageDTO.editPixelCountY());
+			displayImage.setEditedImageBytes(displayImageDTO.editedImageBytes());
 			displayImage.setWipeDuration(displayImageDTO.wipeDuration());
 			displayImage.setWidth(displayImageDTO.width());
 			displayImage.setScrollLeftAnchor(displayImageDTO.scrollLeftAnchor());

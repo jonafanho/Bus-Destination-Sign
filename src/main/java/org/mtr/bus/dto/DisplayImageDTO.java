@@ -1,4 +1,18 @@
 package org.mtr.bus.dto;
 
-public record DisplayImageDTO(byte[] imageBytes, int wipeDuration, int width, int scrollLeftAnchor, int scrollRightAnchor) {
+
+import java.util.UUID;
+
+public record DisplayImageDTO(
+		UUID rawImageId,
+		int editPixelX,
+		int editPixelY,
+		int editPixelCountX,
+		int editPixelCountY,
+		byte[] editedImageBytes,
+		int wipeDuration,
+		int width,
+		int scrollLeftAnchor,
+		int scrollRightAnchor
+) {
 }

@@ -1,7 +1,25 @@
 {
+	"title": "巴士路綫牌",
+	"menu.language": "語言",
+	"menu.toggle-theme": "切換主題",
+	"tooltip.settings": "設定",
+	"tooltip.move-up": "移上",
+	"tooltip.move-down": "移下",
+	"tooltip.edit": "編輯圖片",
+	"tooltip.delete": "刪除圖片",
+	"menu.browse-images": "瀏覽圖片",
 	"input.display-type": "顯示型號",
 	"input.scale": "圖片比例",
+	"title.raw-image-manager": "圖片管理員",
+	"title.add-image": "新增圖片",
+	"title.edit-image": "編輯圖片",
 	"title.display": "顯示屏",
-	"images": "圖片",
-	"none": "無"
+	"title.display-settings": "顯示屏設定",
+	"title.image": "圖片",
+	"message.no-display-type-selected": "未選擇顯示屏類型",
+	"message.file-upload-success": "上載檔案成功",
+	"message.file-upload-error": "上載檔案失敗",
+	"message.invalid-file-types": "檔案類型無效",
+	"none": "無",
+	"upload-image": "上載圖片"
 }

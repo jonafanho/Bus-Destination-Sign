@@ -1,3 +1,5 @@
+@use "primeicons/primeicons.css";
+
 * {
 	font-family: "Inter", sans-serif;
 	margin: 0;
@@ -60,6 +62,10 @@ html, body {
 	flex-grow: 1;
 }
 
+.wrap {
+	flex-wrap: wrap;
+}
+
 .wrapper {
 	overflow: hidden;
 	width: 100%;
@@ -85,28 +91,7 @@ html, body {
 	padding-right: 1rem;
 }
 
-.padding-top-bottom-small {
-	box-sizing: border-box;
-	padding-top: 0.5rem;
-	padding-bottom: 0.5rem;
-}
-
-.padding-sides-small {
-	box-sizing: border-box;
-	padding-left: 0.5rem;
-	padding-right: 0.5rem;
-}
-
-.clickable {
-	cursor: pointer;
-	transition: background-color 0.2s;
-}
-
-.clickable:hover {
-	background: var(--p-button-text-primary-hover-background);
-}
-
-.icon-button {
-	width: 2.5rem;
-	height: 2.5rem;
+.p-card-body, .p-card-content {
+	height: 100%;
+	overflow: hidden;
 }

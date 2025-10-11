@@ -1,7 +1,25 @@
 {
+	"title": "Bus Destination Sign",
+	"menu.language": "Language",
+	"menu.toggle-theme": "Toggle Theme",
+	"tooltip.settings": "Settings",
+	"tooltip.move-up": "Move Up",
+	"tooltip.move-down": "Move Down",
+	"tooltip.edit": "Edit Image",
+	"tooltip.delete": "Delete Image",
+	"menu.browse-images": "Browse Images",
 	"input.display-type": "Display Type",
 	"input.scale": "Image Scale",
+	"title.raw-image-manager": "Image Manager",
+	"title.add-image": "Add Image",
+	"title.edit-image": "Edit Image",
 	"title.display": "Display",
-	"images": "Images",
-	"none": "None"
+	"title.display-settings": "Display Settings",
+	"title.image": "Image",
+	"message.no-display-type-selected": "No Display Type Selected",
+	"message.file-upload-success": "File Upload Success",
+	"message.file-upload-error": "File Upload Error",
+	"message.invalid-file-types": "Invalid File Type(s)",
+	"none": "None",
+	"upload-image": "Upload Image"
 }
