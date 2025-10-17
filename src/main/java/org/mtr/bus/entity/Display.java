@@ -24,11 +24,6 @@ public final class Display {
 	private DisplayType displayType = DisplayType.NONE;
 
 	@Getter
-	@Setter
-	@Column(nullable = false)
-	private int scale;
-
-	@Getter
 	@OneToMany(mappedBy = "display", fetch = FetchType.EAGER)
 	private final List<DisplayImage> displayImages = new ArrayList<>();
 

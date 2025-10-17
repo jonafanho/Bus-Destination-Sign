@@ -1,0 +1,5 @@
+.drag-content {
+	cursor: move;
+	position: absolute;
+	transform: translate(-50%, -50%);
+}

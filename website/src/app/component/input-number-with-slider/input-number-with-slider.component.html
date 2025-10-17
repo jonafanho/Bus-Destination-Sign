@@ -1,0 +1,12 @@
+<div class="column gap">
+	<p-float-label variant="in">
+		<p-input-number inputId="input" [min]="min" [max]="max" [(ngModel)]="value" (onInput)="change()" [fluid]="true"/>
+		<label for="input">{{ label }}</label>
+	</p-float-label>
+	<div class="row gap">
+		<div></div>
+		<p-slider class="slider" [min]="min" [max]="max" [(ngModel)]="value" (onChange)="change()"/>
+		<div></div>
+	</div>
+	<div></div>
+</div>

@@ -62,12 +62,16 @@ public class DisplayService {
 	}
 
 	private static DisplayDTO mapDisplay(Display display) {
-		return new DisplayDTO(display.getDisplayType(), Math.max(1, display.getScale()), display.getDisplayImages().stream().map(displayImage -> new DisplayImageDTO(
+		return new DisplayDTO(display.getDisplayType(), display.getDisplayImages().stream().map(displayImage -> new DisplayImageDTO(
 				displayImage.getRawImage().getUuid(),
-				displayImage.getEditPixelX(),
-				displayImage.getEditPixelY(),
-				displayImage.getEditPixelCountX(),
-				displayImage.getEditPixelCountY(),
+				displayImage.getEditTopLeftPixelX(),
+				displayImage.getEditTopLeftPixelY(),
+				displayImage.getEditTopLeftOffsetPixelX(),
+				displayImage.getEditTopLeftOffsetPixelY(),
+				displayImage.getEditBottomRightPixelX(),
+				displayImage.getEditBottomRightPixelY(),
+				displayImage.getEditContrast(),
+				displayImage.getEditScale(),
 				displayImage.getEditedImageBytes(),
 				displayImage.getWipeDuration(),
 				displayImage.getWidth(),
@@ -79,15 +83,18 @@ public class DisplayService {
 	private static Display mapDisplay(int index, DisplayDTO displayDTO) {
 		final Display display = new Display(index);
 		display.setDisplayType(displayDTO.displayType());
-		display.setScale(Math.max(1, displayDTO.scale()));
 
 		displayDTO.displayImages().forEach(displayImageDTO -> {
 			final DisplayImage displayImage = new DisplayImage(index);
 			displayImage.setRawImage(new RawImage(displayImageDTO.rawImageId()));
-			displayImage.setEditPixelX(displayImageDTO.editPixelX());
-			displayImage.setEditPixelY(displayImageDTO.editPixelY());
-			displayImage.setEditPixelCountX(displayImageDTO.editPixelCountX());
-			displayImage.setEditPixelCountY(displayImageDTO.editPixelCountY());
+			displayImage.setEditTopLeftPixelX(displayImageDTO.editTopLeftPixelX());
+			displayImage.setEditTopLeftPixelY(displayImageDTO.editTopLeftPixelY());
+			displayImage.setEditTopLeftOffsetPixelX(displayImageDTO.editTopLeftOffsetPixelX());
+			displayImage.setEditTopLeftOffsetPixelY(displayImageDTO.editTopLeftOffsetPixelY());
+			displayImage.setEditBottomRightPixelX(displayImageDTO.editBottomRightPixelX());
+			displayImage.setEditBottomRightPixelY(displayImageDTO.editBottomRightPixelY());
+			displayImage.setEditContrast(displayImageDTO.editContrast());
+			displayImage.setEditScale(displayImageDTO.editScale());
 			displayImage.setEditedImageBytes(displayImageDTO.editedImageBytes());
 			displayImage.setWipeDuration(displayImageDTO.wipeDuration());
 			displayImage.setWidth(displayImageDTO.width());

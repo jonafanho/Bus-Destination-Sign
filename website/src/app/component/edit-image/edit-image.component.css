@@ -1,0 +1,12 @@
+.image-wrapper {
+	image-rendering: pixelated;
+	max-height: 12rem;
+	overflow: auto;
+	position: relative;
+}
+
+.drag-point-wrapper {
+	position: absolute;
+	top: 0;
+	left: 0;
+}

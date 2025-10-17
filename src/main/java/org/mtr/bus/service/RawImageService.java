@@ -1,10 +1,12 @@
 package org.mtr.bus.service;
 
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.mtr.bus.entity.RawImage;
 import org.mtr.bus.repository.RawImageRepository;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -29,13 +31,17 @@ public final class RawImageService {
 			final byte[] bytes = new byte[dataBuffer.readableByteCount()];
 			dataBuffer.read(bytes);
 			DataBufferUtils.release(dataBuffer);
-			return Mono.fromRunnable(() -> rawImageRepository.save(new RawImage(filePart.filename(), bytes))).subscribeOn(Schedulers.boundedElastic());
+			return saveRawImage(filePart.filename(), bytes);
 		})).then();
 	}
 
-	@Nullable
-	public byte[] getRawImage(UUID uuid) {
-		return rawImageRepository.findById(uuid).map(RawImage::getImageBytes).orElse(null);
+	public Mono<Void> saveRawImage(String fileName, byte[] bytes) {
+		return Mono.fromRunnable(() -> rawImageRepository.save(new RawImage(fileName, bytes))).subscribeOn(Schedulers.boundedElastic()).then();
+	}
+
+	public ResponseEntity<byte[]> getRawImage(UUID uuid) {
+		return rawImageRepository.findById(uuid).map(rawImage -> ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE).body(rawImage.getImageBytes())
+		).orElse(ResponseEntity.notFound().build());
 	}
 
 	public List<UUID> getRawImageIds() {

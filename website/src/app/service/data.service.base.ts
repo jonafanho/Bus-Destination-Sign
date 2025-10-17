@@ -1,9 +1,11 @@
-import {EventEmitter, Injectable} from "@angular/core";
+import {EventEmitter, inject, Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {getUrl} from "../utility/utilities";
 
 @Injectable({providedIn: "root"})
 export abstract class DataServiceBase<T> {
+	private readonly httpClient = inject(HttpClient);
+
 	private data: T[] = [];
 	private dataInitialized = false;
 	private loading = false;
@@ -13,7 +15,8 @@ export abstract class DataServiceBase<T> {
 	public readonly getLoading = () => this.loading;
 	public readonly dataUpdated = new EventEmitter();
 
-	protected constructor(private readonly httpClient: HttpClient, private readonly url: string) {
+	// eslint-disable-next-line @angular-eslint/prefer-inject
+	protected constructor(private readonly url: string) {
 		this.fetchData();
 	}
 

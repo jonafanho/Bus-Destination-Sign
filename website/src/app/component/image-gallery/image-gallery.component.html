@@ -2,7 +2,7 @@
 	<div class="row gap-small wrap content">
 		@for (rawImageId of getRawImageIds(); track $index) {
 			<p-button [outlined]="true" (onClick)="clickRawImage.emit(rawImageId)">
-				<p-image [src]="getUrlFromRawImageId(rawImageId)" [imageStyle]="{height: '8rem'}"/>
+				<img [src]="getUrlFromRawImageId(rawImageId)" [alt]="rawImageId" height="80"/>
 				<div class="column delete-button">
 					<div class="spacing"></div>
 					<i [class]="icon"></i>

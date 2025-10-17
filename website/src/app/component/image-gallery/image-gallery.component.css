@@ -1,6 +1,6 @@
 .delete-button {
+	background-color: rgba(0, 0, 0, 0.5);
 	color: white;
-	text-shadow: 0 0 0.5rem black;
 	opacity: 0;
 	position: absolute;
 	top: 50%;

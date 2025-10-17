@@ -19,6 +19,10 @@ export function getUrl() {
 	}
 }
 
+export function clamp(value: number, min: number, max: number) {
+	return Math.min(Math.max(value, min), max);
+}
+
 export function getLanguageMapping(lang: string) {
 	switch (lang) {
 		case "en":

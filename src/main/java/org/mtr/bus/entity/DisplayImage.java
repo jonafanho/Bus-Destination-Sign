@@ -27,25 +27,46 @@ public final class DisplayImage {
 	@Getter
 	@Setter
 	@Column(nullable = false)
-	private int editPixelX;
+	private int editTopLeftPixelX;
 
 	@Getter
 	@Setter
 	@Column(nullable = false)
-	private int editPixelY;
+	private int editTopLeftPixelY;
 
 	@Getter
 	@Setter
 	@Column(nullable = false)
-	private int editPixelCountX;
+	private int editTopLeftOffsetPixelX;
 
 	@Getter
 	@Setter
 	@Column(nullable = false)
-	private int editPixelCountY;
+	private int editTopLeftOffsetPixelY;
 
 	@Getter
 	@Setter
+	@Column(nullable = false)
+	private int editBottomRightPixelX;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editBottomRightPixelY;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editContrast;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editScale;
+
+	@Getter
+	@Setter
+	@Lob
 	@Column(nullable = false)
 	private byte[] editedImageBytes;
 

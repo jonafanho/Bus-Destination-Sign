@@ -1,8 +1,8 @@
 package org.mtr.bus.controller;
 
-import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.mtr.bus.service.RawImageService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -28,9 +28,8 @@ public final class RawImageController {
 		return rawImageService.saveRawImages(fileParts);
 	}
 
-	@Nullable
 	@GetMapping("/getRawImage/{uuid}")
-	public byte[] getRawImage(@PathVariable UUID uuid) {
+	public ResponseEntity<byte[]> getRawImage(@PathVariable UUID uuid) {
 		return rawImageService.getRawImage(uuid);
 	}
 

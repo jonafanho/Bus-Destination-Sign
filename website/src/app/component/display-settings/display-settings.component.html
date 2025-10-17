@@ -1,15 +1,8 @@
-<div *transloco="let t" class="column gap-small" [formGroup]="formGroup">
+<div *transloco="let t" class="column gap-small settings" [formGroup]="formGroup">
 	<p-float-label variant="in">
 		<p-select inputId="displayType" [options]="types" formControlName="displayType" [fluid]="true">
 			<ng-template let-type #item #selectedItem>{{ type === 'NONE' ? t(type.toLowerCase()) : getDisplayTypeName(type) }}</ng-template>
 		</p-select>
 		<label for="displayType">{{ t('input.display-type') }}</label>
 	</p-float-label>
-
-	@if (getDisplay().displayType !== 'NONE') {
-		<p-float-label variant="in">
-			<p-input-number inputId="scale" [min]="1" [max]="16" formControlName="scale" [fluid]="true"/>
-			<label for="scale">{{ t('input.scale') }}</label>
-		</p-float-label>
-	}
 </div>

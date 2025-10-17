@@ -31,7 +31,12 @@ public final class StopReporterController {
 	}
 
 	@GetMapping("/getGoogleDriveImage/{id}")
-	public Mono<ResponseEntity<byte[]>> getGoogleDriveImage(@PathVariable String id) {
-		return stopReporterService.getGoogleDriveImage(id);
+	public Mono<ResponseEntity<byte[]>> getGoogleDriveImage(@PathVariable String id, @RequestParam(required = false, defaultValue = "0") int height) {
+		return stopReporterService.getGoogleDriveImage(id, height);
+	}
+
+	@GetMapping("/saveGoogleDriveImage/{id}")
+	public Mono<Void> saveGoogleDriveImage(@PathVariable String id) {
+		return stopReporterService.saveGoogleDriveImage(id);
 	}
 }

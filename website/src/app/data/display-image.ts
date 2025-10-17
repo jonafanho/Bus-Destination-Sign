@@ -1,9 +1,13 @@
 export interface DisplayImage {
 	readonly rawImageId: string;
-	readonly editPixelX: number;
-	readonly editPixelY: number;
-	readonly editPixelCountX: number;
-	readonly editPixelCountY: number;
+	readonly editTopLeftPixelX: number;
+	readonly editTopLeftPixelY: number;
+	readonly editTopLeftOffsetPixelX: number;
+	readonly editTopLeftOffsetPixelY: number;
+	readonly editBottomRightPixelX: number;
+	readonly editBottomRightPixelY: number;
+	readonly editContrast: number;
+	readonly editScale: number;
 	readonly editedImageBytes: number[];
 	readonly wipeDuration: number;
 	readonly width: number;

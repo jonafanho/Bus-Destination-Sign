@@ -34,7 +34,7 @@
 					<ng-template #content>
 						<div class="row gap center">
 							<div class="spacing">
-								<p-image [src]="getUrlFromRawImageId(displayImage.rawImageId)" [imageStyle]="{height: '4rem'}"/>
+								<img [src]="getUrlFromRawImageId(displayImage.rawImageId)" [alt]="displayImage.rawImageId" height="80"/>
 							</div>
 							@if ($count > 1) {
 								<div class="column">
@@ -49,15 +49,17 @@
 		</div>
 	}
 
-	<p-dialog [header]="t('title.add-image')" [(visible)]="addImageDialogVisible" [modal]="true" [dismissableMask]="true" [style]="{maxWidth: '96rem', width: '80%', height: '80%'}">
-		<app-image-gallery icon="pi pi-plus" (clickRawImage)="addImage($event, editImageComponent)"/>
-	</p-dialog>
+	<app-dialog [title]="t('title.add-image')" [(visible)]="addImageDialogVisible">
+		<div header class="row gap">
+			<p-button icon="pi pi-images" [label]="t('title.raw-image-manager')" (onClick)="openRawImageManager()"/>
+			<div></div>
+		</div>
+		<app-image-gallery content icon="pi pi-plus" (clickRawImage)="addImage($event, editImageComponent)"/>
+	</app-dialog>
 
-	<p-dialog [header]="t('title.edit-image')" [(visible)]="editImageDialogVisible" [modal]="true" [dismissableMask]="true" [style]="{maxWidth: '96rem', width: '80%', height: '80%'}">
-		<app-edit-image #editImageComponent [displayIndex]="displayIndex"/>
-	</p-dialog>
+	<app-edit-image #editImageComponent [(visible)]="editImageDialogVisible" [displayIndex]="displayIndex"/>
 
-	<p-dialog [header]="t('title.display-settings')" [(visible)]="settingsDialogVisible" [modal]="true" [dismissableMask]="true" [style]="{maxWidth: '24rem', maxHeight: '24rem', width: '80%', height: '80%'}">
-		<app-display-settings #displaySettingsComponent [displayIndex]="displayIndex"/>
-	</p-dialog>
+	<app-dialog [title]="t('title.display-settings')" [(visible)]="settingsDialogVisible" maxWidth="24rem" maxHeight="24rem">
+		<app-display-settings content #displaySettingsComponent [displayIndex]="displayIndex"/>
+	</app-dialog>
 </p-card>

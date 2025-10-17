@@ -1,5 +1,6 @@
 package org.mtr.bus.service;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import jakarta.annotation.Nullable;
@@ -12,6 +13,7 @@ import org.mtr.bus.dto.StopReporterDTO;
 import org.mtr.bus.entity.StopReporter;
 import org.mtr.bus.repository.StopReporterRepository;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -33,8 +35,9 @@ import java.util.stream.Collectors;
 public final class StopReporterService {
 
 	private final WebClient webClient;
+	private final RawImageService rawImageService;
 	private final StopReporterRepository stopReporterRepository;
-	private final ConcurrentHashMap<String, byte[]> imageCache = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, Int2ObjectOpenHashMap<byte[]>> imageCache = new ConcurrentHashMap<>();
 
 	private static final String URL = "https://sites.google.com/view/stopreporter2003/電牌";
 	private static final String MATCHING_CLASS_NAME = "XqQF9c";
@@ -44,8 +47,9 @@ public final class StopReporterService {
 			Pattern.compile("id=([a-zA-Z0-9_-]+)")
 	);
 
-	public StopReporterService(WebClient webClient, StopReporterRepository stopReporterRepository) {
+	public StopReporterService(WebClient webClient, RawImageService rawImageService, StopReporterRepository stopReporterRepository) {
 		this.webClient = webClient;
+		this.rawImageService = rawImageService;
 		this.stopReporterRepository = stopReporterRepository;
 	}
 
@@ -84,19 +88,30 @@ public final class StopReporterService {
 		return stopReporterRepository.findAll().stream().map(stopReporter -> new StopReporterDTO(stopReporter.getCategory(), stopReporter.getGroups(), stopReporter.getSources())).collect(Collectors.toCollection(ObjectArrayList::new));
 	}
 
-	public Mono<ResponseEntity<byte[]>> getGoogleDriveImage(String id) {
-		final byte[] cachedBytes = imageCache.get(id);
+	public Mono<ResponseEntity<byte[]>> getGoogleDriveImage(String id, int height) {
+		final byte[] cachedBytes = imageCache.computeIfAbsent(id, key -> new Int2ObjectOpenHashMap<>()).get(height);
 		if (cachedBytes == null) {
-			return webClient.get().uri("https://drive.usercontent.google.com/download?id=" + id).retrieve().bodyToMono(byte[].class).map(bytes -> {
-				imageCache.put(id, bytes);
-				return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg").body(bytes);
+			return webClient.get().uri(height > 0 ? String.format("https://lh3.googleusercontent.com/d/%s=h%s", id, height) : "https://drive.usercontent.google.com/download?id=" + id).retrieve().bodyToMono(byte[].class).map(bytes -> {
+				imageCache.get(id).put(height, bytes);
+				return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE).body(bytes);
 			}).onErrorResume(e -> {
 				log.error("Failed to load Google Drive image [{}]", id, e);
 				return Mono.just(ResponseEntity.notFound().build());
 			});
 		} else {
-			return Mono.just(ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "image/jpeg").body(cachedBytes));
+			return Mono.just(ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE).body(cachedBytes));
 		}
+	}
+
+	public Mono<Void> saveGoogleDriveImage(String id) {
+		return getGoogleDriveImage(id, 0).flatMap(responseEntity -> {
+			final byte[] bytes = responseEntity.getBody();
+			if (bytes == null) {
+				return Mono.empty();
+			} else {
+				return rawImageService.saveRawImage(id, bytes);
+			}
+		});
 	}
 
 	/**

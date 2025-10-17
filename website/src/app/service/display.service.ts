@@ -1,4 +1,4 @@
-import {Injectable} from "@angular/core";
+import {inject, Injectable} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {getUrl} from "../utility/utilities";
 import {Display} from "../data/display";
@@ -10,8 +10,10 @@ export class DisplayService extends DataServiceBase<Display> {
 	private timeoutId = 0;
 	private canSave = true;
 
-	constructor(httpClient: HttpClient) {
-		super(httpClient, "api/getDisplays");
+	constructor() {
+		const httpClient = inject(HttpClient);
+
+		super("api/getDisplays");
 		this.saveDisplays = () => {
 			if (this.canSave) {
 				clearTimeout(this.timeoutId);

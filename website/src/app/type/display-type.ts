@@ -10,3 +10,24 @@ export function getDisplayTypeName(displayType: DisplayType) {
 			return undefined;
 	}
 }
+
+export function getDisplayTypeWidth(displayType: DisplayType) {
+	switch (displayType) {
+		case "SSD1322":
+			return 256;
+		case "SH1106":
+			return 128;
+		default:
+			return 0;
+	}
+}
+
+export function getDisplayTypeHeight(displayType: DisplayType) {
+	switch (displayType) {
+		case "SSD1322":
+		case "SH1106":
+			return 64;
+		default:
+			return 0;
+	}
+}

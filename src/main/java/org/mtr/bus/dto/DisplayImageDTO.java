@@ -5,10 +5,14 @@ import java.util.UUID;
 
 public record DisplayImageDTO(
 		UUID rawImageId,
-		int editPixelX,
-		int editPixelY,
-		int editPixelCountX,
-		int editPixelCountY,
+		int editTopLeftPixelX,
+		int editTopLeftPixelY,
+		int editTopLeftOffsetPixelX,
+		int editTopLeftOffsetPixelY,
+		int editBottomRightPixelX,
+		int editBottomRightPixelY,
+		int editContrast,
+		int editScale,
 		byte[] editedImageBytes,
 		int wipeDuration,
 		int width,
