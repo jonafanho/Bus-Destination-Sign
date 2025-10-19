@@ -7,7 +7,7 @@
 	</div>
 
 	<div content class="row gap wrapper">
-		<div class="column">
+		<div class="column filters">
 			<div class="column gap" [formGroup]="searchFormGroup">
 				<p-floatlabel variant="in">
 					<p-auto-complete inputId="search" formControlName="searches" multiple [typeahead]="false" [addOnBlur]="true" [addOnTab]="true" separator="," [fluid]="true"/>
@@ -24,7 +24,7 @@
 					@if (category[1]) {
 						<div class="row gap-small center">
 							<p-check-box [inputId]="'filter' + $index" [binary]="true" [formControlName]="'categoryFilter' + $index"/>
-							<label [for]="'filter' + $index">{{ category[0] }}</label>
+							<label [for]="'filter' + $index">{{ category[0] | formatCategory }}</label>
 						</div>
 					}
 				}

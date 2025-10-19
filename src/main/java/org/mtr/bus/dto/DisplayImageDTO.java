@@ -14,7 +14,8 @@ public record DisplayImageDTO(
 		int editContrast,
 		int editScale,
 		byte[] editedImageBytes,
-		int wipeDuration,
+		int displayDuration,
+		int wipeSpeed,
 		int width,
 		int scrollLeftAnchor,
 		int scrollRightAnchor

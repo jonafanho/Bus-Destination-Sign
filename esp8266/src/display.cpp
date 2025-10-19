@@ -1,32 +1,83 @@
 #include "display.h"
 #include <LittleFS.h>
 
-Display::Display(U8X8 u8x8, const uint16_t width, const uint16_t height) : u8x8(u8x8), width(width), height(height) {}
+Display::Display(U8X8 u8x8, Settings settings, const uint16_t width, const uint16_t height, const uint8_t displayIndex) : u8x8(u8x8), settings(settings), width(width), height(height), displayIndex(displayIndex) {}
+
+void Display::begin()
+{
+    u8x8.begin();
+    clear();
+}
+
+void Display::clear()
+{
+    u8x8.clear();
+}
+
+void Display::tick()
+{
+    if (millis() >= displaySwitchMillis)
+    {
+        loadImage();
+    }
+    else if (nextTransitionMillis == displaySwitchMillis)
+    {
+        if (scrollImageWidth > 0)
+        {
+            scrollImage();
+        }
+    }
+    else
+    {
+        if (wipeSpeed > 0)
+        {
+            wipeImage();
+        }
+        else
+        {
+            showImage();
+        }
+    }
+}
 
 /**
  * Read a file from LittleFS and store it in memory.
- * @param path the LittleFS path to read from
  */
-void Display::loadImage(const char *path)
+void Display::loadImage()
 {
-    File file = LittleFS.open(path, "r");
+    JsonDocument jsonDocument;
+    deserializeJson(jsonDocument, settings.getSettings());
+    JsonArray displayImages = jsonDocument[displayIndex]["displayImages"];
+
+    if (currentIndex >= displayImages.size())
+    {
+        currentIndex = 0;
+    }
+
+    char fileName[32];
+    sprintf(fileName, "/displays/%d_%d", displayIndex, currentIndex);
+    File file = LittleFS.open(fileName, "r");
     if (file)
     {
         uint16_t i = 0;
         while (file.available() && i < MAX_IMAGE_WIDTH * MAX_DISPLAY_HEIGHT / 8)
         {
-            imageBuffer[i] = char2int(file.read());
+            imageBuffer[i] = (uint8_t)file.read();
             i++;
         }
     }
     file.close();
 
-    animationProgress = 0;
+    JsonObject displayImage = displayImages[currentIndex];
+    displaySwitchMillis = millis() + displayImage["displayDuration"];
+    nextTransitionMillis = 0;
+    wipeSpeed = displayImage["wipeSpeed"];
+    scrollImageWidth = displayImage["width"];
+    scrollLeftAnchor = displayImage["scrollLeftAnchor"];
+    scrollRightAnchor = displayImage["scrollRightAnchor"];
 
-    // TODO
-    scrollImageWidth = 256;
-    scrollLeftAnchor = 0;
-    scrollRightAnchor = 0;
+    currentIndex++;
+    animationProgress = 0;
 }
 
 /**
@@ -42,6 +93,8 @@ void Display::showImage()
     // Render each row
     for (uint16_t row = 0; row < height / 8; row++)
         u8x8.drawTile(0, row, width / 8, displayBuffer + MAX_DISPLAY_WIDTH * row);
+
+    nextTransitionMillis = displaySwitchMillis;
 }
 
 /**
@@ -49,21 +102,31 @@ void Display::showImage()
  */
 void Display::wipeImage()
 {
-    if (animationProgress < width)
+    unsigned long startMillis = millis();
+    if (startMillis >= nextTransitionMillis)
     {
-        const uint16_t activeColumn = animationProgress / 8;
+        if (animationProgress < width)
+        {
+            const uint16_t activeColumn = animationProgress / 8;
 
-        // Copy the buffer
-        for (uint16_t column = 0; column < 8; column++)
+            // Copy the buffer
+            for (uint16_t column = 0; column < 8; column++)
+                for (uint16_t row = 0; row < height / 8; row++)
+                    if (column <= animationProgress % 8)
+                        displayBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH] = imageBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH];
+
+            // Render each row, only at the active column
             for (uint16_t row = 0; row < height / 8; row++)
-                if (column <= animationProgress % 8)
-                    displayBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH] = imageBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH];
+                u8x8.drawTile(activeColumn, row, 1, displayBuffer + activeColumn * 8 + row * MAX_DISPLAY_WIDTH);
 
-        // Render each row, only at the active column
-        for (uint16_t row = 0; row < height / 8; row++)
-            u8x8.drawTile(activeColumn, row, 1, displayBuffer + activeColumn * 8 + row * MAX_DISPLAY_WIDTH);
-
-        animationProgress++;
+            animationProgress++;
+            nextTransitionMillis = startMillis + wipeSpeed;
+        }
+        else
+        {
+            animationProgress = 0;
+            nextTransitionMillis = displaySwitchMillis;
+        }
     }
 }
 
@@ -107,27 +170,4 @@ void Display::scrollImage()
     }
 
     animationProgress++;
-}
-
-void Display::begin()
-{
-    u8x8.begin();
-    clear();
-}
-
-void Display::clear()
-{
-    u8x8.clear();
-}
-
-uint8_t Display::char2int(char input)
-{
-    if (input >= '0' && input <= '9')
-        return input - '0';
-    else if (input >= 'A' && input <= 'F')
-        return input - 'A' + 10;
-    else if (input >= 'a' && input <= 'f')
-        return input - 'a' + 10;
-    else
-        return 0;
 }

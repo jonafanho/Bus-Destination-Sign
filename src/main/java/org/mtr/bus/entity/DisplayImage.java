@@ -73,7 +73,12 @@ public final class DisplayImage {
 	@Getter
 	@Setter
 	@Column(nullable = false)
-	private int wipeDuration;
+	private int displayDuration;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int wipeSpeed;
 
 	@Getter
 	@Setter

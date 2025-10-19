@@ -9,7 +9,8 @@ export interface DisplayImage {
 	readonly editContrast: number;
 	readonly editScale: number;
 	readonly editedImageBytes: number[];
-	readonly wipeDuration: number;
+	readonly displayDuration: number;
+	readonly wipeSpeed: number;
 	readonly width: number;
 	readonly scrollLeftAnchor: number;
 	readonly scrollRightAnchor: number;

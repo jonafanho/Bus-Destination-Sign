@@ -16,15 +16,15 @@ export class DragPointComponent {
 	@Input({required: true}) width!: number;
 	@Input({required: true}) height!: number;
 	@Input({required: true}) zoom!: number;
-	@Input({required: true}) dragPoints!: { x: number, y: number, tooltip: string }[];
+	@Input({required: true}) dragPoints!: { x: number, y: number, isBar: boolean, visible: boolean, tooltip: string }[];
 	@Output() dragPointMoved = new EventEmitter();
 	private offset = {x: 0, y: 0};
-	private currentDragPoint ?: { x: number, y: number, tooltip: string };
+	private currentDragPoint ?: { x: number, y: number, isBar: boolean };
 
 	constructor() {
 	}
 
-	onMouseDown(dragPoint: { x: number, y: number, tooltip: string }, event: MouseEvent) {
+	onMouseDown(dragPoint: { x: number, y: number, isBar: boolean }, event: MouseEvent) {
 		this.currentDragPoint = dragPoint;
 		this.offset.x = event.clientX - dragPoint.x * this.zoom;
 		this.offset.y = event.clientY - dragPoint.y * this.zoom;
@@ -33,7 +33,7 @@ export class DragPointComponent {
 	onMouseMove(event: MouseEvent) {
 		if (this.currentDragPoint) {
 			this.currentDragPoint.x = clamp(Math.round((event.clientX - this.offset.x) / this.zoom), 0, this.width - 1);
-			this.currentDragPoint.y = clamp(Math.round((event.clientY - this.offset.y) / this.zoom), 0, this.height - 1);
+			this.currentDragPoint.y = this.currentDragPoint.isBar ? 0 : clamp(Math.round((event.clientY - this.offset.y) / this.zoom), 0, this.height - 1);
 			this.dragPointMoved.emit();
 		}
 	}
@@ -42,5 +42,12 @@ export class DragPointComponent {
 	@HostListener("document:pointercancel")
 	onMouseUp() {
 		this.currentDragPoint = undefined;
+	}
+
+	getDragPointStyle(dragPoint: { x: number, y: number, isBar: boolean }) {
+		return {
+			left: `${(dragPoint.x + (dragPoint.isBar ? 0 : 0.5)) * this.zoom}px`,
+			top: `${(dragPoint.y + (dragPoint.isBar ? this.height / 2 : 0.5)) * this.zoom}px`,
+		};
 	}
 }

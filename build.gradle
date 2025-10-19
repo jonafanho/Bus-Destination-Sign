@@ -19,6 +19,7 @@ dependencies {
 	implementation "com.h2database:h2"
 	implementation "org.jsoup:jsoup:+"
 	implementation "com.fasterxml:classmate:+"
+	implementation "com.fazecast:jSerialComm:+"
 	compileOnly "org.projectlombok:lombok"
 	annotationProcessor "org.projectlombok:lombok"
 }

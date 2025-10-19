@@ -15,6 +15,7 @@ import {AutoCompleteModule} from "primeng/autocomplete";
 import {StopReporter} from "../../data/stop-reporter";
 import {HttpClient} from "@angular/common/http";
 import {RawImageService} from "../../service/raw-image.service";
+import {FormatCategoryPipe} from "../../pipe/format-category.pipe";
 
 @Component({
 	selector: "app-stop-reporter",
@@ -28,6 +29,7 @@ import {RawImageService} from "../../service/raw-image.service";
 		ProgressSpinnerModule,
 		TooltipModule,
 		DialogComponent,
+		FormatCategoryPipe,
 		ReactiveFormsModule,
 		TranslocoDirective,
 	],
@@ -90,32 +92,41 @@ export class StopReporterComponent {
 	private filter() {
 		const {searches, exactMatch} = this.searchFormGroup.getRawValue();
 		const categoryFilters = Object.values(this.categoryFiltersFormGroup.getRawValue());
-		const noCategoryFilters = categoryFilters.every(value => !value);
-		const noSearches = !searches || searches.length === 0;
+		const visibleAndSelectedCategories: string[] = [];
+		const searchesMatch = (stopReporter: StopReporter) => !searches || searches.length === 0 || searches.every(search => stopReporter.groups.some(group => exactMatch ? group.toLowerCase() === search.toLowerCase() : group.toLowerCase().includes(search.toLowerCase())));
 		this.filteredStopReporterList.length = 0;
 		this.categories.length = 0;
 		let previousCategory: string | undefined;
-		let categoryMatch = false;
+		let categoryVisible = false;
 
+		// Build categories
 		this.stopReporterService.getData().forEach(stopReporter => {
 			if (previousCategory && previousCategory !== stopReporter.category) {
-				this.categories.push([previousCategory, categoryMatch]);
-				categoryMatch = false;
+				if (categoryVisible && categoryFilters[this.categories.length]) {
+					visibleAndSelectedCategories.push(previousCategory);
+				}
+				this.categories.push([previousCategory, categoryVisible]);
+				categoryVisible = false;
 			}
 			previousCategory = stopReporter.category;
-			const match = noSearches || searches.every(search => stopReporter.groups.some(group => exactMatch ? group.toLowerCase() === search.toLowerCase() : group.toLowerCase().includes(search.toLowerCase())));
-			if (match) {
-				if (noCategoryFilters || categoryFilters[this.categories.length]) {
-					this.filteredStopReporterList.push(stopReporter);
-				}
-				categoryMatch = true;
+			if (searchesMatch(stopReporter)) {
+				categoryVisible = true;
 			}
 		});
 
 		if (previousCategory) {
-			this.categories.push([previousCategory, categoryMatch]);
+			this.categories.push([previousCategory, categoryVisible]);
 		}
 
+		// Build results
+		const noCategoryFilters = visibleAndSelectedCategories.length === 0;
+		this.stopReporterService.getData().forEach(stopReporter => {
+			if ((noCategoryFilters || visibleAndSelectedCategories.includes(stopReporter.category)) && searchesMatch(stopReporter)) {
+				this.filteredStopReporterList.push(stopReporter);
+			}
+		});
+
+		// Add missing form controls if necessary
 		for (let i = 0; i < this.categories.length; i++) {
 			if (!this.categoryFiltersFormGroup.contains(`categoryFilter${i}`)) {
 				this.categoryFiltersFormGroup.addControl(`categoryFilter${i}`, new FormControl(false));

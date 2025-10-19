@@ -1,4 +1,4 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, inject, Input} from "@angular/core";
 import {ButtonModule} from "primeng/button";
 import {TranslocoDirective} from "@jsverse/transloco";
 import {CardModule} from "primeng/card";
@@ -70,7 +70,8 @@ export class DisplayConfigComponent {
 			editContrast: 0x80,
 			editScale: 1,
 			editedImageBytes: [],
-			wipeDuration: 0,
+			displayDuration: 0,
+			wipeSpeed: 0,
 			width: 0,
 			scrollLeftAnchor: 0,
 			scrollRightAnchor: 0,

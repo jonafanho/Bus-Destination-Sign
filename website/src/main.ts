@@ -8,6 +8,7 @@ import {providePrimeNG} from "primeng/config";
 import {myPreset} from "./theme-preset";
 import {provideTransloco} from "@jsverse/transloco";
 import {TranslocoHttpLoader} from "./transloco-loader";
+import {FormatCategoryPipe} from "./app/pipe/format-category.pipe";
 
 bootstrapApplication(AppComponent, {
 	providers: [
@@ -28,5 +29,6 @@ bootstrapApplication(AppComponent, {
 			},
 			loader: TranslocoHttpLoader,
 		}),
+		FormatCategoryPipe,
 	],
 }).catch(error => console.error(error));

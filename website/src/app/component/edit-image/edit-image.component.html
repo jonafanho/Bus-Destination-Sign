@@ -1,42 +1,50 @@
 <app-dialog *transloco="let t" [title]="t('title.edit-image')" [(visible)]="visible">
-	<div content class="column gap">
-		<p-card>
-			<div class="column gap">
+	<div content class="row wrapper">
+		<div content class="column gap wrapper">
+			<div class="column wrapper">
 				<div class="row gap center">
 					<div class="spacing">{{ t('instructions.drag-points') }}</div>
-					<p-button icon="pi pi-search-minus" [rounded]="true" [text]="true" [pTooltip]="t('zoom-out')" tooltipPosition="bottom" (onClick)="changeZoom1(-0.25)"/>
-					<p-slider [min]="minZoom" [max]="maxZoom" [step]="0.01" [(ngModel)]="zoom1" [style]="{width: '16rem'}"/>
-					<p-button icon="pi pi-search-plus" [rounded]="true" [text]="true" [pTooltip]="t('zoom-in')" tooltipPosition="bottom" (onClick)="changeZoom1(0.25)"/>
+					<p-button icon="pi pi-search-minus" [rounded]="true" [text]="true" [pTooltip]="t('zoom-out')" tooltipPosition="bottom" (onClick)="changeZoom(-0.25)"/>
+					<p-slider [min]="minZoom" [max]="maxZoom" [step]="0.01" [(ngModel)]="zoom" [style]="{width: '16rem'}"/>
+					<p-button icon="pi pi-search-plus" [rounded]="true" [text]="true" [pTooltip]="t('zoom-in')" tooltipPosition="bottom" (onClick)="changeZoom(0.25)"/>
 				</div>
 
 				<div class="image-wrapper">
-					<img [src]="getImageUrl()" alt="Image" [height]="imageHeight * zoom1"/>
-					<app-drag-point class="drag-point-wrapper" [width]="imageWidth" [height]="imageHeight" [zoom]="zoom1" (dragPointMoved)="updateCanvasAndSave()" [dragPoints]="dragPoints"/>
+					<img [src]="getImageUrl()" alt="Image" [height]="imageHeight * zoom"/>
+					<app-drag-point class="drag-point-wrapper" [width]="imageWidth" [height]="imageHeight" [zoom]="zoom" (dragPointMoved)="updateCanvasAndSave()" [dragPoints]="dragPoints"/>
+				</div>
+
+				<p-divider/>
+				<div class="column gap-small">
+					<div>{{ t('title.image-preview') }}</div>
+					<div class="image-wrapper">
+						<canvas id="canvas" class="canvas" [width]="displayWidth" [height]="displayHeight"></canvas>
+					</div>
 				</div>
 			</div>
-		</p-card>
+		</div>
 
-		<p-card>
+		<p-divider layout="vertical"/>
+
+		<div class="column content controls" [formGroup]="formGroup">
 			<div class="column gap">
-				<div class="row gap center">
-					<div class="spacing">{{ t('title.image-preview') }}</div>
-					<p-button icon="pi pi-search-minus" [rounded]="true" [text]="true" [pTooltip]="t('zoom-out')" tooltipPosition="bottom" (onClick)="changeZoom2(-0.25)"/>
-					<p-slider [min]="minZoom" [max]="maxZoom" [step]="0.01" [(ngModel)]="zoom2" [style]="{width: '16rem'}"/>
-					<p-button icon="pi pi-search-plus" [rounded]="true" [text]="true" [pTooltip]="t('zoom-in')" tooltipPosition="bottom" (onClick)="changeZoom2(0.25)"/>
-				</div>
-
-				<div class="image-wrapper">
-					<canvas id="canvas" [style]="{width: displayWidth * zoom2 + 'px', height: displayHeight * zoom2 + 'px'}" [width]="displayWidth" [height]="displayHeight"></canvas>
-				</div>
-				<div class="row gap-small" [formGroup]="formGroup">
-					<app-input-number-with-slider class="spacing" [childFormGroup]="formGroup" childFormControlName="editContrast" [label]="t('input.editContrast')" [min]="minContrast" [max]="maxContrast"/>
-					<app-input-number-with-slider class="spacing" [childFormGroup]="formGroup" childFormControlName="editScale" [label]="t('input.editScale')" [min]="minScale" [max]="maxScale"/>
-					<app-input-number-with-slider class="spacing" [childFormGroup]="formGroup" childFormControlName="wipeDuration" [label]="t('input.wipeDuration')" [min]="1" [max]="1024"/>
-					<app-input-number-with-slider class="spacing" [childFormGroup]="formGroup" childFormControlName="width" [label]="t('input.width')" [min]="1" [max]="1024"/>
-					<app-input-number-with-slider class="spacing" [childFormGroup]="formGroup" childFormControlName="scrollLeftAnchor" [label]="t('input.scrollLeftAnchor')" [min]="1" [max]="1024"/>
-					<app-input-number-with-slider class="spacing" [childFormGroup]="formGroup" childFormControlName="scrollRightAnchor" [label]="t('input.scrollRightAnchor')" [min]="1" [max]="1024"/>
-				</div>
+				<app-input-number-with-slider [childFormGroup]="formGroup" childFormControlName="editContrast" [label]="t('input.edit-contrast')" [min]="minContrast" [max]="maxContrast" [defaultValue]="defaultContrast"/>
+				<app-input-number-with-slider [childFormGroup]="formGroup" childFormControlName="editScale" [label]="t('input.edit-scale')" [min]="minScale" [max]="maxScale" [defaultValue]="minScale"/>
+				<app-input-number-with-slider [childFormGroup]="formGroup" childFormControlName="displayDuration" [label]="t('input.display-duration')" [min]="minDisplayDuration" [max]="maxDisplayDuration" [defaultValue]="defaultDisplayDuration"/>
 			</div>
-		</p-card>
+			<p-divider/>
+			<div class="column gap">
+				<div class="row gap-small center">
+					<p-check-box inputId="hasWipe" formControlName="hasWipe" [binary]="true"/>
+					<label for="hasWipe">{{ t('input.has-wipe') }}</label>
+				</div>
+				<app-input-number-with-slider [childFormGroup]="formGroup" childFormControlName="wipeSpeed" [label]="t('input.wipe-speed')" [min]="minWipeSpeed" [max]="maxWipeSpeed" [defaultValue]="defaultWipeSpeed"/>
+			</div>
+			<p-divider/>
+			<div class="row gap-small center">
+				<p-check-box inputId="hasScroll" formControlName="hasScroll" [binary]="true"/>
+				<label for="hasScroll">{{ t('input.has-scroll') }}</label>
+			</div>
+		</div>
 	</div>
 </app-dialog>

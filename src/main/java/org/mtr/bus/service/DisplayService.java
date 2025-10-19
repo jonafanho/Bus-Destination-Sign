@@ -73,7 +73,8 @@ public class DisplayService {
 				displayImage.getEditContrast(),
 				displayImage.getEditScale(),
 				displayImage.getEditedImageBytes(),
-				displayImage.getWipeDuration(),
+				displayImage.getDisplayDuration(),
+				displayImage.getWipeSpeed(),
 				displayImage.getWidth(),
 				displayImage.getScrollLeftAnchor(),
 				displayImage.getScrollRightAnchor()
@@ -96,7 +97,8 @@ public class DisplayService {
 			displayImage.setEditContrast(displayImageDTO.editContrast());
 			displayImage.setEditScale(displayImageDTO.editScale());
 			displayImage.setEditedImageBytes(displayImageDTO.editedImageBytes());
-			displayImage.setWipeDuration(displayImageDTO.wipeDuration());
+			displayImage.setDisplayDuration(displayImageDTO.displayDuration());
+			displayImage.setWipeSpeed(displayImageDTO.wipeSpeed());
 			displayImage.setWidth(displayImageDTO.width());
 			displayImage.setScrollLeftAnchor(displayImageDTO.scrollLeftAnchor());
 			displayImage.setScrollRightAnchor(displayImageDTO.scrollRightAnchor());
