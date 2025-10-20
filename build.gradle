@@ -2,6 +2,7 @@ plugins {
 	id "java"
 	id "org.springframework.boot" version "3.+"
 	id "io.spring.dependency-management" version "1.+"
+	id "org.graalvm.buildtools.native" version "+"
 }
 
 group "org.mtr.bus"
@@ -26,6 +27,17 @@ dependencies {
 
 java {
 	toolchain {
-		languageVersion.set(JavaLanguageVersion.of(17))
+		languageVersion.set(JavaLanguageVersion.of(21))
+		vendor = JvmVendorSpec.GRAAL_VM
+	}
+}
+
+graalvmNative {
+	toolchainDetection = true
+	binaries {
+		main {
+			imageName.set("Bus-Destination-Sign")
+			buildArgs.add("--no-fallback")
+		}
 	}
 }
