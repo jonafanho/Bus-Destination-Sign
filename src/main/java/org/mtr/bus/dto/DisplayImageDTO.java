@@ -1,12 +1,8 @@
 package org.mtr.bus.dto;
 
 
-import org.springframework.aot.hint.MemberCategory;
-import org.springframework.aot.hint.annotation.RegisterReflection;
-
 import java.util.UUID;
 
-@RegisterReflection(memberCategories = MemberCategory.UNSAFE_ALLOCATED)
 public record DisplayImageDTO(
 		UUID rawImageId,
 		int editTopLeftPixelX,
