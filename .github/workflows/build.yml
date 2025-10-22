@@ -60,6 +60,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
+      - name: Process Spring AOT
+        run: ./gradlew processAot --no-daemon
       - name: Fix Windows temp path issue
         if: matrix.os == 'windows-latest'
         shell: pwsh
