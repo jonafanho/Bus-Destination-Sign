@@ -1,8 +1,11 @@
 package org.mtr.bus.dto;
 
 
+import org.springframework.aot.hint.annotation.RegisterReflection;
+
 import java.util.UUID;
 
+@RegisterReflection
 public record DisplayImageDTO(
 		UUID rawImageId,
 		int editTopLeftPixelX,
