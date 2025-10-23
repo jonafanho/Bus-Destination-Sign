@@ -3,7 +3,7 @@ on: [ pull_request, push, workflow_dispatch ]
 
 jobs:
   build:
-    name: Build Spring Boot JAR
+    name: Build
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: Windows Executable
-          path: build/launch3j/BusDestinationSign.exe
+          path: build/launch4j/BusDestinationSign.exe
