@@ -2,7 +2,7 @@ plugins {
 	id "java"
 	id "org.springframework.boot" version "3.+"
 	id "io.spring.dependency-management" version "1.+"
-	id "org.graalvm.buildtools.native" version "+"
+	id "edu.sc.seis.launch4j" version "+"
 }
 
 group "org.mtr.bus"
@@ -28,16 +28,11 @@ dependencies {
 java {
 	toolchain {
 		languageVersion.set(JavaLanguageVersion.of(21))
-		vendor = JvmVendorSpec.GRAAL_VM
 	}
 }
 
-graalvmNative {
-	toolchainDetection = true
-	binaries {
-		main {
-			imageName.set("Bus-Destination-Sign")
-			buildArgs.add("--no-fallback")
-		}
-	}
+launch4j {
+	mainClassName = "org.mtr.bus.Application"
+	outfile = "BusDestinationSign.exe"
+	headerType = "console"
 }

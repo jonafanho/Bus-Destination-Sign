@@ -2,9 +2,9 @@ name: Build
 on: [ pull_request, push, workflow_dispatch ]
 
 jobs:
-  build-jar:
+  build:
     name: Build Spring Boot JAR
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@main
@@ -27,51 +27,15 @@ jobs:
         run: chmod +x ./gradlew
       - name: Build JAR
         run: ./gradlew build --no-daemon
-      - name: Upload JAR artifact
+      - name: Upload Spring Boot JAR
         uses: actions/upload-artifact@main
         with:
           name: Spring Boot JAR
           path: build/libs/Bus-Destination-Sign.jar
-
-  build-native:
-    name: Build Native Executable (${{ matrix.os }})
-    needs: build-jar
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@main
-      - name: Setup Node
-        uses: actions/setup-node@main
-        with:
-          node-version: 24
-      - name: Install Node packages
-        run: npm ci --prefix website
-      - name: Build Angular
-        run: npm run build --prefix website
-      - name: Setup GraalVM
-        uses: graalvm/setup-graalvm@main
-        with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Make gradle wrapper executable
-        run: chmod +x ./gradlew
-      - name: Process Spring AOT
-        run: ./gradlew processAot --no-daemon
-      - name: Fix Windows temp path issue
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          mkdir -Force D:\a\temp
-          echo "JAVA_TOOL_OPTIONS=-Djava.io.tmpdir=D:\\a\\temp" >> $env:GITHUB_ENV
-      - name: Build native image
-        run: ./gradlew nativeCompile --no-daemon
-      - name: Upload native executable
+      - name: Build Windows Executable
+        run: ./gradlew createExe --no-daemon
+      - name: Upload Windows Executable
         uses: actions/upload-artifact@main
         with:
-          name: Executable (${{ matrix.os }})
-          path: build/native/nativeCompile/Bus-Destination-Sign${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          name: Windows Executable
+          path: build/launch3j/BusDestinationSign.exe
