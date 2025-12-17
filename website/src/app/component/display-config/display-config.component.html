@@ -60,6 +60,8 @@
 	<app-edit-image #editImageComponent [(visible)]="editImageDialogVisible" [displayIndex]="displayIndex"/>
 
 	<app-dialog [title]="t('title.display-settings')" [(visible)]="settingsDialogVisible" maxWidth="24rem" maxHeight="24rem">
-		<app-display-settings content #displaySettingsComponent [displayIndex]="displayIndex"/>
+		<div content class="wrapper">
+			<app-display-settings #displaySettingsComponent [displayIndex]="displayIndex"/>
+		</div>
 	</app-dialog>
 </p-card>

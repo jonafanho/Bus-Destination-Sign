@@ -27,7 +27,7 @@ const allowedInput = allowedExtensions.map(extension => `.${extension}`).join(",
 		TranslocoDirective,
 	],
 	templateUrl: "./raw-image-manager.component.html",
-	styleUrls: ["./raw-image-manager.component.css"],
+	styleUrls: ["./raw-image-manager.component.scss"],
 })
 export class RawImageManagerComponent {
 	private readonly httpClient = inject(HttpClient);

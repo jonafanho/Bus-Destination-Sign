@@ -1,4 +1,4 @@
-import {Component, inject, model} from "@angular/core";
+import {Component, inject, model, signal} from "@angular/core";
 import {ButtonModule} from "primeng/button";
 import {TableModule} from "primeng/table";
 import {TranslocoDirective} from "@jsverse/transloco";
@@ -34,7 +34,7 @@ import {FormatCategoryPipe} from "../../pipe/format-category.pipe";
 		TranslocoDirective,
 	],
 	templateUrl: "./stop-reporter.component.html",
-	styleUrls: ["./stop-reporter.component.css"],
+	styleUrls: ["./stop-reporter.component.scss"],
 })
 export class StopReporterComponent {
 	private readonly httpClient = inject(HttpClient);
@@ -43,9 +43,9 @@ export class StopReporterComponent {
 
 	protected readonly searchFormGroup;
 	protected readonly categoryFiltersFormGroup = new FormGroup<Record<string, FormControl<boolean | null>>>({});
-	protected readonly filteredStopReporterList: StopReporter[] = [];
-	protected readonly categories: [string, boolean][] = [];
-	protected downloadStatus: Record<string, "loading" | "success"> = {};
+	protected readonly filteredStopReporterList = signal<StopReporter[]>([]);
+	protected readonly categories = signal<[string, boolean][]>([]);
+	protected readonly downloadStatus = signal<Record<string, "loading" | "success">>({});
 	visible = model<boolean>(false);
 
 	constructor() {
@@ -59,19 +59,15 @@ export class StopReporterComponent {
 		this.searchFormGroup.valueChanges.subscribe(() => this.filter());
 		this.categoryFiltersFormGroup.valueChanges.subscribe(() => this.filter());
 		this.stopReporterService.dataUpdated.subscribe(() => this.filter());
-		this.visible.subscribe(() => this.downloadStatus = {});
+		this.visible.subscribe(() => this.downloadStatus.set({}));
 	}
 
 	fetchStopReporterDisplays() {
 		this.stopReporterService.fetchDisplays();
 	}
 
-	getStopReporterList() {
-		return this.filteredStopReporterList;
-	}
-
 	getStopReporterLoading() {
-		return this.stopReporterService.getLoading() || this.stopReporterService.getFetchDisplaysLoading();
+		return this.stopReporterService.loading() || this.stopReporterService.fetchDisplaysLoading();
 	}
 
 	getGoogleDriveImage(id: string) {
@@ -79,14 +75,26 @@ export class StopReporterComponent {
 	}
 
 	downloadStopReporter(id: string) {
-		this.downloadStatus[id] = "loading";
+		const downloadStatus1 = {...this.downloadStatus()};
+		downloadStatus1[id] = "loading";
+		this.downloadStatus.set(downloadStatus1);
 		this.httpClient.get(`${getUrl()}api/saveGoogleDriveImage/${id}`).subscribe({
 			next: () => {
-				this.downloadStatus[id] = "success";
+				const downloadStatus2 = {...this.downloadStatus()};
+				downloadStatus2[id] = "success";
+				this.downloadStatus.set(downloadStatus2);
 				this.rawImageService.fetchData();
 			},
-			error: () => delete this.downloadStatus[id],
+			error: () => {
+				const downloadStatus2 = {...this.downloadStatus()};
+				delete downloadStatus2[id];
+				this.downloadStatus.set(downloadStatus2);
+			},
 		});
+	}
+
+	hasData() {
+		return this.stopReporterService.data().length > 0;
 	}
 
 	private filter() {
@@ -94,18 +102,18 @@ export class StopReporterComponent {
 		const categoryFilters = Object.values(this.categoryFiltersFormGroup.getRawValue());
 		const visibleAndSelectedCategories: string[] = [];
 		const searchesMatch = (stopReporter: StopReporter) => !searches || searches.length === 0 || searches.every(search => stopReporter.groups.some(group => exactMatch ? group.toLowerCase() === search.toLowerCase() : group.toLowerCase().includes(search.toLowerCase())));
-		this.filteredStopReporterList.length = 0;
-		this.categories.length = 0;
+		const filteredStopReporterList: StopReporter[] = [];
+		const categories: [string, boolean][] = [];
 		let previousCategory: string | undefined;
 		let categoryVisible = false;
 
 		// Build categories
-		this.stopReporterService.getData().forEach(stopReporter => {
+		this.stopReporterService.data().forEach(stopReporter => {
 			if (previousCategory && previousCategory !== stopReporter.category) {
-				if (categoryVisible && categoryFilters[this.categories.length]) {
+				if (categoryVisible && categoryFilters[categories.length]) {
 					visibleAndSelectedCategories.push(previousCategory);
 				}
-				this.categories.push([previousCategory, categoryVisible]);
+				categories.push([previousCategory, categoryVisible]);
 				categoryVisible = false;
 			}
 			previousCategory = stopReporter.category;
@@ -115,22 +123,25 @@ export class StopReporterComponent {
 		});
 
 		if (previousCategory) {
-			this.categories.push([previousCategory, categoryVisible]);
+			categories.push([previousCategory, categoryVisible]);
 		}
 
 		// Build results
 		const noCategoryFilters = visibleAndSelectedCategories.length === 0;
-		this.stopReporterService.getData().forEach(stopReporter => {
+		this.stopReporterService.data().forEach(stopReporter => {
 			if ((noCategoryFilters || visibleAndSelectedCategories.includes(stopReporter.category)) && searchesMatch(stopReporter)) {
-				this.filteredStopReporterList.push(stopReporter);
+				filteredStopReporterList.push(stopReporter);
 			}
 		});
 
 		// Add missing form controls if necessary
-		for (let i = 0; i < this.categories.length; i++) {
+		for (let i = 0; i < categories.length; i++) {
 			if (!this.categoryFiltersFormGroup.contains(`categoryFilter${i}`)) {
 				this.categoryFiltersFormGroup.addControl(`categoryFilter${i}`, new FormControl(false));
 			}
 		}
+
+		this.filteredStopReporterList.set(filteredStopReporterList);
+		this.categories.set(categories);
 	}
 }

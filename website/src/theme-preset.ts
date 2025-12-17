@@ -17,14 +17,4 @@ export const myPreset = definePreset(Aura, {
 			950: "{neutral.950}",
 		},
 	},
-	components: {
-		progressspinner: {
-			colorScheme: {
-				colorOne: "{neutral.500}",
-				colorTwo: "{neutral.500}",
-				colorThree: "{neutral.500}",
-				colorFour: "{neutral.500}",
-			},
-		},
-	},
 });

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from "@angular/core";
+import {Component, inject, Input} from "@angular/core";
 import {TranslocoDirective} from "@jsverse/transloco";
 import {SelectModule} from "primeng/select";
 import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule} from "@angular/forms";
@@ -18,7 +18,7 @@ import {FloatLabelModule} from "primeng/floatlabel";
 		ReactiveFormsModule,
 	],
 	templateUrl: "./display-settings.component.html",
-	styleUrls: ["./display-settings.component.css"],
+	styleUrls: ["./display-settings.component.scss"],
 })
 export class DisplaySettingsComponent {
 	private readonly displayService = inject(DisplayService);
@@ -37,7 +37,7 @@ export class DisplaySettingsComponent {
 
 		this.formGroup.valueChanges.subscribe(() => {
 			const data = this.formGroup.getRawValue();
-			this.displayService.getData()[this.displayIndex] = {
+			this.displayService.data()[this.displayIndex] = {
 				displayType: data.displayType ?? "NONE",
 				displayImages: this.getDisplay().displayImages,
 			};
@@ -51,6 +51,6 @@ export class DisplaySettingsComponent {
 	}
 
 	getDisplay() {
-		return this.displayService.getData()[this.displayIndex];
+		return this.displayService.data()[this.displayIndex];
 	}
 }

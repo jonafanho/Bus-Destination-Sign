@@ -10,7 +10,7 @@ import {clamp} from "../../utility/utilities";
 		TranslocoDirective,
 	],
 	templateUrl: "./drag-point.component.html",
-	styleUrls: ["./drag-point.component.css"],
+	styleUrls: ["./drag-point.component.scss"],
 })
 export class DragPointComponent {
 	@Input({required: true}) width!: number;
@@ -20,9 +20,6 @@ export class DragPointComponent {
 	@Output() dragPointMoved = new EventEmitter();
 	private offset = {x: 0, y: 0};
 	private currentDragPoint ?: { x: number, y: number, isBar: boolean };
-
-	constructor() {
-	}
 
 	onMouseDown(dragPoint: { x: number, y: number, isBar: boolean }, event: MouseEvent) {
 		this.currentDragPoint = dragPoint;

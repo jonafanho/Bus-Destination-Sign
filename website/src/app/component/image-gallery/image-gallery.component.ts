@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from "@angular/core";
+import {Component, EventEmitter, inject, Input, Output} from "@angular/core";
 import {ButtonModule} from "primeng/button";
 import {getUrl} from "../../utility/utilities";
 import {TooltipModule} from "primeng/tooltip";
@@ -13,7 +13,7 @@ import {RawImageService} from "../../service/raw-image.service";
 		TooltipModule,
 	],
 	templateUrl: "./image-gallery.component.html",
-	styleUrls: ["./image-gallery.component.css"],
+	styleUrls: ["./image-gallery.component.scss"],
 })
 export class ImageGalleryComponent {
 	private readonly rawImageService = inject(RawImageService);
@@ -22,7 +22,7 @@ export class ImageGalleryComponent {
 	@Output() clickRawImage = new EventEmitter<string>();
 
 	getRawImageIds() {
-		return this.rawImageService.getData();
+		return this.rawImageService.data();
 	}
 
 	getUrlFromRawImageId(rawImageId: string) {

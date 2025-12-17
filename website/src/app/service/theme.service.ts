@@ -1,22 +1,18 @@
-import {Injectable} from "@angular/core";
+import {Injectable, signal, WritableSignal} from "@angular/core";
 import {getCookie, setCookie} from "../utility/utilities";
 
 @Injectable({providedIn: "root"})
 export class ThemeService {
-	private darkTheme: boolean;
+	readonly darkTheme: WritableSignal<boolean>;
 
 	constructor() {
-		this.darkTheme = getCookie("dark_theme") === "true";
+		this.darkTheme = signal(getCookie("dark_theme") === "true");
 		this.setElementTag();
 	}
 
 	public setTheme(isDarkTheme: boolean) {
-		this.darkTheme = isDarkTheme;
+		this.darkTheme.set(isDarkTheme);
 		this.setElementTag();
-	}
-
-	public isDarkTheme() {
-		return this.darkTheme;
 	}
 
 	private setElementTag() {
@@ -24,8 +20,8 @@ export class ThemeService {
 
 		const element = document.querySelector("html");
 		if (element) {
-			element.classList.add(this.darkTheme ? "dark-theme" : "light-theme");
-			element.classList.remove(this.darkTheme ? "light-theme" : "dark-theme");
+			element.classList.add(this.darkTheme() ? "dark-theme" : "light-theme");
+			element.classList.remove(this.darkTheme() ? "light-theme" : "dark-theme");
 		}
 	}
 }

@@ -19,7 +19,7 @@ export class DisplayService extends DataServiceBase<Display> {
 				clearTimeout(this.timeoutId);
 				this.timeoutId = setTimeout(() => {
 					this.canSave = false;
-					httpClient.post(`${getUrl()}api/saveDisplays`, this.getData()).subscribe({
+					httpClient.post(`${getUrl()}api/saveDisplays`, this.data()).subscribe({
 						next: () => this.canSave = true,
 						error: () => {
 							this.canSave = true;

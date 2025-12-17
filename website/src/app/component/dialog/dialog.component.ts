@@ -9,14 +9,11 @@ import {TooltipModule} from "primeng/tooltip";
 		TooltipModule,
 	],
 	templateUrl: "./dialog.component.html",
-	styleUrls: ["./dialog.component.css"],
+	styleUrls: ["./dialog.component.scss"],
 })
 export class DialogComponent {
 	@Input({required: true}) title!: string;
 	@Input() maxWidth = "96rem";
 	@Input() maxHeight = "96rem";
 	visible = model<boolean>(false);
-
-	constructor() {
-	}
 }

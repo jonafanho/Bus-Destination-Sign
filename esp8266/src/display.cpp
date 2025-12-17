@@ -69,7 +69,7 @@ void Display::loadImage()
     file.close();
 
     JsonObject displayImage = displayImages[currentIndex];
-    displaySwitchMillis = millis() + displayImage["displayDuration"];
+    displaySwitchMillis = millis() + displayImage["displayDuration"].as<unsigned long>();
     nextTransitionMillis = 0;
     wipeSpeed = displayImage["wipeSpeed"];
     scrollImageWidth = displayImage["width"];
@@ -88,7 +88,7 @@ void Display::showImage()
     // Copy the buffer without animation
     for (uint16_t column = 0; column < width; column++)
         for (uint16_t row = 0; row < height / 8; row++)
-            displayBuffer[column + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + row * MAX_DISPLAY_WIDTH];
+            displayBuffer[column + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + row * MAX_IMAGE_WIDTH];
 
     // Render each row
     for (uint16_t row = 0; row < height / 8; row++)
@@ -113,7 +113,7 @@ void Display::wipeImage()
             for (uint16_t column = 0; column < 8; column++)
                 for (uint16_t row = 0; row < height / 8; row++)
                     if (column <= animationProgress % 8)
-                        displayBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH] = imageBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH];
+                        displayBuffer[activeColumn * 8 + column + row * MAX_DISPLAY_WIDTH] = imageBuffer[activeColumn * 8 + column + row * MAX_IMAGE_WIDTH];
 
             // Render each row, only at the active column
             for (uint16_t row = 0; row < height / 8; row++)
@@ -138,9 +138,9 @@ void Display::scrollImage()
         for (uint16_t column = 0; column < width; column++)
             for (uint16_t row = 0; row < height / 8; row++)
                 if (column < scrollLeftAnchor)
-                    displayBuffer[column + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + row * MAX_DISPLAY_WIDTH];
+                    displayBuffer[column + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + row * MAX_IMAGE_WIDTH];
                 else if (column >= width - scrollRightAnchor)
-                    displayBuffer[column + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + scrollImageWidth - width + row * MAX_DISPLAY_WIDTH];
+                    displayBuffer[column + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + scrollImageWidth - width + row * MAX_IMAGE_WIDTH];
                 else
                     displayBuffer[column + row * MAX_DISPLAY_WIDTH] = 0;
 
@@ -162,7 +162,7 @@ void Display::scrollImage()
                 if (column + actualAnimationProgress < scrollDisplayWidth || column + actualAnimationProgress >= scrollDisplayWidth + actualScrollImageWidth)
                     displayBuffer[column + scrollLeftAnchor + row * MAX_DISPLAY_WIDTH] = 0;
                 else
-                    displayBuffer[column + scrollLeftAnchor + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + scrollLeftAnchor + actualAnimationProgress - scrollDisplayWidth + row * MAX_DISPLAY_WIDTH];
+                    displayBuffer[column + scrollLeftAnchor + row * MAX_DISPLAY_WIDTH] = imageBuffer[column + scrollLeftAnchor + actualAnimationProgress - scrollDisplayWidth + row * MAX_IMAGE_WIDTH];
 
         // Render each row
         for (uint16_t row = 0; row < height / 8; row++)

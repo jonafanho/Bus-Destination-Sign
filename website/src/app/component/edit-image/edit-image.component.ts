@@ -12,6 +12,7 @@ import {ButtonModule} from "primeng/button";
 import {DragPointComponent} from "../drag-point/drag-point.component";
 import {DividerModule} from "primeng/divider";
 import {CheckboxModule} from "primeng/checkbox";
+import {DialogService} from "../../service/dialog.service";
 
 const imageBufferWidth = 512;
 const imageBufferSize = imageBufferWidth * 64 / 8;
@@ -32,10 +33,11 @@ const imageBufferSize = imageBufferWidth * 64 / 8;
 		TranslocoDirective,
 	],
 	templateUrl: "./edit-image.component.html",
-	styleUrls: ["./edit-image.component.css"],
+	styleUrls: ["./edit-image.component.scss"],
 })
 export class EditImageComponent {
 	private readonly displayService = inject(DisplayService);
+	private readonly dialogService = inject(DialogService);
 
 	@Input({required: true}) displayIndex!: number;
 	visible = model<boolean>(false);
@@ -136,10 +138,12 @@ export class EditImageComponent {
 				context.putImageData(imageData, 0, 0);
 			}
 
-			updateCanvas();
+			if (this.visible()) {
+				updateCanvas();
+			}
 		});
 
-		updateCanvas();
+		this.dialogService.openEditImageDialog.subscribe(() => updateCanvas());
 	}
 
 	updateForm(imageIndex: number) {
@@ -151,11 +155,12 @@ export class EditImageComponent {
 
 		if (displayImage) {
 			this.formGroup.get("editContrast")?.setValue(clamp(displayImage.editContrast === 0 ? this.defaultContrast : displayImage.editContrast, this.minContrast, this.maxContrast));
-			this.formGroup.get("editScale")?.setValue(clamp(displayImage.editScale, this.minScale, this.maxScale));
+			const editScale = clamp(displayImage.editScale, this.minScale, this.maxScale);
+			this.formGroup.get("editScale")?.setValue(editScale);
 			this.formGroup.get("displayDuration")?.setValue(clamp(displayImage.displayDuration === 0 ? this.defaultDisplayDuration : displayImage.displayDuration, this.minDisplayDuration, this.maxDisplayDuration));
 			this.formGroup.get("hasWipe")?.setValue(displayImage.wipeSpeed > 0);
 			this.formGroup.get("wipeSpeed")?.setValue(clamp(displayImage.wipeSpeed === 0 ? this.defaultWipeSpeed : displayImage.wipeSpeed, 0, this.maxWipeSpeed));
-			const hasScroll = displayImage.width > this.displayWidth;
+			const hasScroll = displayImage.width > 0;
 			this.formGroup.get("hasScroll")?.setValue(hasScroll);
 
 			this.imageElement.crossOrigin = "anonymous";
@@ -188,9 +193,9 @@ export class EditImageComponent {
 
 				const pixelWidth = Math.max(1, Math.abs(this.dragPoints[1].x - this.dragPoints[0].x));
 				this.dragPoints[3].visible = hasScroll;
-				this.dragPoints[3].x = clamp(displayImage.editTopLeftPixelX + (displayImage.scrollLeftAnchor - 0.5) * pixelWidth, 0, this.imageWidth - 1);
+				this.dragPoints[3].x = clamp(displayImage.editTopLeftPixelX + (displayImage.scrollLeftAnchor / editScale - 0.5) * pixelWidth, 0, this.imageWidth - 1);
 				this.dragPoints[4].visible = hasScroll;
-				this.dragPoints[4].x = displayImage.scrollRightAnchor === 0 ? this.imageWidth - 1 : clamp(displayImage.editBottomRightPixelX - (displayImage.scrollRightAnchor - 0.5) * pixelWidth, 0, this.imageWidth - 1);
+				this.dragPoints[4].x = displayImage.scrollRightAnchor === 0 ? this.imageWidth - 1 : clamp(displayImage.editBottomRightPixelX - (displayImage.scrollRightAnchor / editScale - 0.5) * pixelWidth, 0, this.imageWidth - 1);
 
 				this.zoom = clamp(displayImage.width / this.displayWidth, this.minZoom, this.maxZoom);
 				this.updateCanvasAndSave();
@@ -239,7 +244,7 @@ export class EditImageComponent {
 			const editedImageBytes: number[] = new Array(imageBufferSize).fill(0);
 			this.iteratePixels((x, y, filled) => {
 				if (filled) {
-					editedImageBytes[x + Math.floor(y / 8) * imageBufferWidth] |= 1 << (x % 8);
+					editedImageBytes[x + Math.floor(y / 8) * imageBufferWidth] |= 1 << (y % 8);
 				}
 			});
 
@@ -257,9 +262,9 @@ export class EditImageComponent {
 				editedImageBytes,
 				displayDuration,
 				wipeSpeed,
-				width: data.hasScroll ? pixelCountX * editScale : this.displayWidth,
-				scrollLeftAnchor,
-				scrollRightAnchor,
+				width: data.hasScroll ? pixelCountX * editScale : 0,
+				scrollLeftAnchor: scrollLeftAnchor * editScale,
+				scrollRightAnchor: scrollRightAnchor * editScale,
 			};
 
 			// Save
@@ -268,7 +273,7 @@ export class EditImageComponent {
 	}
 
 	private getDisplay() {
-		return this.displayService.getData()[this.displayIndex];
+		return this.displayService.data()[this.displayIndex];
 	}
 
 	private getDisplayImage() {

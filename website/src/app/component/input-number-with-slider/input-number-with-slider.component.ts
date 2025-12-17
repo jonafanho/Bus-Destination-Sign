@@ -19,7 +19,7 @@ import {TranslocoDirective} from "@jsverse/transloco";
 		TranslocoDirective,
 	],
 	templateUrl: "./input-number-with-slider.component.html",
-	styleUrls: ["./input-number-with-slider.component.css"],
+	styleUrls: ["./input-number-with-slider.component.scss"],
 })
 export class InputNumberWithSliderComponent implements OnInit {
 	@Input({required: true}) label!: string;
@@ -29,9 +29,6 @@ export class InputNumberWithSliderComponent implements OnInit {
 	@Input({required: true}) childFormGroup!: FormGroup;
 	@Input({required: true}) childFormControlName!: string;
 	protected value = 0;
-
-	constructor() {
-	}
 
 	ngOnInit() {
 		this.value = this.childFormGroup.get(this.childFormControlName)?.getRawValue();

@@ -42,7 +42,7 @@ import {DialogService} from "../../service/dialog.service";
 		ReactiveFormsModule,
 	],
 	templateUrl: "./display-config.component.html",
-	styleUrls: ["./display-config.component.css"],
+	styleUrls: ["./display-config.component.scss"],
 })
 export class DisplayConfigComponent {
 	private readonly displayService = inject(DisplayService);
@@ -55,7 +55,7 @@ export class DisplayConfigComponent {
 	protected settingsDialogVisible = false;
 
 	getDisplay() {
-		return this.displayService.getData()[this.displayIndex];
+		return this.displayService.data()[this.displayIndex];
 	}
 
 	addImage(rawImageId: string, editImageComponent: EditImageComponent) {
@@ -83,6 +83,7 @@ export class DisplayConfigComponent {
 
 	editImage(imageIndex: number, editImageComponent: EditImageComponent) {
 		this.editImageDialogVisible = true;
+		this.dialogService.openEditImageDialog.emit();
 		editImageComponent.updateForm(imageIndex);
 	}
 

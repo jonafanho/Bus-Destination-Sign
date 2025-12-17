@@ -1,4 +1,4 @@
-import { Component, inject } from "@angular/core";
+import {Component, inject} from "@angular/core";
 import {DisplayConfigComponent} from "./component/display-config/display-config.component";
 import {ProgressSpinnerModule} from "primeng/progressspinner";
 import {TranslocoDirective, TranslocoService} from "@jsverse/transloco";
@@ -14,6 +14,7 @@ import {RawImageService} from "./service/raw-image.service";
 import {StopReporterService} from "./service/stop-reporter.service";
 import {RawImageManagerComponent} from "./component/raw-image-manager/raw-image-manager.component";
 import {DialogService} from "./service/dialog.service";
+import {UploadToDeviceComponent} from "./component/upload-to-device/upload-to-device.component";
 
 @Component({
 	selector: "app-root",
@@ -23,11 +24,12 @@ import {DialogService} from "./service/dialog.service";
 		TooltipModule,
 		TieredMenuModule,
 		DisplayConfigComponent,
+		UploadToDeviceComponent,
 		RawImageManagerComponent,
 		TranslocoDirective,
 	],
 	templateUrl: "./app.component.html",
-	styleUrls: ["./app.component.css"],
+	styleUrls: ["./app.component.scss"],
 })
 export class AppComponent {
 	private readonly displayService = inject(DisplayService);
@@ -40,7 +42,7 @@ export class AppComponent {
 	readonly menuItems: MenuItem[];
 	readonly themeMenuItem: MenuItem = {
 		id: "menu.toggle-theme", command: () => {
-			this.themeService.setTheme(!this.themeService.isDarkTheme());
+			this.themeService.setTheme(!this.themeService.darkTheme());
 			this.updateThemeMenuIcon();
 		},
 	};
@@ -77,11 +79,15 @@ export class AppComponent {
 	}
 
 	getDataInitialized() {
-		return this.displayService.getDataInitialized() && this.rawImageService.getDataInitialized() && this.stopReporterService.getDataInitialized();
+		return this.displayService.dataInitialized() && this.rawImageService.dataInitialized() && this.stopReporterService.dataInitialized();
 	}
 
 	getDisplays() {
-		return this.displayService.getData();
+		return this.displayService.data();
+	}
+
+	uploadToDevice() {
+		this.dialogService.openUploadToDeviceDialog.emit();
 	}
 
 	openRawImageManager() {
@@ -94,6 +100,6 @@ export class AppComponent {
 	}
 
 	private updateThemeMenuIcon() {
-		this.themeMenuItem.icon = this.themeService.isDarkTheme() ? PrimeIcons.SUN : PrimeIcons.MOON;
+		this.themeMenuItem.icon = this.themeService.darkTheme() ? PrimeIcons.SUN : PrimeIcons.MOON;
 	}
 }
