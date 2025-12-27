@@ -1,0 +1,24 @@
+<app-dialog *transloco="let t" [title]="t('title.upload-to-device')" [(visible)]="uploadToDeviceDialogVisible" maxWidth="48rem" maxHeight="24rem">
+	<div header class="row gap center">
+		@if (loading()) {
+			<p-progressSpinner [style]="{width: '2rem', height: '2rem'}"/>
+		}
+		<p-button icon="pi pi-refresh" [rounded]="true" [text]="true" [pTooltip]="t('detect-devices')" tooltipPosition="bottom" (onClick)="detectEspPortNames()" [disabled]="loading()"/>
+	</div>
+
+	<div content class="column gap wrapper">
+		<div content [formGroup]="formGroup">
+			<p-float-label variant="in">
+				<p-select inputId="portName" [options]="portNames()" formControlName="portName" [fluid]="true">
+					<ng-template let-portName #item #selectedItem>{{ portName === noDeviceSelection ? t('message.no-devices-detected') : portName }}</ng-template>
+				</p-select>
+				<label for="displayType">{{ t('input.device') }}</label>
+			</p-float-label>
+		</div>
+
+		<div class="row gap">
+			<app-upload-button class="spacing wrapper" [icons]="['pi-cog']" [title]="t('input.upload-settings')" [disabled]="portNames()[0] === noDeviceSelection || loading()" (uploadClick)="upload(false)"/>
+			<app-upload-button class="spacing wrapper" [icons]="['pi-cog', 'pi-image']" [title]="t('input.upload-settings-and-images')" [disabled]="portNames()[0] === noDeviceSelection || loading()" (uploadClick)="upload(true)"/>
+		</div>
+	</div>
+</app-dialog>

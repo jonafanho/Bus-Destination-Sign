@@ -1,0 +1,102 @@
+@use "primeicons/primeicons.css";
+
+* {
+	font-family: "Inter", sans-serif;
+	margin: 0;
+	padding: 0;
+	user-select: none;
+	--p-drawer-content-padding: 0;
+	--p-tabs-tabpanel-padding: 0;
+}
+
+:root {
+	--background-color: var(--p-surface-50);
+	--light-color: var(--p-surface-400);
+}
+
+:root.dark-theme {
+	--background-color: var(--p-surface-950);
+	--light-color: var(--p-surface-600);
+}
+
+html, body {
+	background: var(--background-color);
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+}
+
+canvas, img, svg {
+	display: block;
+}
+
+.column {
+	display: flex;
+	flex-flow: column nowrap;
+}
+
+.column-reverse {
+	display: flex;
+	flex-flow: column-reverse nowrap;
+}
+
+.row {
+	display: flex;
+	flex-flow: row nowrap;
+}
+
+.row-reverse {
+	display: flex;
+	flex-flow: row-reverse nowrap;
+}
+
+.gap {
+	gap: 1rem;
+}
+
+.gap-small {
+	gap: 0.5rem;
+}
+
+.center {
+	align-items: center;
+}
+
+.spacing {
+	flex-grow: 1;
+}
+
+.wrap {
+	flex-wrap: wrap;
+}
+
+.wrapper {
+	overflow: hidden;
+	width: 100%;
+	height: 100%;
+}
+
+.content {
+	max-height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	width: 100%;
+}
+
+.padding-top-bottom {
+	box-sizing: border-box;
+	padding-top: 1rem;
+	padding-bottom: 1rem;
+}
+
+.padding-sides {
+	box-sizing: border-box;
+	padding-left: 1rem;
+	padding-right: 1rem;
+}
+
+.p-card-body, .p-card-content, .p-dialog-content {
+	display: flex;
+	height: 100%;
+	overflow: hidden;
+}

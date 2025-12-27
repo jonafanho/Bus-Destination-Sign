@@ -1,0 +1,42 @@
+name: Build
+on: [ pull_request, push, workflow_dispatch ]
+
+jobs:
+  build:
+    name: Build
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+      - name: Setup Node
+        uses: actions/setup-node@main
+        with:
+          node-version: 24
+      - name: Install Node packages
+        run: npm ci --prefix website
+      - name: Build Angular
+        run: npm run build --prefix website
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@main
+      - name: Setup JDK 21
+        uses: actions/setup-java@main
+        with:
+          java-version: 21
+          distribution: 'zulu'
+          cache: gradle
+      - name: Make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: Build JAR
+        run: ./gradlew build --no-daemon
+      - name: Upload Spring Boot JAR
+        uses: actions/upload-artifact@main
+        with:
+          name: Spring Boot JAR
+          path: build/libs/Bus-Destination-Sign.jar
+      - name: Build Windows Executable
+        run: ./gradlew createExe --no-daemon
+      - name: Upload Windows Executable
+        uses: actions/upload-artifact@main
+        with:
+          name: Windows Executable
+          path: build/launch4j/BusDestinationSign.exe
