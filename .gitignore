@@ -5,6 +5,7 @@
 build/
 
 esp8266/.gitignore
+pcb/.gitignore
 website/.gitignore
 
 src/main/resources/static/

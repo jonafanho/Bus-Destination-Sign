@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "SSD1322")(type "KiCad")(uri "${KIPRJMOD}/ssd1322.kicad_sym")(options "")(descr ""))
+  (lib (name "Data Connector")(type "KiCad")(uri "${KIPRJMOD}/data_connector.kicad_sym")(options "")(descr ""))
+)
