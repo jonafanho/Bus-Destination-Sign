@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public record DisplayImageDTO(
 		UUID rawImageId,
+		boolean startOfNewGroup,
 		int editTopLeftPixelX,
 		int editTopLeftPixelY,
 		int editTopLeftOffsetPixelX,

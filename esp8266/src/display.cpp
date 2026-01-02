@@ -40,6 +40,12 @@ void Display::tick()
     }
 }
 
+void Display::changeGroup()
+{
+    group++;
+    loadImage();
+}
+
 /**
  * Read a file from LittleFS and store it in memory.
  */
@@ -47,7 +53,14 @@ void Display::loadImage()
 {
     JsonDocument jsonDocument;
     deserializeJson(jsonDocument, settings.getSettings());
-    JsonArray displayImages = jsonDocument[displayIndex]["displayImages"];
+    JsonArray displayGroups = jsonDocument[displayIndex]["displayGroups"];
+
+    if (group >= displayGroups.size())
+    {
+        group = 0;
+    }
+
+    JsonArray displayImages = displayGroups[group]["displayImages"];
 
     if (currentIndex >= displayImages.size())
     {
@@ -55,7 +68,7 @@ void Display::loadImage()
     }
 
     char fileName[32];
-    sprintf(fileName, "/displays/%d_%d", displayIndex, currentIndex);
+    sprintf(fileName, "/displays/%d_%d_%d", displayIndex, group, currentIndex);
     File file = LittleFS.open(fileName, "r");
     if (file)
     {

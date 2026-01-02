@@ -63,6 +63,7 @@ export class DisplayConfigComponent {
 		const lastDisplayImage = existingDisplayImages[existingDisplayImages.length - 1];
 		this.getDisplay().displayImages.push({
 			rawImageId,
+			startOfNewGroup: false,
 			editTopLeftPixelX: lastDisplayImage?.editTopLeftPixelX ?? 0,
 			editTopLeftPixelY: lastDisplayImage?.editTopLeftPixelY ?? 0,
 			editTopLeftOffsetPixelX: lastDisplayImage?.editTopLeftOffsetPixelX ?? 0,
@@ -94,14 +95,56 @@ export class DisplayConfigComponent {
 		const targetImageIndex = clamp(imageIndex + direction, 0, displayImages.length - 1);
 
 		if (imageIndex !== targetImageIndex) {
-			displayImages.splice(targetImageIndex, 0, displayImages.splice(imageIndex, 1)[0]);
-			this.displayService.saveDisplays();
+			if (direction < 0 && displayImages[imageIndex].startOfNewGroup) {
+				this.moveGroup(imageIndex, -direction);
+			} else if (direction > 0 && displayImages[targetImageIndex].startOfNewGroup) {
+				this.moveGroup(targetImageIndex, -direction);
+			} else {
+				displayImages.splice(targetImageIndex, 0, displayImages.splice(imageIndex, 1)[0]);
+				this.displayService.saveDisplays();
+			}
 		}
 	}
 
 	deleteImage(imageIndex: number) {
+		const startOfNewGroup = this.getDisplay().displayImages[imageIndex].startOfNewGroup;
 		this.getDisplay().displayImages.splice(imageIndex, 1);
 		this.displayService.saveDisplays();
+
+		if (startOfNewGroup) {
+			this.editGroup(imageIndex, true);
+		}
+	}
+
+	moveGroup(imageIndex: number, direction: number) {
+		this.editGroup(imageIndex, false);
+		this.editGroup(imageIndex + direction, true);
+		this.displayService.saveDisplays();
+	}
+
+	editGroup(imageIndex: number, addGroup: boolean) {
+		const displayImage = this.getDisplay().displayImages[imageIndex];
+		if (displayImage) {
+			this.getDisplay().displayImages[imageIndex] = {
+				rawImageId: displayImage.rawImageId,
+				startOfNewGroup: addGroup,
+				editTopLeftPixelX: displayImage.editTopLeftPixelX,
+				editTopLeftPixelY: displayImage.editTopLeftPixelY,
+				editTopLeftOffsetPixelX: displayImage.editTopLeftOffsetPixelX,
+				editTopLeftOffsetPixelY: displayImage.editTopLeftOffsetPixelY,
+				editBottomRightPixelX: displayImage.editBottomRightPixelX,
+				editBottomRightPixelY: displayImage.editBottomRightPixelY,
+				editContrast: displayImage.editContrast,
+				editScale: displayImage.editScale,
+				editedImageBytes: displayImage.editedImageBytes,
+				displayDuration: displayImage.displayDuration,
+				wipeSpeed: displayImage.wipeSpeed,
+				width: displayImage.width,
+				scrollLeftAnchor: displayImage.scrollLeftAnchor,
+				scrollRightAnchor: displayImage.scrollRightAnchor,
+			};
+			this.displayService.saveDisplays();
+		}
 	}
 
 	getUrlFromRawImageId(rawImageId: string) {

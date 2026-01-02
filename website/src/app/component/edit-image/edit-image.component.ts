@@ -218,6 +218,7 @@ export class EditImageComponent {
 		if (displayImage) {
 			this.displayService.clipboard = {
 				rawImageId: "",
+				startOfNewGroup: false,
 				editTopLeftPixelX: displayImage.editTopLeftPixelX,
 				editTopLeftPixelY: displayImage.editTopLeftPixelY,
 				editTopLeftOffsetPixelX: displayImage.editTopLeftOffsetPixelX,
@@ -244,6 +245,7 @@ export class EditImageComponent {
 			if (displayImage) {
 				display.displayImages[this.imageIndex] = {
 					rawImageId: displayImage.rawImageId,
+					startOfNewGroup: displayImage.startOfNewGroup,
 					editTopLeftPixelX: this.displayService.clipboard.editTopLeftPixelX,
 					editTopLeftPixelY: this.displayService.clipboard.editTopLeftPixelY,
 					editTopLeftOffsetPixelX: this.displayService.clipboard.editTopLeftOffsetPixelX,
@@ -309,6 +311,7 @@ export class EditImageComponent {
 			// Update display image object
 			this.getDisplay().displayImages[this.imageIndex] = {
 				rawImageId: displayImage.rawImageId,
+				startOfNewGroup: displayImage.startOfNewGroup,
 				editTopLeftPixelX: this.dragPoints()[0].x,
 				editTopLeftPixelY: this.dragPoints()[0].y,
 				editTopLeftOffsetPixelX: this.dragPoints()[1].x,

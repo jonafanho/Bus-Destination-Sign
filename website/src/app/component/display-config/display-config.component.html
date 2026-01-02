@@ -11,6 +11,7 @@
 			<div class="row">
 				@if (getDisplay().displayType !== 'NONE') {
 					<p-button icon="pi pi-plus" [rounded]="true" [text]="true" [pTooltip]="t('title.add-image')" tooltipPosition="bottom" (onClick)="addImageDialogVisible = true"/>
+					<p-button icon="pi pi-folder-plus" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.add-group-divider')" tooltipPosition="bottom" [disabled]="getDisplay().displayImages.length <= 1" (onClick)="editGroup(getDisplay().displayImages.length - 1, true)"/>
 				}
 				<p-button icon="pi pi-cog" [rounded]="true" [text]="true" [pTooltip]="t('title.display-settings')" tooltipPosition="bottom" (onClick)="settingsDialogVisible = true; displaySettingsComponent.updateForm()"/>
 			</div>
@@ -21,13 +22,22 @@
 		<br/>
 		<div class="column gap-small content">
 			@for (displayImage of getDisplay().displayImages; track $index) {
+				@if (displayImage.startOfNewGroup || $index === 0) {
+					<div class="row center">
+						<p-divider/>
+						<p-button icon="pi pi-angle-up" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-group-divider-up')" tooltipPosition="bottom" [disabled]="$index === 0" (onClick)="moveGroup($index, -1)"/>
+						<p-button icon="pi pi-angle-down" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-group-divider-down')" tooltipPosition="bottom" (onClick)="moveGroup($index, 1)"/>
+						<p-button icon="pi pi-trash" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.delete-group-divider')" tooltipPosition="bottom" [disabled]="$index === 0" (onClick)="editGroup($index,false)"/>
+					</div>
+				}
+
 				<p-panel>
 					<ng-template #header>
 						<div class="row gap center panel-header">
 							<h4 class="spacing">{{ t('title.image') }} {{ $index + 1 }}</h4>
 							<div class="row">
 								<p-button icon="pi pi-pencil" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.edit')" tooltipPosition="bottom" (onClick)="editImage($index, editImageComponent)"/>
-								<p-button icon="pi pi-trash" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.delete')" tooltipPosition="bottom" (onClick)="deleteImage($index)"/>
+								<p-button icon="pi pi-trash" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.delete-image')" tooltipPosition="bottom" (onClick)="deleteImage($index)"/>
 							</div>
 						</div>
 					</ng-template>
@@ -38,8 +48,8 @@
 							</div>
 							@if ($count > 1) {
 								<div class="column">
-									<p-button icon="pi pi-angle-up" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-up')" tooltipPosition="bottom" [disabled]="$index === 0" (onClick)="moveImage($index, -1)"/>
-									<p-button icon="pi pi-angle-down" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-down')" tooltipPosition="bottom" [disabled]="$index === $count - 1" (onClick)="moveImage($index, 1)"/>
+									<p-button icon="pi pi-angle-up" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-image-up')" tooltipPosition="bottom" [disabled]="$index === 0" (onClick)="moveImage($index, -1)"/>
+									<p-button icon="pi pi-angle-down" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.move-image-down')" tooltipPosition="bottom" [disabled]="$index === $count - 1" (onClick)="moveImage($index, 1)"/>
 								</div>
 							}
 						</div>

@@ -4,10 +4,7 @@ import com.fazecast.jSerialComm.SerialPort;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.mtr.bus.dto.DisplayDTO;
-import org.mtr.bus.dto.DisplayEspDTO;
-import org.mtr.bus.dto.DisplayImageDTO;
-import org.mtr.bus.dto.DisplayImageEspDTO;
+import org.mtr.bus.dto.*;
 import org.mtr.bus.tool.Utilities;
 import org.springframework.stereotype.Service;
 
@@ -60,10 +57,11 @@ public final class EspToolService {
 
 			if (writeImages) {
 				for (int i = 0; i < displays.length; i++) {
-					final ObjectArrayList<DisplayImageDTO> displayImages = displays[i].displayImages();
-					for (int j = 0; j < displayImages.size(); j++) {
-						writeFile(outputStream, bufferedReader, String.format("displays/%s_%s", i, j), displayImages.get(j).editedImageBytes());
-					}
+					final int displayIndex = i;
+					iterateDisplayImages(
+							displays[i].displayImages(),
+							(displayImage, groupIndex, imageIndex) -> writeFile(outputStream, bufferedReader, String.format("displays/%s_%s_%s", displayIndex, groupIndex, imageIndex), displayImage.editedImageBytes())
+					);
 				}
 			}
 		}
@@ -77,23 +75,47 @@ public final class EspToolService {
 		return detectEspPorts(true).stream().map(EspToolService::serializeSerialPort).collect(Collectors.toCollection(ObjectArrayList::new));
 	}
 
-	private static DisplayEspDTO[] getDisplaysForEsp(DisplayDTO[] displays) {
+	private static DisplayEspDTO[] getDisplaysForEsp(DisplayDTO[] displays) throws IOException {
 		final DisplayEspDTO[] displaysForEsp = new DisplayEspDTO[displays.length];
 
 		for (int i = 0; i < displays.length; i++) {
-			displaysForEsp[i] = new DisplayEspDTO(
-					displays[i].displayType(),
-					displays[i].displayImages().stream().map(displayImage -> new DisplayImageEspDTO(
-							displayImage.displayDuration(),
-							displayImage.wipeSpeed(),
-							displayImage.width(),
-							displayImage.scrollLeftAnchor(),
-							displayImage.scrollRightAnchor()
-					)).collect(Collectors.toCollection(ObjectArrayList::new))
-			);
+			final int[] currentGroupIndex = {-1};
+			final DisplayGroupEspDTO[] currentDisplayGroupForEsp = {null};
+			final ObjectArrayList<DisplayGroupEspDTO> displayGroupsForEsp = new ObjectArrayList<>();
+
+			iterateDisplayImages(displays[i].displayImages(), (displayImage, groupIndex, imageIndex) -> {
+				if (groupIndex != currentGroupIndex[0]) {
+					currentGroupIndex[0] = groupIndex;
+					currentDisplayGroupForEsp[0] = new DisplayGroupEspDTO(new ObjectArrayList<>());
+					displayGroupsForEsp.add(currentDisplayGroupForEsp[0]);
+				}
+
+				currentDisplayGroupForEsp[0].displayImages().add(new DisplayImageEspDTO(
+						displayImage.displayDuration(),
+						displayImage.wipeSpeed(),
+						displayImage.width(),
+						displayImage.scrollLeftAnchor(),
+						displayImage.scrollRightAnchor()
+				));
+			});
+
+			displaysForEsp[i] = new DisplayEspDTO(displays[i].displayType(), displayGroupsForEsp);
 		}
 
 		return displaysForEsp;
+	}
+
+	private static void iterateDisplayImages(ObjectArrayList<DisplayImageDTO> displayImages, IndexedImageConsumer indexedImageConsumer) throws IOException {
+		int groupIndex = 0;
+		int imageIndex = 0;
+		for (int rawImageIndex = 0; rawImageIndex < displayImages.size(); rawImageIndex++) {
+			if (rawImageIndex > 0 && displayImages.get(rawImageIndex).startOfNewGroup()) {
+				groupIndex++;
+				imageIndex = 0;
+			}
+			indexedImageConsumer.accept(displayImages.get(rawImageIndex), groupIndex, imageIndex);
+			imageIndex++;
+		}
 	}
 
 	private static void writeFile(OutputStream outputStream, BufferedReader bufferedReader, String fileName, byte[] data) throws IOException {
@@ -137,5 +159,10 @@ public final class EspToolService {
 
 	private static String serializeSerialPort(SerialPort serialPort) {
 		return String.format("%s - %s", serialPort.getSystemPortName(), serialPort.getDescriptivePortName());
+	}
+
+	@FunctionalInterface
+	private interface IndexedImageConsumer {
+		void accept(DisplayImageDTO displayImage, int groupIndex, int imageIndex) throws IOException;
 	}
 }
