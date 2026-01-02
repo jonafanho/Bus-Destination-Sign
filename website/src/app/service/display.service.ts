@@ -3,9 +3,11 @@ import {HttpClient} from "@angular/common/http";
 import {getUrl} from "../utility/utilities";
 import {Display} from "../data/display";
 import {DataServiceBase} from "./data.service.base";
+import {DisplayImage} from "../data/display-image";
 
 @Injectable({providedIn: "root"})
 export class DisplayService extends DataServiceBase<Display> {
+	clipboard?: DisplayImage;
 	readonly saveDisplays: () => void;
 	private timeoutId = 0;
 	private canSave = true;
@@ -26,7 +28,7 @@ export class DisplayService extends DataServiceBase<Display> {
 							this.saveDisplays();
 						},
 					});
-				}, 1000) as unknown as number;
+				}, 1000);
 			}
 		};
 	}

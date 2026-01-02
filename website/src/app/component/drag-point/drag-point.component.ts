@@ -1,4 +1,4 @@
-import {Component, EventEmitter, HostListener, Input, Output} from "@angular/core";
+import {Component, EventEmitter, HostListener, Input, Output, WritableSignal} from "@angular/core";
 import {TooltipModule} from "primeng/tooltip";
 import {TranslocoDirective} from "@jsverse/transloco";
 import {clamp} from "../../utility/utilities";
@@ -16,7 +16,7 @@ export class DragPointComponent {
 	@Input({required: true}) width!: number;
 	@Input({required: true}) height!: number;
 	@Input({required: true}) zoom!: number;
-	@Input({required: true}) dragPoints!: { x: number, y: number, isBar: boolean, visible: boolean, tooltip: string }[];
+	@Input({required: true}) dragPoints!: WritableSignal<{ x: number, y: number, isBar: boolean, visible: boolean, tooltip: string }[]>;
 	@Output() dragPointMoved = new EventEmitter();
 	private offset = {x: 0, y: 0};
 	private currentDragPoint ?: { x: number, y: number, isBar: boolean };

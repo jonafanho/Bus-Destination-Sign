@@ -91,6 +91,6 @@ export class RawImageManagerComponent {
 	private setState(state: "success" | "error" | "invalidTypes" | "deleteFailed") {
 		this.state = state;
 		clearTimeout(this.timeoutId);
-		this.timeoutId = setTimeout(() => this.state = "none", 3000) as unknown as number;
+		this.timeoutId = setTimeout(() => this.state = "none", 3000);
 	}
 }

@@ -6,6 +6,8 @@
 	"tooltip.move-up": "Move Up",
 	"tooltip.move-down": "Move Down",
 	"tooltip.edit": "Edit Image",
+	"tooltip.copy": "Copy Image Settings",
+	"tooltip.paste": "Paste Image Settings",
 	"tooltip.delete": "Delete Image",
 	"tooltip.reset": "Reset",
 	"tooltip.top-left-pixel": "Top Left",
