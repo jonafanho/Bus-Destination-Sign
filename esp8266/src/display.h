@@ -15,6 +15,7 @@ public:
     void begin();
     void clear();
     void tick();
+    void changeGroup();
 
 private:
     U8X8 u8x8;
@@ -28,9 +29,13 @@ private:
     U8X8_PROGMEM uint8_t displayBuffer[MAX_DISPLAY_WIDTH * MAX_DISPLAY_HEIGHT / 8];
 
     /**
-     * The current image index
+     * The current image index in the group
      */
     uint8_t currentIndex;
+    /**
+     * The current group
+     */
+    uint8_t group;
     /**
      * The current progress of the transition or animation
      */

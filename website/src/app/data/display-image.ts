@@ -1,5 +1,6 @@
 export interface DisplayImage {
 	readonly rawImageId: string;
+	readonly startOfNewGroup: boolean;
 	readonly editTopLeftPixelX: number;
 	readonly editTopLeftPixelY: number;
 	readonly editTopLeftOffsetPixelX: number;

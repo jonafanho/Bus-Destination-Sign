@@ -1,10 +1,10 @@
 <div *transloco="let t" [style]="{width: width * zoom + 'px', height: height * zoom + 'px'}" (mousemove)="onMouseMove($event)">
-	@for (dragPoint of dragPoints; track $index) {
+	@for (dragPoint of dragPoints(); track $index) {
 		@if (dragPoint.visible) {
 			<div class="drag-content text" [style]="{left: (dragPoint.x + 0.5) * zoom + 'px', top: (dragPoint.y + 0.5) * zoom + 20 + 'px'}">{{ t(dragPoint.tooltip) }}</div>
 		}
 	}
-	@for (dragPoint of dragPoints; track $index) {
+	@for (dragPoint of dragPoints(); track $index) {
 		@if (dragPoint.visible) {
 			<div class="row gap-small drag-content draggable" [style]="getDragPointStyle(dragPoint)" (mousedown)="onMouseDown(dragPoint, $event)">
 				@if (dragPoint.isBar) {

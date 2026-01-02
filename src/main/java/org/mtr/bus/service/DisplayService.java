@@ -64,6 +64,7 @@ public class DisplayService {
 	private static DisplayDTO mapDisplay(Display display) {
 		return new DisplayDTO(display.getDisplayType(), display.getDisplayImages().stream().map(displayImage -> new DisplayImageDTO(
 				displayImage.getRawImage().getUuid(),
+				displayImage.isStartOfNewGroup(),
 				displayImage.getEditTopLeftPixelX(),
 				displayImage.getEditTopLeftPixelY(),
 				displayImage.getEditTopLeftOffsetPixelX(),
@@ -88,6 +89,7 @@ public class DisplayService {
 		displayDTO.displayImages().forEach(displayImageDTO -> {
 			final DisplayImage displayImage = new DisplayImage(index);
 			displayImage.setRawImage(new RawImage(displayImageDTO.rawImageId()));
+			displayImage.setStartOfNewGroup(displayImageDTO.startOfNewGroup());
 			displayImage.setEditTopLeftPixelX(displayImageDTO.editTopLeftPixelX());
 			displayImage.setEditTopLeftPixelY(displayImageDTO.editTopLeftPixelY());
 			displayImage.setEditTopLeftOffsetPixelX(displayImageDTO.editTopLeftOffsetPixelX());

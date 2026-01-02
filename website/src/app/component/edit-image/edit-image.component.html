@@ -1,4 +1,9 @@
 <app-dialog *transloco="let t" [title]="t('title.edit-image')" [(visible)]="visible">
+	<div header class="row">
+		<app-check-button icon="pi-copy" [tooltip]="t('tooltip.copy')" (clickCheckButton)="copyImage()"/>
+		<app-check-button icon="pi-clipboard" [tooltip]="t('tooltip.paste')" (clickCheckButton)="pasteImage()"/>
+	</div>
+
 	<div content class="row wrapper">
 		<div content class="column gap wrapper">
 			<div class="column wrapper">
@@ -10,15 +15,15 @@
 				</div>
 
 				<div class="image-wrapper">
-					<img [src]="getImageUrl()" alt="Image" [height]="imageHeight * zoom"/>
-					<app-drag-point class="drag-point-wrapper" [width]="imageWidth" [height]="imageHeight" [zoom]="zoom" (dragPointMoved)="updateCanvasAndSave()" [dragPoints]="dragPoints"/>
+					<img [src]="getImageUrl()" alt="Image" [height]="imageHeight() * zoom()"/>
+					<app-drag-point class="drag-point-wrapper" [width]="imageWidth()" [height]="imageHeight()" [zoom]="zoom()" (dragPointMoved)="updateCanvasAndSave()" [dragPoints]="dragPoints"/>
 				</div>
 
 				<p-divider/>
 				<div class="column gap-small">
 					<div>{{ t('title.image-preview') }}</div>
 					<div class="image-wrapper">
-						<canvas id="canvas" class="canvas" [width]="displayWidth" [height]="displayHeight"></canvas>
+						<canvas id="canvas" class="canvas" [width]="displayWidth()" [height]="displayHeight()"></canvas>
 					</div>
 				</div>
 			</div>

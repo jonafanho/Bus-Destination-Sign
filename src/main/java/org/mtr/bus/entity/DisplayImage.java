@@ -27,6 +27,11 @@ public final class DisplayImage {
 	@Getter
 	@Setter
 	@Column(nullable = false)
+	private boolean startOfNewGroup;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
 	private int editTopLeftPixelX;
 
 	@Getter

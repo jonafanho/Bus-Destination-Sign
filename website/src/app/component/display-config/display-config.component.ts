@@ -59,22 +59,25 @@ export class DisplayConfigComponent {
 	}
 
 	addImage(rawImageId: string, editImageComponent: EditImageComponent) {
+		const existingDisplayImages = this.displayService.data()[this.displayIndex].displayImages;
+		const lastDisplayImage = existingDisplayImages[existingDisplayImages.length - 1];
 		this.getDisplay().displayImages.push({
 			rawImageId,
-			editTopLeftPixelX: 0,
-			editTopLeftPixelY: 0,
-			editTopLeftOffsetPixelX: 0,
-			editTopLeftOffsetPixelY: 0,
-			editBottomRightPixelX: 0,
-			editBottomRightPixelY: 0,
-			editContrast: 0x80,
-			editScale: 1,
+			startOfNewGroup: false,
+			editTopLeftPixelX: lastDisplayImage?.editTopLeftPixelX ?? 0,
+			editTopLeftPixelY: lastDisplayImage?.editTopLeftPixelY ?? 0,
+			editTopLeftOffsetPixelX: lastDisplayImage?.editTopLeftOffsetPixelX ?? 0,
+			editTopLeftOffsetPixelY: lastDisplayImage?.editTopLeftOffsetPixelY ?? 0,
+			editBottomRightPixelX: lastDisplayImage?.editBottomRightPixelX ?? 0,
+			editBottomRightPixelY: lastDisplayImage?.editBottomRightPixelY ?? 0,
+			editContrast: lastDisplayImage?.editContrast ?? 0x80,
+			editScale: lastDisplayImage?.editScale ?? 1,
 			editedImageBytes: [],
-			displayDuration: 0,
-			wipeSpeed: 0,
-			width: 0,
-			scrollLeftAnchor: 0,
-			scrollRightAnchor: 0,
+			displayDuration: lastDisplayImage?.displayDuration ?? 0,
+			wipeSpeed: lastDisplayImage?.wipeSpeed ?? 0,
+			width: lastDisplayImage?.width ?? 0,
+			scrollLeftAnchor: lastDisplayImage?.scrollLeftAnchor ?? 0,
+			scrollRightAnchor: lastDisplayImage?.scrollRightAnchor ?? 0,
 		});
 		this.displayService.saveDisplays();
 		this.addImageDialogVisible = false;
@@ -92,14 +95,56 @@ export class DisplayConfigComponent {
 		const targetImageIndex = clamp(imageIndex + direction, 0, displayImages.length - 1);
 
 		if (imageIndex !== targetImageIndex) {
-			displayImages.splice(targetImageIndex, 0, displayImages.splice(imageIndex, 1)[0]);
-			this.displayService.saveDisplays();
+			if (direction < 0 && displayImages[imageIndex].startOfNewGroup) {
+				this.moveGroup(imageIndex, -direction);
+			} else if (direction > 0 && displayImages[targetImageIndex].startOfNewGroup) {
+				this.moveGroup(targetImageIndex, -direction);
+			} else {
+				displayImages.splice(targetImageIndex, 0, displayImages.splice(imageIndex, 1)[0]);
+				this.displayService.saveDisplays();
+			}
 		}
 	}
 
 	deleteImage(imageIndex: number) {
+		const startOfNewGroup = this.getDisplay().displayImages[imageIndex].startOfNewGroup;
 		this.getDisplay().displayImages.splice(imageIndex, 1);
 		this.displayService.saveDisplays();
+
+		if (startOfNewGroup) {
+			this.editGroup(imageIndex, true);
+		}
+	}
+
+	moveGroup(imageIndex: number, direction: number) {
+		this.editGroup(imageIndex, false);
+		this.editGroup(imageIndex + direction, true);
+		this.displayService.saveDisplays();
+	}
+
+	editGroup(imageIndex: number, addGroup: boolean) {
+		const displayImage = this.getDisplay().displayImages[imageIndex];
+		if (displayImage) {
+			this.getDisplay().displayImages[imageIndex] = {
+				rawImageId: displayImage.rawImageId,
+				startOfNewGroup: addGroup,
+				editTopLeftPixelX: displayImage.editTopLeftPixelX,
+				editTopLeftPixelY: displayImage.editTopLeftPixelY,
+				editTopLeftOffsetPixelX: displayImage.editTopLeftOffsetPixelX,
+				editTopLeftOffsetPixelY: displayImage.editTopLeftOffsetPixelY,
+				editBottomRightPixelX: displayImage.editBottomRightPixelX,
+				editBottomRightPixelY: displayImage.editBottomRightPixelY,
+				editContrast: displayImage.editContrast,
+				editScale: displayImage.editScale,
+				editedImageBytes: displayImage.editedImageBytes,
+				displayDuration: displayImage.displayDuration,
+				wipeSpeed: displayImage.wipeSpeed,
+				width: displayImage.width,
+				scrollLeftAnchor: displayImage.scrollLeftAnchor,
+				scrollRightAnchor: displayImage.scrollRightAnchor,
+			};
+			this.displayService.saveDisplays();
+		}
 	}
 
 	getUrlFromRawImageId(rawImageId: string) {
