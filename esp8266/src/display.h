@@ -6,12 +6,13 @@
 #define MAX_IMAGE_WIDTH 512
 
 #include "settings.h"
+#include <SdFat.h>
 #include <U8x8lib.h>
 
 class Display
 {
 public:
-    Display(U8X8 u8x8, Settings settings, const uint16_t width, const uint16_t height, const uint8_t displayIndex);
+    Display(U8X8 u8x8, Settings settings, SdFat sd, const uint16_t width, const uint16_t height, const uint8_t displayIndex);
     void begin();
     void clear();
     void tick();
@@ -20,6 +21,7 @@ public:
 private:
     U8X8 u8x8;
     Settings settings;
+    SdFat sd;
 
     const uint16_t width;
     const uint16_t height;

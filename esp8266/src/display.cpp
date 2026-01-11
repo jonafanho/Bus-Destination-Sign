@@ -1,7 +1,6 @@
 #include "display.h"
-#include <LittleFS.h>
 
-Display::Display(U8X8 u8x8, Settings settings, const uint16_t width, const uint16_t height, const uint8_t displayIndex) : u8x8(u8x8), settings(settings), width(width), height(height), displayIndex(displayIndex) {}
+Display::Display(U8X8 u8x8, Settings settings, SdFat sd, const uint16_t width, const uint16_t height, const uint8_t displayIndex) : u8x8(u8x8), settings(settings), sd(sd), width(width), height(height), displayIndex(displayIndex) {}
 
 void Display::begin()
 {
@@ -69,15 +68,10 @@ void Display::loadImage()
 
     char fileName[32];
     sprintf(fileName, "/displays/%d_%d_%d", displayIndex, group, currentIndex);
-    File file = LittleFS.open(fileName, "r");
+    File32 file = sd.open(fileName);
     if (file)
     {
-        uint16_t i = 0;
-        while (file.available() && i < MAX_IMAGE_WIDTH * MAX_DISPLAY_HEIGHT / 8)
-        {
-            imageBuffer[i] = (uint8_t)file.read();
-            i++;
-        }
+        file.read(imageBuffer, MAX_IMAGE_WIDTH * MAX_DISPLAY_HEIGHT / 8);
     }
     file.close();
 
