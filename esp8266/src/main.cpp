@@ -1,11 +1,12 @@
 #include "settings.h"
 #include "display.h"
+#include <SPI.h>
 #include <SdFat.h>
 #include <U8g2lib.h>
 #include <ArduinoJson.h>
 
-#define SD_PIN D4
 #define INPUT_PIN D8
+#define SD_PIN D4
 #define INPUT_DEBOUCE_MILLIS 200
 
 SdFat sd;
@@ -21,9 +22,18 @@ void setup()
 	Serial.setTimeout(5000);
 	Serial.println();
 
-	pinMode(INPUT_PIN, INPUT_PULLUP);
+	pinMode(INPUT_PIN, INPUT);
+	pinMode(D0, OUTPUT);
+	pinMode(D1, OUTPUT);
+	pinMode(D2, OUTPUT);
+	pinMode(SD_PIN, OUTPUT);
+	digitalWrite(D0, HIGH);
+	digitalWrite(D1, HIGH);
+	digitalWrite(D2, HIGH);
+	digitalWrite(SD_PIN, HIGH);
+	SPI.begin(); 
 
-	if (sd.begin(SD_PIN, SD_SCK_MHZ(10)))
+	if (sd.begin(SdSpiConfig(SD_PIN, SHARED_SPI, SD_SCK_MHZ(4))))
 	{
 		Serial.println("SD card mounted successfully");
 	}
