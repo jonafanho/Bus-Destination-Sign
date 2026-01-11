@@ -68,7 +68,7 @@ void Display::loadImage()
 
     char fileName[32];
     sprintf(fileName, "/displays/%d_%d_%d", displayIndex, group, currentIndex);
-    File32 file = sd.open(fileName);
+    File file = sd.open(fileName);
     if (file)
     {
         file.read(imageBuffer, MAX_IMAGE_WIDTH * MAX_DISPLAY_HEIGHT / 8);

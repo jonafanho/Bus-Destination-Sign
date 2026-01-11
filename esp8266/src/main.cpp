@@ -1,6 +1,5 @@
 #include "settings.h"
 #include "display.h"
-#include <SPI.h>
 #include <SdFat.h>
 #include <U8g2lib.h>
 #include <ArduinoJson.h>
@@ -22,18 +21,7 @@ void setup()
 	Serial.setTimeout(5000);
 	Serial.println();
 
-	pinMode(INPUT_PIN, INPUT);
-	pinMode(D0, OUTPUT);
-	pinMode(D1, OUTPUT);
-	pinMode(D2, OUTPUT);
-	pinMode(SD_PIN, OUTPUT);
-	digitalWrite(D0, HIGH);
-	digitalWrite(D1, HIGH);
-	digitalWrite(D2, HIGH);
-	digitalWrite(SD_PIN, HIGH);
-	SPI.begin(); 
-
-	if (sd.begin(SdSpiConfig(SD_PIN, SHARED_SPI, SD_SCK_MHZ(4))))
+	if (sd.begin(SD_PIN, SPI_HALF_SPEED))
 	{
 		Serial.println("SD card mounted successfully");
 	}
@@ -58,7 +46,7 @@ void loop()
 	side.tick();
 	back.tick();
 
-	if (digitalRead(INPUT_PIN) == LOW)
+	if (digitalRead(INPUT_PIN))
 	{
 		if (millis() > debounceMillis)
 		{

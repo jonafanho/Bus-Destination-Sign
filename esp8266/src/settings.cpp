@@ -14,10 +14,10 @@ void Settings::receiveFile()
 
         if (fileName.equals("clear"))
         {
-            sd.format();
+            // sd.format();
         }
 
-        File32 file = sd.open("/" + fileName, O_WRITE | O_CREAT | O_TRUNC);
+        File file = sd.open("/" + fileName, O_WRITE | O_CREAT | O_TRUNC);
         if (file)
         {
             int received = 0;
@@ -42,7 +42,7 @@ void Settings::receiveFile()
 
 String Settings::getSettings()
 {
-    File32 file = sd.open("/settings.json");
+    File file = sd.open("/settings.json");
     String settings = "";
     if (file)
     {
