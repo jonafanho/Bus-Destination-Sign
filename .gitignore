@@ -4,6 +4,7 @@
 .pio/
 build/
 
+esp32/.gitignore
 esp8266/.gitignore
 pcb/.gitignore
 website/.gitignore
