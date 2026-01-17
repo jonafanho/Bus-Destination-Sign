@@ -26,6 +26,7 @@
 	"input.upload-settings-and-images": "上載設定及圖片",
 	"input.edit-contrast": "對比度",
 	"input.edit-scale": "比例",
+	"input.edit-anti-aliasing": "反鋸齒",
 	"input.display-duration": "顯示持續時間",
 	"input.has-wipe": "使用轉場擦除效果",
 	"input.wipe-speed": "擦除速度",

@@ -67,7 +67,12 @@ public final class DisplayImage {
 	@Getter
 	@Setter
 	@Column(nullable = false)
-	private int editScale;
+	private float editScale;
+
+	@Getter
+	@Setter
+	@Column(nullable = false)
+	private int editAntiAliasing;
 
 	@Getter
 	@Setter

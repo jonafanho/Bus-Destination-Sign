@@ -25,6 +25,7 @@ export class InputNumberWithSliderComponent implements OnInit {
 	@Input({required: true}) label!: string;
 	@Input({required: true}) min!: number;
 	@Input({required: true}) max!: number;
+	@Input({required: true}) allowDecimal!: boolean;
 	@Input({required: true}) defaultValue!: number;
 	@Input({required: true}) childFormGroup!: FormGroup;
 	@Input({required: true}) childFormControlName!: string;

@@ -26,6 +26,7 @@
 	"input.upload-settings-and-images": "Upload Settings and Images",
 	"input.edit-contrast": "Contrast",
 	"input.edit-scale": "Scale",
+	"input.edit-anti-aliasing": "Anti-Aliasing",
 	"input.display-duration": "Display Duration",
 	"input.has-wipe": "Has Wipe Transition",
 	"input.wipe-speed": "Wipe Speed",

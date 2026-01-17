@@ -73,6 +73,7 @@ public class DisplayService {
 				displayImage.getEditBottomRightPixelY(),
 				displayImage.getEditContrast(),
 				displayImage.getEditScale(),
+				displayImage.getEditAntiAliasing(),
 				displayImage.getEditedImageBytes(),
 				displayImage.getDisplayDuration(),
 				displayImage.getWipeSpeed(),
@@ -98,6 +99,7 @@ public class DisplayService {
 			displayImage.setEditBottomRightPixelY(displayImageDTO.editBottomRightPixelY());
 			displayImage.setEditContrast(displayImageDTO.editContrast());
 			displayImage.setEditScale(displayImageDTO.editScale());
+			displayImage.setEditAntiAliasing(displayImageDTO.editAntiAliasing());
 			displayImage.setEditedImageBytes(displayImageDTO.editedImageBytes());
 			displayImage.setDisplayDuration(displayImageDTO.displayDuration());
 			displayImage.setWipeSpeed(displayImageDTO.wipeSpeed());

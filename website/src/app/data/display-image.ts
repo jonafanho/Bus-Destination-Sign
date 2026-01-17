@@ -9,6 +9,7 @@ export interface DisplayImage {
 	readonly editBottomRightPixelY: number;
 	readonly editContrast: number;
 	readonly editScale: number;
+	readonly editAntiAliasing: number;
 	readonly editedImageBytes: number[];
 	readonly displayDuration: number;
 	readonly wipeSpeed: number;
