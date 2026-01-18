@@ -1,21 +1,5 @@
 #include "ssd1322.h"
 
-#define PIN_SCREEN_ENABLE 13
-
-#define PIN_D0 1
-#define PIN_D1 2
-#define PIN_D2 3
-#define PIN_D3 4
-#define PIN_D4 5
-#define PIN_D5 6
-#define PIN_D6 7
-#define PIN_D7 8
-
-#define PIN_WR 9
-#define PIN_DC 10
-#define PIN_CS 11
-#define PIN_RST 14
-
 void SSD1322::init()
 {
     pinMode(PIN_SCREEN_ENABLE, OUTPUT);
@@ -31,12 +15,12 @@ void SSD1322::setTargetFramesPerSecond(uint16_t targetFramesPerSecond)
 
 void SSD1322::drawPixel(uint16_t x, uint16_t y, uint8_t brightness)
 {
-    if (x >= SSD1322_SCREEN_WIDTH || y >= SSD1322_SCREEN_HEIGHT)
+    if (x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT)
     {
         return;
     }
 
-    uint16_t index = x / 2 + y * SSD1322_SCREEN_WIDTH / 2;
+    uint16_t index = x / 2 + y * SCREEN_WIDTH / 2;
 
     if (x % 2 == 0)
     {
@@ -62,17 +46,17 @@ void SSD1322::push()
     // Column address
     send(0x15, false);
     send(28, true);
-    send(28 + SSD1322_SCREEN_WIDTH / 4 - 1, true);
+    send(28 + SCREEN_WIDTH / 4 - 1, true);
 
     // Row address
     send(0x75, false);
     send(0, true);
-    send(SSD1322_SCREEN_HEIGHT - 1, true);
+    send(SCREEN_HEIGHT - 1, true);
 
     // Write data into RAM
     send(0x5C, false);
 
-    for (int i = 0; i < SSD1322_SCREEN_WIDTH * SSD1322_SCREEN_HEIGHT / 2; i++)
+    for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT / 2; i++)
     {
         send(buffer[i], true);
     }
