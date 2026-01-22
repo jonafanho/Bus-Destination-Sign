@@ -1,62 +1,32 @@
 #include "ssd1322.h"
 
-void SSD1322::init()
+SSD1322::SSD1322() : DisplayDriver(256, 64, GPIO_NUM_13) {}
+
+bool SSD1322::initRaw()
 {
-    pinMode(PIN_SCREEN_ENABLE, OUTPUT);
-    digitalWrite(PIN_SCREEN_ENABLE, HIGH);
-    delay(100);
-    U8G2_SSD1322_NHD_256X64_F_8080(U8G2_R0, PIN_D0, PIN_D1, PIN_D2, PIN_D3, PIN_D4, PIN_D5, PIN_D6, PIN_D7, PIN_WR, PIN_CS, PIN_DC, PIN_RST).begin();
+    gpio_set_direction(PIN_SCREEN_ENABLE, GPIO_MODE_OUTPUT);
+    GPIO.out_w1ts = (1 << PIN_SCREEN_ENABLE);
+    vTaskDelay(100);
+    return U8G2_SSD1322_NHD_256X64_F_8080(U8G2_R0, PIN_D0, PIN_D1, PIN_D2, PIN_D3, PIN_D4, PIN_D5, PIN_D6, PIN_D7, PIN_WR, PIN_CS, PIN_DC, PIN_RST).begin();
 }
 
-void SSD1322::setTargetFramesPerSecond(uint16_t targetFramesPerSecond)
+void SSD1322::pushRaw()
 {
-    this->targetFramesPerSecond = targetFramesPerSecond;
-}
-
-void SSD1322::drawPixel(uint16_t x, uint16_t y, uint8_t brightness)
-{
-    if (x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT)
-    {
-        return;
-    }
-
-    uint16_t index = x / 2 + y * SCREEN_WIDTH / 2;
-
-    if (x % 2 == 0)
-    {
-        buffer[index] = ((brightness & 0x0F) << 4) | (buffer[index] & 0x0F);
-    }
-    else
-    {
-        buffer[index] = (buffer[index] & 0xF0) | (brightness & 0x0F);
-    }
-}
-
-void SSD1322::push()
-{
-    if (targetFramesPerSecond > 0)
-    {
-        while ((millis() - lastFrameMillis) * targetFramesPerSecond < 1000)
-        {
-            yield();
-        }
-        lastFrameMillis = millis();
-    }
 
     // Column address
     send(0x15, false);
     send(28, true);
-    send(28 + SCREEN_WIDTH / 4 - 1, true);
+    send(28 + screenWidth / 4 - 1, true);
 
     // Row address
     send(0x75, false);
     send(0, true);
-    send(SCREEN_HEIGHT - 1, true);
+    send(screenHeight - 1, true);
 
     // Write data into RAM
     send(0x5C, false);
 
-    for (int i = 0; i < SCREEN_WIDTH * SCREEN_HEIGHT / 2; i++)
+    for (int i = 0; i < screenWidth * screenHeight / 2; i++)
     {
         send(buffer[i], true);
     }

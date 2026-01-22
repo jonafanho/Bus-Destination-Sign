@@ -15,9 +15,6 @@ import {CheckboxModule} from "primeng/checkbox";
 import {DialogService} from "../../service/dialog.service";
 import {CheckButtonComponent} from "../check-button/check-button.component";
 
-const imageBufferWidth = 512;
-const imageBufferSize = imageBufferWidth * 64 / 8;
-
 @Component({
 	selector: "app-edit-image",
 	imports: [
@@ -309,10 +306,13 @@ export class EditImageComponent {
 			this.dragPoints.set(dragPoints);
 
 			// Write edited image bytes
-			const editedImageBytes: number[] = new Array(imageBufferSize).fill(0);
-			this.iteratePixels((x, y, brightness) => {
-				if (brightness) {
-					editedImageBytes[x + Math.floor(y / 8) * imageBufferWidth] |= 1 << (y % 8);
+			const editedImageBytes: number[] = [];
+			this.iteratePixels((_x, _y, brightness) => {
+				const previousValue = editedImageBytes[editedImageBytes.length - 1];
+				if (previousValue === undefined || (previousValue >> 4) !== brightness || (previousValue & 0xF) === 0xF) {
+					editedImageBytes.push(brightness << 4);
+				} else {
+					editedImageBytes[editedImageBytes.length - 1]++;
 				}
 			});
 
@@ -365,7 +365,7 @@ export class EditImageComponent {
 		const hasScroll = data.hasScroll === true;
 		const scrollLeftAnchor = clamp(Math.round((this.dragPoints()[3].x - this.dragPoints()[0].x) / pixelWidth), 0, this.displayWidth());
 		const scrollRightAnchor = clamp(Math.round((this.dragPoints()[2].x - this.dragPoints()[4].x + 1) / pixelWidth), 0, this.displayWidth());
-		const outputImageWidth = hasScroll ? Math.min(imageBufferWidth, Math.ceil(pixelCountX * editScale)) : this.displayWidth();
+		const outputImageWidth = hasScroll ? Math.ceil(pixelCountX * editScale) : this.displayWidth();
 		return {
 			editContrast,
 			editScale,
@@ -399,8 +399,8 @@ export class EditImageComponent {
 		const offsetX = hasScroll ? 0 : Math.round((this.displayWidth() - pixelCountX * editScale) / 2) + shift;
 		const offsetY = Math.round((this.displayHeight() - pixelCountY * editScale) / 2) + shift;
 
-		for (let x = 0; x < outputImageWidth; x++) {
-			for (let y = 0; y < this.displayWidth(); y++) {
+		for (let y = 0; y < this.displayHeight(); y++) {
+			for (let x = 0; x < outputImageWidth; x++) {
 				let brightnessX = 0;
 				let brightnessY = 0;
 				let brightnessXWeight = 0;
@@ -422,7 +422,7 @@ export class EditImageComponent {
 					}));
 				}
 
-				callback(x, y, Math.min(Math.round(Math.pow((brightnessX / brightnessXWeight + brightnessY / brightnessYWeight) / 2, (editAntiAliasing + 1) / 0x40) * 0xF), 0xF));
+				callback(x, y, brightnessXWeight === 0 || brightnessYWeight === 0 ? 0 : Math.min(Math.round(Math.pow((brightnessX / brightnessXWeight + brightnessY / brightnessYWeight) / 2, (editAntiAliasing + 1) / 0x40) * 0xF), 0xF));
 			}
 		}
 	}

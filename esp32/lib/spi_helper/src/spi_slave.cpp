@@ -3,8 +3,8 @@
 
 bool SPISlave::init()
 {
-    rxDmaBuffer = (uint8_t *)heap_caps_malloc(CHUNK_SIZE, MALLOC_CAP_DMA);
-    txDmaBuffer = (uint8_t *)heap_caps_malloc(CHUNK_SIZE, MALLOC_CAP_DMA);
+    rxDmaBuffer = (uint8_t *)heap_caps_calloc(CHUNK_SIZE, sizeof(uint8_t), MALLOC_CAP_DMA);
+    txDmaBuffer = (uint8_t *)heap_caps_calloc(CHUNK_SIZE, sizeof(uint8_t), MALLOC_CAP_DMA);
 
     spi_bus_config_t busConfig = {
         .mosi_io_num = PIN_MOSI,
@@ -22,7 +22,7 @@ bool SPISlave::init()
         .mode = 0,
     };
 
-    messageQueue = xQueueCreate(3, sizeof(SPIMessage));
+    messageQueue = xQueueCreate(3, sizeof(uint8_t *));
     return spi_slave_initialize(SPI2_HOST, &busConfig, &slaveConfig, SPI_DMA_CH_AUTO) == ESP_OK;
 }
 
@@ -90,8 +90,7 @@ void SPISlave::tick()
     }
 
     // Send message to queue
-    SPIMessage spiMessage = {payload, totalLength};
-    if (xQueueSend(messageQueue, &spiMessage, 0) != pdPASS)
+    if (xQueueSend(messageQueue, &payload, 0) != pdPASS)
     {
         free(payload);
     }

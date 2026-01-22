@@ -1,10 +1,13 @@
+#include <Arduino.h>
+#include <init_print.h>
 #include <spi_slave.h>
-#include "ssd1322.h"
+#include <ssd1322.h>
+#include <display_transaction_slave.h>
 
+InitPrint initPrint("Display");
 SPISlave spiSlave;
 SSD1322 ssd1322;
-uint16_t bar = 0;
-uint16_t offset = 0;
+DisplayTransactionSlave displayTransactionSlave(&spiSlave, &ssd1322);
 
 void spiTask(void *pvParameters)
 {
@@ -17,57 +20,12 @@ void spiTask(void *pvParameters)
 
 void setup()
 {
-	Serial.begin(9600);
-	Serial.setTimeout(5000);
-	Serial.println();
-
-	if (spiSlave.init())
-	{
-		Serial.println("SPI setup successful");
-	}
-	else
-	{
-		Serial.println("SPI setup failed");
-		while (true)
-		{
-			delay(1000);
-		}
-	}
-
-	ssd1322.init();
-	ssd1322.setTargetFramesPerSecond(SSD1322::SCREEN_WIDTH);
-
+	initPrint.init(spiSlave.init(), "SPI device");
+	initPrint.init(ssd1322.init(), "SSD1322");
 	xTaskCreatePinnedToCore(spiTask, "SPI", 4096, NULL, 2, NULL, 0);
 }
 
 void loop()
 {
-	SPISlave::SPIMessage spiMessage;
-	if (xQueueReceive(spiSlave.messageQueue, &spiMessage, 0))
-	{
-		// TODO
-		Serial.println("Received message");
-		Serial.println(spiMessage.buffer[0]);
-		Serial.println(spiMessage.buffer[1]);
-		offset = spiMessage.buffer[0];
-		free(spiMessage.buffer);
-	}
-
-	unsigned long startMillis = millis();
-	for (uint16_t x = 0; x < SSD1322::SCREEN_WIDTH; x++)
-	{
-		for (uint16_t y = 0; y < SSD1322::SCREEN_HEIGHT / 2; y++)
-		{
-			uint16_t index = x / 2 + y * SSD1322::SCREEN_WIDTH / 2;
-			ssd1322.drawPixel(x, (y + offset) % SSD1322::SCREEN_HEIGHT, max(0, 0xF - abs(bar - x)));
-		}
-	}
-
-	ssd1322.push();
-
-	bar++;
-	if (bar >= SSD1322::SCREEN_WIDTH)
-	{
-		bar = 0;
-	}
+	displayTransactionSlave.displayTick();
 }

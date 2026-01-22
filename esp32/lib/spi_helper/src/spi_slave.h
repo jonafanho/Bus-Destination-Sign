@@ -1,9 +1,9 @@
 #ifndef SPI_SLAVE_H
 #define SPI_SLAVE_H
 
-#include "spi_core.h"
+#include "spi_device.h"
 
-class SPISlave : public SPICore
+class SPISlave : public SPIDevice
 {
 public:
     QueueHandle_t messageQueue;
@@ -11,17 +11,11 @@ public:
     bool init() override;
     void tick();
 
-    typedef struct
-    {
-        uint8_t *buffer;
-        uint32_t length;
-    } SPIMessage;
-
 private:
-    static constexpr uint8_t PIN_CLK = 17;
-    static constexpr uint8_t PIN_MOSI = 18;
-    static constexpr uint8_t PIN_MISO = 38;
-    static constexpr uint8_t PIN_CS = 39;
+    static constexpr gpio_num_t PIN_CLK = GPIO_NUM_17;
+    static constexpr gpio_num_t PIN_MOSI = GPIO_NUM_18;
+    static constexpr gpio_num_t PIN_MISO = GPIO_NUM_38;
+    static constexpr gpio_num_t PIN_CS = GPIO_NUM_39;
 
     uint8_t *rxDmaBuffer = nullptr;
     uint8_t *txDmaBuffer = nullptr;
