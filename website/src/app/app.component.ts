@@ -14,7 +14,7 @@ import {RawImageService} from "./service/raw-image.service";
 import {StopReporterService} from "./service/stop-reporter.service";
 import {RawImageManagerComponent} from "./component/raw-image-manager/raw-image-manager.component";
 import {DialogService} from "./service/dialog.service";
-import {UploadToDeviceComponent} from "./component/upload-to-device/upload-to-device.component";
+import {WriteToDirectoryComponent} from "./component/write-to-directory/write-to-directory.component";
 
 @Component({
 	selector: "app-root",
@@ -24,7 +24,7 @@ import {UploadToDeviceComponent} from "./component/upload-to-device/upload-to-de
 		TooltipModule,
 		TieredMenuModule,
 		DisplayConfigComponent,
-		UploadToDeviceComponent,
+		WriteToDirectoryComponent,
 		RawImageManagerComponent,
 		TranslocoDirective,
 	],
@@ -86,8 +86,8 @@ export class AppComponent {
 		return this.displayService.data();
 	}
 
-	uploadToDevice() {
-		this.dialogService.openUploadToDeviceDialog.emit();
+	writeToDirectory() {
+		this.dialogService.openWriteToDirectoryDialog.emit();
 	}
 
 	openRawImageManager() {
