@@ -29,8 +29,8 @@ bool DisplayTransactionMaster::initSD()
 
 bool DisplayTransactionMaster::init()
 {
-    char path[21];
-    snprintf(path, 21, "/sdcard/display_%02d", displayIndex);
+    char path[24];
+    snprintf(path, 24, "/sdcard/display_%d", displayIndex);
 
     struct stat fileStat;
 
@@ -60,7 +60,7 @@ bool DisplayTransactionMaster::init()
 void DisplayTransactionMaster::nextDisplay()
 {
     char path[32];
-    snprintf(path, 32, "/sdcard/display_%02d/group_%02d", displayIndex, currentGroup);
+    snprintf(path, 32, "/sdcard/display_%d/group_%d", displayIndex, currentGroup);
 
     // Read the file
     FILE *file = fopen(path, "rb");

@@ -2,6 +2,7 @@
 #define SSD1322_H
 
 #include "display_driver.h"
+#include "esp_lcd_panel_io.h"
 
 class SSD1322 : public DisplayDriver
 {
@@ -11,6 +12,9 @@ public:
     void pushRaw() override;
 
 private:
+    esp_lcd_i80_bus_handle_t busHandle = nullptr;
+    esp_lcd_panel_io_handle_t panelHandle = nullptr;
+
     static constexpr gpio_num_t PIN_SCREEN_ENABLE = GPIO_NUM_13;
 
     static constexpr gpio_num_t PIN_D0 = GPIO_NUM_1;
@@ -26,8 +30,6 @@ private:
     static constexpr gpio_num_t PIN_DC = GPIO_NUM_10;
     static constexpr gpio_num_t PIN_CS = GPIO_NUM_11;
     static constexpr gpio_num_t PIN_RST = GPIO_NUM_14;
-
-    static void send(uint8_t value, bool isData);
 };
 
 #endif

@@ -2,7 +2,7 @@
 
 DisplayDriver::DisplayDriver(const uint16_t screenWidth, const uint16_t screenHeight, const gpio_num_t pinScreenEnable) : screenWidth(screenWidth), screenHeight(screenHeight), pinScreenEnable(pinScreenEnable)
 {
-    buffer = std::vector<uint8_t>(screenWidth * screenHeight / 2);
+    buffer = (uint8_t *)heap_caps_calloc(1, screenWidth * screenHeight / 2, MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
 }
 
 bool DisplayDriver::init()
