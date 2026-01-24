@@ -30,6 +30,15 @@ private:
     static constexpr gpio_num_t PIN_DC = GPIO_NUM_10;
     static constexpr gpio_num_t PIN_CS = GPIO_NUM_11;
     static constexpr gpio_num_t PIN_RST = GPIO_NUM_14;
+
+    typedef struct
+    {
+        uint8_t command;
+        uint8_t params[2];
+        uint8_t length;
+    } sequence_t;
+
+    void sendSequence(sequence_t *sequence, uint8_t count);
 };
 
 #endif
