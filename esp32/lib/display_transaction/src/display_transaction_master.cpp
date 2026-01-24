@@ -29,8 +29,8 @@ bool DisplayTransactionMaster::initSD()
 
 bool DisplayTransactionMaster::init()
 {
-    char path[24];
-    snprintf(path, 24, "/sdcard/display_%d", displayIndex);
+    char path[21];
+    snprintf(path, 21, "/sdcard/display_%d", displayIndex);
 
     struct stat fileStat;
 
@@ -81,6 +81,7 @@ void DisplayTransactionMaster::nextDisplay()
         }
 
         fclose(file);
+        currentGroup++;
     }
     else if (currentGroup > 0)
     {

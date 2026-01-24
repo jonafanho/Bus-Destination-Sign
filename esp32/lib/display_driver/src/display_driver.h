@@ -2,6 +2,7 @@
 #define DISPLAY_DRIVER_H
 
 #include <Arduino.h>
+#include <vector>
 
 class DisplayDriver
 {
@@ -16,7 +17,7 @@ public:
     void setTargetFramesPerSecond(uint16_t targetFramesPerSecond);
 
 protected:
-    uint8_t *buffer;
+    std::vector<uint8_t> buffer;
 
     virtual bool initRaw() = 0;
     virtual void pushRaw() = 0;

@@ -9,6 +9,9 @@
   "frameworks": [
     "arduino"
   ],
+  "dependencies": {
+	  "olikraus/U8g2": "*"
+  },
   "platforms": [
     "espressif32"
   ]
