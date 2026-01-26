@@ -707,7 +707,7 @@
 			(in_bom yes)
 			(on_board yes)
 			(property "Reference" "J"
-				(at 4.318 11.684 0)
+				(at 5.588 11.684 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -716,7 +716,7 @@
 				)
 			)
 			(property "Value" "Display Connector Input"
-				(at 4.318 9.652 0)
+				(at 5.588 9.652 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -724,8 +724,8 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical"
-				(at 0 0 0)
+			(property "Footprint" "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal"
+				(at 1.27 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -734,7 +734,7 @@
 				)
 			)
 			(property "Datasheet" ""
-				(at 0 0 0)
+				(at 5.08 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -743,7 +743,7 @@
 				)
 			)
 			(property "Description" ""
-				(at 0 0 0)
+				(at 5.08 0 0)
 				(effects
 					(font
 						(size 1.27 1.27)
@@ -762,9 +762,9 @@
 			)
 			(symbol "Display_Connector_Input_0_0"
 				(pin power_out line
-					(at 0 15.24 270)
+					(at -3.81 -15.24 90)
 					(length 2.54)
-					(name "5V"
+					(name "GND"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -780,9 +780,81 @@
 					)
 				)
 				(pin power_out line
-					(at 0 -15.24 90)
+					(at -1.27 -15.24 90)
 					(length 2.54)
 					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "3"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 0 15.24 270)
+					(length 2.54)
+					(name "5V"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "10"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 1.27 -15.24 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "5"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin power_out line
+					(at 3.81 -15.24 90)
+					(length 2.54)
+					(name "GND"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "7"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 7.62 6.35 180)
+					(length 2.54)
+					(name "CLK"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -798,25 +870,7 @@
 					)
 				)
 				(pin output line
-					(at 6.35 6.35 180)
-					(length 2.54)
-					(name "CLK"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "3"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 6.35 3.81 180)
+					(at 7.62 3.81 180)
 					(length 2.54)
 					(name "MOSI"
 						(effects
@@ -834,27 +888,9 @@
 					)
 				)
 				(pin input line
-					(at 6.35 1.27 180)
+					(at 7.62 1.27 180)
 					(length 2.54)
 					(name "MISO"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-					(number "5"
-						(effects
-							(font
-								(size 1.27 1.27)
-							)
-						)
-					)
-				)
-				(pin output line
-					(at 6.35 -1.27 180)
-					(length 2.54)
-					(name "CS"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -870,7 +906,25 @@
 					)
 				)
 				(pin output line
-					(at 6.35 -6.35 180)
+					(at 7.62 -1.27 180)
+					(length 2.54)
+					(name "CS"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+					(number "8"
+						(effects
+							(font
+								(size 1.27 1.27)
+							)
+						)
+					)
+				)
+				(pin output line
+					(at 7.62 -6.35 180)
 					(length 2.54)
 					(name "WAKE"
 						(effects
@@ -879,7 +933,7 @@
 							)
 						)
 					)
-					(number "7"
+					(number "9"
 						(effects
 							(font
 								(size 1.27 1.27)
@@ -890,8 +944,8 @@
 			)
 			(symbol "Display_Connector_Input_1_1"
 				(rectangle
-					(start -3.81 12.7)
-					(end 3.81 -12.7)
+					(start -5.08 12.7)
+					(end 5.08 -12.7)
 					(stroke
 						(width 0)
 						(type solid)
@@ -4019,6 +4073,12 @@
 		(uuid "30458df2-4d0c-462d-b0c8-0f90a19dc8d2")
 	)
 	(junction
+		(at 110.49 100.33)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "35fd86f4-fd35-4027-9e15-3e51f4468c49")
+	)
+	(junction
 		(at 64.77 120.65)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -4071,6 +4131,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "604f3cb2-6f06-4525-992c-317daeb471d6")
+	)
+	(junction
+		(at 107.95 100.33)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "63377430-ff0d-473b-a07d-1fda38332a8a")
 	)
 	(junction
 		(at 176.53 152.4)
@@ -4149,6 +4215,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "afd90cd9-3fa6-4fd8-8773-2f5464b21509")
+	)
+	(junction
+		(at 105.41 100.33)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b37718b4-ea1c-4598-8950-47e972c4ef56")
 	)
 	(junction
 		(at 226.06 46.99)
@@ -4306,7 +4378,7 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 100.33) (xy 143.51 100.33)
+			(xy 107.95 100.33) (xy 110.49 100.33)
 		)
 		(stroke
 			(width 0)
@@ -4406,6 +4478,16 @@
 	)
 	(wire
 		(pts
+			(xy 110.49 100.33) (xy 143.51 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10eb0bfc-9527-461a-84f4-4fa7b7844f0e")
+	)
+	(wire
+		(pts
 			(xy 264.16 68.58) (xy 243.84 68.58)
 		)
 		(stroke
@@ -4446,7 +4528,7 @@
 	)
 	(wire
 		(pts
-			(xy 107.95 67.31) (xy 107.95 68.58)
+			(xy 106.68 67.31) (xy 106.68 68.58)
 		)
 		(stroke
 			(width 0)
@@ -4493,6 +4575,16 @@
 			(type default)
 		)
 		(uuid "1a5845c7-aed5-496b-8dd9-47a749f323b0")
+	)
+	(wire
+		(pts
+			(xy 105.41 100.33) (xy 107.95 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "1afe9b59-dfd6-4b9a-b13c-9b62c31a8969")
 	)
 	(wire
 		(pts
@@ -4593,6 +4685,16 @@
 			(type default)
 		)
 		(uuid "25e1c799-f49b-40ad-bbe9-a43ce08b8294")
+	)
+	(wire
+		(pts
+			(xy 105.41 99.06) (xy 105.41 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "29c652c7-37a4-4a50-b18a-54af844b6c4b")
 	)
 	(wire
 		(pts
@@ -5386,6 +5488,16 @@
 	)
 	(wire
 		(pts
+			(xy 102.87 100.33) (xy 105.41 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a4720aeb-1ceb-4dd6-a35c-b213703fa433")
+	)
+	(wire
+		(pts
 			(xy 158.75 55.88) (xy 187.96 55.88)
 		)
 		(stroke
@@ -5706,6 +5818,16 @@
 	)
 	(wire
 		(pts
+			(xy 110.49 99.06) (xy 110.49 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "cb2cd71a-cd8a-4b2f-b10d-5fcb877e639c")
+	)
+	(wire
+		(pts
 			(xy 46.99 60.96) (xy 48.26 60.96)
 		)
 		(stroke
@@ -5853,6 +5975,16 @@
 			(type default)
 		)
 		(uuid "dfbd8c54-97e3-4d6f-b9fe-9e4ead97019e")
+	)
+	(wire
+		(pts
+			(xy 102.87 99.06) (xy 102.87 100.33)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e241dc84-d693-4e80-a33e-6282ea1edaa4")
 	)
 	(wire
 		(pts
@@ -6517,7 +6649,7 @@
 			(uuid "e6fe7397-5306-4c58-9fd6-d1674d58e4df")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R6")
 					(unit 1)
@@ -6605,7 +6737,7 @@
 			(uuid "e8c24850-1e22-4a8a-8a9c-726a7e0730cf")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "D2")
 					(unit 1)
@@ -6675,7 +6807,7 @@
 			(uuid "4ba632d7-a8b9-4e7c-8e2e-d8180f2000dd")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C13")
 					(unit 1)
@@ -6950,7 +7082,7 @@
 			(uuid "c1824116-0e7f-495d-baaf-c5518d1f86d0")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR015")
 					(unit 1)
@@ -7016,7 +7148,7 @@
 			(uuid "1334924c-ff33-4f6b-8525-9e3350495f27")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR019")
 					(unit 1)
@@ -7156,7 +7288,7 @@
 			(uuid "4572a0d8-1626-4d97-9d6e-fec29526d727")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C2")
 					(unit 1)
@@ -7234,7 +7366,7 @@
 	)
 	(symbol
 		(lib_id "power:+5V")
-		(at 107.95 67.31 0)
+		(at 106.68 67.31 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7243,7 +7375,7 @@
 		(fields_autoplaced yes)
 		(uuid "48a4b964-8b3c-4d83-819a-401b011377f2")
 		(property "Reference" "#PWR020"
-			(at 107.95 71.12 0)
+			(at 106.68 71.12 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7252,7 +7384,7 @@
 			)
 		)
 		(property "Value" "+5V"
-			(at 107.95 62.23 0)
+			(at 106.68 62.23 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7260,7 +7392,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 107.95 67.31 0)
+			(at 106.68 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7269,7 +7401,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 107.95 67.31 0)
+			(at 106.68 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7278,7 +7410,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+5V\""
-			(at 107.95 67.31 0)
+			(at 106.68 67.31 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7290,7 +7422,7 @@
 			(uuid "cc05b71d-cc56-4681-abc1-d67609bd9ae7")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR020")
 					(unit 1)
@@ -7360,94 +7492,9 @@
 			(uuid "7839b7bc-bbb9-4207-a8eb-a58caef034b3")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Data Connector:Display_Connector_Input")
-		(at 107.95 83.82 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "4d01fa95-90a4-4785-9445-44b7b8df56a2")
-		(property "Reference" "J2"
-			(at 102.87 82.5499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "Display Connector Input"
-			(at 102.87 85.0899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical"
-			(at 107.95 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 107.95 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" ""
-			(at 107.95 83.82 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "6bbabb3c-03f1-4c3b-a16f-6fae65d7c31a")
-		)
-		(pin "3"
-			(uuid "c6bc768b-95f8-4854-afae-b7d7f7a00bfd")
-		)
-		(pin "6"
-			(uuid "453e301f-b2c0-4864-8e91-5ed24ba530c8")
-		)
-		(pin "2"
-			(uuid "8ccbec78-458d-4bf8-bcb9-32b8cf3df165")
-		)
-		(pin "4"
-			(uuid "687e87cc-f2f4-46c7-9fde-873685cc9ddb")
-		)
-		(pin "5"
-			(uuid "daa955ef-75c5-4e53-a243-f442f4d53dee")
-		)
-		(pin "7"
-			(uuid "1d3f7c06-23c8-455c-a01c-416e6983ad4d")
-		)
-		(instances
-			(project ""
-				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
-					(reference "J2")
 					(unit 1)
 				)
 			)
@@ -7647,7 +7694,7 @@
 			(uuid "57946469-5990-401c-b917-b8e3a3f4aa26")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR011")
 					(unit 1)
@@ -8052,7 +8099,7 @@
 			(uuid "41ef0d99-baa5-49df-b646-2115cd9c748c")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR016")
 					(unit 1)
@@ -8206,7 +8253,7 @@
 			(uuid "f32886fc-35bd-4ef3-926c-63f49ef0af63")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR012")
 					(unit 1)
@@ -8408,7 +8455,7 @@
 			(uuid "2d93b901-7f25-4f62-97f1-748be564cdd1")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C8")
 					(unit 1)
@@ -8587,7 +8634,7 @@
 			(uuid "39c5d4f5-a5f2-4d44-965f-82c2662f33cf")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR05")
 					(unit 1)
@@ -8775,7 +8822,7 @@
 			(uuid "21e12e6c-94c6-419a-baf5-f3b6575faeb9")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "U1")
 					(unit 1)
@@ -8845,7 +8892,7 @@
 			(uuid "38035435-fd22-4fe7-b498-740ebd8bbede")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C7")
 					(unit 1)
@@ -8981,7 +9028,7 @@
 			(uuid "13a35638-249c-40f7-9c3b-0103b45ab0f1")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C6")
 					(unit 1)
@@ -9060,6 +9107,100 @@
 		)
 	)
 	(symbol
+		(lib_id "Data Connector:Display_Connector_Input")
+		(at 106.68 83.82 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "aca1e5e5-4113-4054-872a-bfbf97155716")
+		(property "Reference" "J2"
+			(at 100.33 82.5499 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Display Connector Input"
+			(at 100.33 85.0899 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal"
+			(at 107.95 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 111.76 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at 111.76 83.82 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "6"
+			(uuid "258afeba-2844-4587-a82c-f601c9b3c00d")
+		)
+		(pin "3"
+			(uuid "7954206b-2ec2-43b6-83a5-aa8f4a62b4ab")
+		)
+		(pin "1"
+			(uuid "d4f521ef-a0ca-49b1-b5c5-eeb2cac672b4")
+		)
+		(pin "2"
+			(uuid "a6621689-946d-4085-b16f-1a9f215d1102")
+		)
+		(pin "4"
+			(uuid "ac7111f3-d24b-4b62-b571-3adacb041b1e")
+		)
+		(pin "10"
+			(uuid "b5008fb4-e029-4156-9dea-cd0cdf2af590")
+		)
+		(pin "5"
+			(uuid "4e01a796-3a37-4d76-984f-5b717e193db7")
+		)
+		(pin "8"
+			(uuid "415d9be5-ed25-4252-839b-706d289acc4f")
+		)
+		(pin "7"
+			(uuid "0e8533b1-74d7-43c8-be8e-f599eba49d8d")
+		)
+		(pin "9"
+			(uuid "bf750089-79ab-4f89-866b-a5fd17200e00")
+		)
+		(instances
+			(project ""
+				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
+					(reference "J2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Device:C")
 		(at 114.3 31.75 0)
 		(unit 1)
@@ -9121,7 +9262,7 @@
 			(uuid "632b459e-b970-4185-99e2-e7fd53cbb311")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C1")
 					(unit 1)
@@ -9191,7 +9332,7 @@
 			(uuid "7ce25be3-90fd-4a4f-a400-90cc6180e1a2")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C12")
 					(unit 1)
@@ -9395,7 +9536,7 @@
 			(uuid "18e04b32-e400-40f4-a7d4-c18247c2d777")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C9")
 					(unit 1)
@@ -9465,7 +9606,7 @@
 			(uuid "0ef2da25-eedb-4349-bcc7-02e31a25c374")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R2")
 					(unit 1)
@@ -9535,7 +9676,7 @@
 			(uuid "7ee80966-71cb-46cd-a5f8-e74cb9cc1d97")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C10")
 					(unit 1)
@@ -9601,7 +9742,7 @@
 			(uuid "652a6fab-a728-4ba4-bf0a-007d41d4d138")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR04")
 					(unit 1)
@@ -9671,7 +9812,7 @@
 			(uuid "ded2fa23-cd48-4d24-989e-a3780db587ab")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C3")
 					(unit 1)
@@ -9959,7 +10100,7 @@
 			(uuid "4d32df99-19db-4b8a-b28c-5e2294f00f27")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R9")
 					(unit 1)
@@ -10029,7 +10170,7 @@
 			(uuid "e724c856-4685-42cf-b8a6-951f0f6ceea2")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "C4")
 					(unit 1)
@@ -10097,7 +10238,7 @@
 			(uuid "7841dcf0-29ee-45fb-905c-b6d6426ef401")
 		)
 		(instances
-			(project "ssd1322"
+			(project "bus_destination_sign"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R11")
 					(unit 1)
