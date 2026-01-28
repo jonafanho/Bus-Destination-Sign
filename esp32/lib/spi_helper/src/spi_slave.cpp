@@ -16,7 +16,7 @@ bool SPISlave::init()
     };
 
     spi_slave_interface_config_t slaveConfig = {
-        .spics_io_num = PIN_CS,
+        .spics_io_num = PIN_CS_DISPLAY,
         .flags = 0,
         .queue_size = 3,
         .mode = 0,

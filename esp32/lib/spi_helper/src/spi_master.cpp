@@ -19,7 +19,7 @@ bool SPIMaster::init()
     spi_device_interface_config_t deviceConfig = {
         .mode = 0,
         .clock_speed_hz = 1000000,
-        .spics_io_num = PIN_CS,
+        .spics_io_num = PIN_CS_DISPLAY,
         .queue_size = 3,
     };
 

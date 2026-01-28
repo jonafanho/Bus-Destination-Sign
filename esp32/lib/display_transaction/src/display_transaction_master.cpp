@@ -12,7 +12,7 @@ bool DisplayTransactionMaster::initSD()
     host.slot = SPI2_HOST;
 
     sdspi_device_config_t slotConfig = SDSPI_DEVICE_CONFIG_DEFAULT();
-    slotConfig.gpio_cs = PIN_CS;
+    slotConfig.gpio_cs = PIN_CS_SD;
     slotConfig.host_id = SPI2_HOST;
 
     esp_vfs_fat_sdmmc_mount_config_t mountConfig = {

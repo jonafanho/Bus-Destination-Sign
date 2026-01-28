@@ -12,7 +12,7 @@ public:
     void nextDisplay();
 
 private:
-    static constexpr gpio_num_t PIN_CS = GPIO_NUM_10;
+    static constexpr gpio_num_t PIN_CS_SD = GPIO_NUM_12;
     static constexpr uint8_t FUNCTION_SCREEN_OFF = 0;
     static constexpr uint8_t FUNCTION_SCREEN_ON = 1;
     static constexpr uint8_t FUNCTION_NEXT_DISPLAY = 2;

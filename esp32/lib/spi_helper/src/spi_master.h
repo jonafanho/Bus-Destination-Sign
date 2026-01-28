@@ -13,11 +13,6 @@ public:
     bool send(const std::vector<uint8_t> data, uint32_t length);
 
 private:
-    static constexpr gpio_num_t PIN_CLK = GPIO_NUM_12;
-    static constexpr gpio_num_t PIN_MOSI = GPIO_NUM_11;
-    static constexpr gpio_num_t PIN_MISO = GPIO_NUM_13;
-    static constexpr gpio_num_t PIN_CS = GPIO_NUM_19;
-
     spi_device_handle_t spi;
 };
 

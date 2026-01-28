@@ -12,7 +12,6 @@ public:
     void displayTick();
 
 private:
-    static constexpr gpio_num_t PIN_CS = GPIO_NUM_10;
     static constexpr uint8_t MAX_DISPLAYS_IN_GROUP = 16;
     static constexpr uint16_t MAX_IMAGE_BUFFER_SIZE = 8192;
     static constexpr uint8_t FUNCTION_SCREEN_OFF = 0;
