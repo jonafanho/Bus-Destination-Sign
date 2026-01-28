@@ -161,7 +161,7 @@
 						)
 					)
 				)
-				(number "11"
+				(number "MP"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -512,6 +512,8 @@
 					)
 				)
 			)
+		)
+		(symbol "Display_Connector_Output_1_0"
 			(pin power_in line
 				(at 5.08 -15.24 90)
 				(length 2.54)
@@ -522,7 +524,7 @@
 						)
 					)
 				)
-				(number "11"
+				(number "MP"
 					(effects
 						(font
 							(size 1.27 1.27)
