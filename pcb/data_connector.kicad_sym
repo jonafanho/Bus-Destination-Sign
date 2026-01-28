@@ -7,7 +7,7 @@
 		(in_bom yes)
 		(on_board yes)
 		(property "Reference" "J"
-			(at 5.588 11.684 0)
+			(at 6.858 11.684 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -16,7 +16,7 @@
 			)
 		)
 		(property "Value" "Display Connector Input"
-			(at 5.588 9.652 0)
+			(at 6.858 9.652 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -24,7 +24,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_IDC:IDC-Header_2x05_P2.54mm_Horizontal"
+		(property "Footprint" "Connector_Molex:Molex_PicoBlade_53261-1071_1x10-1MP_P1.25mm_Horizontal"
 			(at 1.27 0 0)
 			(effects
 				(font
@@ -34,7 +34,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 5.08 0 0)
+			(at 6.35 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -43,7 +43,7 @@
 			)
 		)
 		(property "Description" ""
-			(at 5.08 0 0)
+			(at 6.35 0 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -62,7 +62,7 @@
 		)
 		(symbol "Display_Connector_Input_0_0"
 			(pin power_out line
-				(at -3.81 -15.24 90)
+				(at -5.08 -15.24 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -79,8 +79,8 @@
 					)
 				)
 			)
-			(pin power_out line
-				(at -1.27 -15.24 90)
+			(pin power_in line
+				(at -2.54 -15.24 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -115,8 +115,8 @@
 					)
 				)
 			)
-			(pin power_out line
-				(at 1.27 -15.24 90)
+			(pin power_in line
+				(at 0 -15.24 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -133,8 +133,8 @@
 					)
 				)
 			)
-			(pin power_out line
-				(at 3.81 -15.24 90)
+			(pin power_in line
+				(at 2.54 -15.24 90)
 				(length 2.54)
 				(name "GND"
 					(effects
@@ -151,8 +151,26 @@
 					)
 				)
 			)
+			(pin power_in line
+				(at 5.08 -15.24 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin output line
-				(at 7.62 6.35 180)
+				(at 8.89 6.35 180)
 				(length 2.54)
 				(name "CLK"
 					(effects
@@ -170,7 +188,7 @@
 				)
 			)
 			(pin output line
-				(at 7.62 3.81 180)
+				(at 8.89 3.81 180)
 				(length 2.54)
 				(name "MOSI"
 					(effects
@@ -188,7 +206,7 @@
 				)
 			)
 			(pin input line
-				(at 7.62 1.27 180)
+				(at 8.89 1.27 180)
 				(length 2.54)
 				(name "MISO"
 					(effects
@@ -206,7 +224,7 @@
 				)
 			)
 			(pin output line
-				(at 7.62 -1.27 180)
+				(at 8.89 -1.27 180)
 				(length 2.54)
 				(name "CS"
 					(effects
@@ -224,7 +242,7 @@
 				)
 			)
 			(pin output line
-				(at 7.62 -6.35 180)
+				(at 8.89 -6.35 180)
 				(length 2.54)
 				(name "WAKE"
 					(effects
@@ -244,8 +262,279 @@
 		)
 		(symbol "Display_Connector_Input_1_1"
 			(rectangle
-				(start -5.08 12.7)
-				(end 5.08 -12.7)
+				(start -6.35 12.7)
+				(end 6.35 -12.7)
+				(stroke
+					(width 0)
+					(type solid)
+				)
+				(fill
+					(type background)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "Display_Connector_Output"
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "J"
+			(at 7.366 11.684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Display Connector Output"
+			(at 19.05 9.652 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Connector_Molex:Molex_PicoBlade_53261-1071_1x10-1MP_P1.25mm_Horizontal"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at -1.27 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" ""
+			(at -1.27 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "display connector output"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Display_Connector_Output_0_0"
+			(pin input line
+				(at -8.89 6.35 0)
+				(length 2.54)
+				(name "CLK"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 3.81 0)
+				(length 2.54)
+				(name "MOSI"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "4"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin output line
+				(at -8.89 1.27 0)
+				(length 2.54)
+				(name "MISO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -1.27 0)
+				(length 2.54)
+				(name "CS"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "8"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at -8.89 -6.35 0)
+				(length 2.54)
+				(name "WAKE"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "9"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -5.08 -15.24 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at -2.54 -15.24 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "3"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 15.24 270)
+				(length 2.54)
+				(name "5V"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 0 -15.24 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "5"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 2.54 -15.24 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "7"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin power_in line
+				(at 5.08 -15.24 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "11"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+		(symbol "Display_Connector_Output_1_1"
+			(rectangle
+				(start -6.35 12.7)
+				(end 6.35 -12.7)
 				(stroke
 					(width 0)
 					(type solid)
