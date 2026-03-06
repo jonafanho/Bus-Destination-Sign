@@ -3,7 +3,9 @@ package org.mtr.bus.configuration;
 import jakarta.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.mtr.bus.Application;
-import org.mtr.bus.dto.*;
+import org.mtr.bus.dto.DisplayDTO;
+import org.mtr.bus.dto.DisplayImageDTO;
+import org.mtr.bus.dto.StopReporterDTO;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -37,9 +39,7 @@ public class AppConfiguration {
 		public void registerHints(RuntimeHints runtimeHints, @Nullable ClassLoader classLoader) {
 			runtimeHints.reflection()
 					.registerType(DisplayDTO[].class, builder -> builder.withMembers(MemberCategory.UNSAFE_ALLOCATED))
-					.registerType(DisplayEspDTO[].class, builder -> builder.withMembers(MemberCategory.UNSAFE_ALLOCATED))
 					.registerType(DisplayImageDTO[].class, builder -> builder.withMembers(MemberCategory.UNSAFE_ALLOCATED))
-					.registerType(DisplayImageEspDTO[].class, builder -> builder.withMembers(MemberCategory.UNSAFE_ALLOCATED))
 					.registerType(StopReporterDTO[].class, builder -> builder.withMembers(MemberCategory.UNSAFE_ALLOCATED));
 		}
 	}

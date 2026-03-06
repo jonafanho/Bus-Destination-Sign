@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {Component, inject, signal} from "@angular/core";
 import {ButtonModule} from "primeng/button";
 import {TranslocoDirective} from "@jsverse/transloco";
 import {MessageModule} from "primeng/message";
@@ -36,9 +36,9 @@ export class RawImageManagerComponent {
 	readonly allowedInput = allowedInput;
 	protected rawImageManagerDialogVisible = false;
 	protected stopReporterDialogVisible = false;
-	protected dragging = false;
-	protected state: "none" | "success" | "error" | "invalidTypes" | "deleteFailed" = "none";
-	protected loading = false;
+	protected readonly dragging = signal(false);
+	protected readonly state = signal<"none" | "success" | "error" | "invalidTypes" | "deleteFailed">("none");
+	protected readonly loading = signal(false);
 	private timeoutId = 0;
 
 	constructor() {
@@ -50,12 +50,12 @@ export class RawImageManagerComponent {
 
 	dragOver(event: DragEvent) {
 		event.preventDefault();
-		this.dragging = true;
+		this.dragging.set(true);
 	}
 
 	drop(event: DragEvent) {
 		event.preventDefault();
-		this.dragging = false;
+		this.dragging.set(false);
 		this.upload(event.dataTransfer?.files);
 	}
 
@@ -66,16 +66,16 @@ export class RawImageManagerComponent {
 			if (filteredFiles.length > 0) {
 				const formData = new FormData();
 				filteredFiles.forEach(file => formData.append("files", file));
-				this.loading = true;
+				this.loading.set(true);
 				this.httpClient.post(`${getUrl()}api/saveRawImages`, formData).subscribe({
 					next: () => {
 						this.setState("success");
-						this.loading = false;
+						this.loading.set(false);
 						this.rawImageService.fetchData();
 					},
 					error: () => {
 						this.setState("error");
-						this.loading = false;
+						this.loading.set(false);
 					},
 				});
 			} else {
@@ -89,8 +89,8 @@ export class RawImageManagerComponent {
 	}
 
 	private setState(state: "success" | "error" | "invalidTypes" | "deleteFailed") {
-		this.state = state;
+		this.state.set(state);
 		clearTimeout(this.timeoutId);
-		this.timeoutId = setTimeout(() => this.state = "none", 3000);
+		this.timeoutId = setTimeout(() => this.state.set("none"), 3000);
 	}
 }

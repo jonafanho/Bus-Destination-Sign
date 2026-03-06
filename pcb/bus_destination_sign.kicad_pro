@@ -188,6 +188,7 @@
       ],
       "track_widths": [
         0.0,
+        0.1,
         0.2,
         0.3,
         0.5
@@ -467,7 +468,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "ssd1322.kicad_pro",
+    "filename": "bus_destination_sign.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -629,6 +630,14 @@
     [
       "ef60a031-d3da-483e-916d-caebb8513ab6",
       "Root"
+    ],
+    [
+      "2568b60e-5d06-46d0-bff9-946ec15f103c",
+      "ESP32 for SSD1322"
+    ],
+    [
+      "8435bdbe-2f2d-46e6-b6dc-a0cb918e215a",
+      "Master ESP32"
     ]
   ],
   "text_variables": {}

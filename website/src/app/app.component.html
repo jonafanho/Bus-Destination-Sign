@@ -3,7 +3,7 @@
 		<div class="row gap center title">
 			<h1 class="spacing">{{ t('title') }}</h1>
 			<div class="row gap">
-				<p-button icon="pi pi-upload" [label]="t('title.upload-to-device')" (onClick)="uploadToDevice()"/>
+				<p-button icon="pi pi-upload" [label]="t('title.write-to-directory')" (onClick)="writeToDirectory()"/>
 				<p-button icon="pi pi-images" [label]="t('title.raw-image-manager')" (onClick)="openRawImageManager()"/>
 				<p-button icon="pi pi-cog" [rounded]="true" [text]="true" [pTooltip]="t('tooltip.settings')" tooltipPosition="bottom" (onClick)="menu.toggle($event)"/>
 				<p-tiered-menu #menu [model]="menuItems" [popup]="true"/>
@@ -20,6 +20,6 @@
 		<div class="spacing"></div>
 	}
 
-	<app-upload-to-device/>
+	<app-write-to-directory/>
 	<app-raw-image-manager/>
 </div>
