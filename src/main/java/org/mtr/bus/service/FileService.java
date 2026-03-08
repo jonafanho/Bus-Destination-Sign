@@ -66,7 +66,7 @@ public final class FileService {
 	}
 
 	private static void addBytes(ByteArrayList bytes, int value) {
-		bytes.add((byte) ((value >> 4) & 0xFF));
+		bytes.add((byte) ((value >> 8) & 0xFF));
 		bytes.add((byte) (value & 0xFF));
 	}
 }
