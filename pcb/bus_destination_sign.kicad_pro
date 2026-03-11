@@ -632,12 +632,44 @@
       "Root"
     ],
     [
-      "2568b60e-5d06-46d0-bff9-946ec15f103c",
+      "6582fc17-a6be-4359-8e04-c0b6227802a5",
       "ESP32 for SSD1322"
     ],
     [
       "8435bdbe-2f2d-46e6-b6dc-a0cb918e215a",
       "Master ESP32"
+    ],
+    [
+      "f6fca6fe-a920-42ff-8a79-ce3664eefe2d",
+      "MT3608 for SSD1322"
+    ],
+    [
+      "89317fe1-37c2-417c-ae91-da35df10ccc3",
+      "ESP32 for SSD1327"
+    ],
+    [
+      "b2560c0e-dd64-46c7-ac41-4ae6b16b0ef5",
+      "Display 2 SSD1327"
+    ],
+    [
+      "cdbfa409-b525-4cd5-8b51-351f618e011e",
+      "Display 1 SSD1322"
+    ],
+    [
+      "66e7e007-2fa9-4a65-bc2c-9405a91bff95",
+      "MT3608 for SSD1327"
+    ],
+    [
+      "8bba229c-53cc-4db5-ae8c-5526ee00dbc6",
+      "Display 3 SSD1327"
+    ],
+    [
+      "89317fe1-37c2-417c-ae91-da35df10ccc3",
+      "ESP32 for SSD1327"
+    ],
+    [
+      "66e7e007-2fa9-4a65-bc2c-9405a91bff95",
+      "MT3608 for SSD1327"
     ]
   ],
   "text_variables": {}
