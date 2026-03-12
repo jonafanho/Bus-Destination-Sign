@@ -3356,7 +3356,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0798265e-43b1-4f88-b5e2-9e133d3ab844")
-		(property "Reference" "R8"
+		(property "Reference" "R7"
 			(at 187.96 44.45 90)
 			(effects
 				(font
@@ -3406,6 +3406,12 @@
 			(uuid "3b1707fb-1907-4fd8-92ab-ad2c59f8da73")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "R7")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "R8")
@@ -3430,7 +3436,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "0a3742f4-fe06-4fe2-aed2-81cb1b8e657c")
-		(property "Reference" "R4"
+		(property "Reference" "R3"
 			(at 102.87 76.1999 0)
 			(effects
 				(font
@@ -3482,6 +3488,12 @@
 			(uuid "74ae6fe3-181b-4b38-816f-92fe51e60934")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "R3")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "R4")
@@ -3506,7 +3518,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "371e51c1-0f06-4c8d-b719-eb12bac18e2c")
-		(property "Reference" "C4"
+		(property "Reference" "C3"
 			(at 125.73 76.1999 0)
 			(effects
 				(font
@@ -3558,6 +3570,12 @@
 			(uuid "4b3e2308-c185-455e-9f5d-43fa244f1e94")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "C3")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "C4")
@@ -3677,6 +3695,12 @@
 			(uuid "be590d6a-3a9a-40f3-a65d-70ac05b473fb")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "J3")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "J3")
@@ -3701,7 +3725,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "4d9b507c-b2c2-46e7-90ba-bedc6cec9384")
-		(property "Reference" "C8"
+		(property "Reference" "C7"
 			(at 198.12 38.0999 0)
 			(effects
 				(font
@@ -3753,6 +3777,12 @@
 			(uuid "a54b3c61-acc3-4fd9-9360-73a7c3c9d44e")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "C7")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "C8")
@@ -3825,6 +3855,12 @@
 			(uuid "c3e791f0-98cf-4f05-a9f3-bb15c87cafaa")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "#PWR08")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "#PWR08")
@@ -3849,7 +3885,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "55a40784-cfe6-4242-b66d-a1141e8519aa")
-		(property "Reference" "R5"
+		(property "Reference" "R4"
 			(at 113.03 76.1999 0)
 			(effects
 				(font
@@ -3901,6 +3937,12 @@
 			(uuid "52051cbc-4fc7-481d-a40b-4f41951ffef1")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "R4")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "R5")
@@ -3973,6 +4015,12 @@
 			(uuid "65a57b93-5587-4a00-9b48-2105d1b99ae9")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "#PWR06")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "#PWR06")
@@ -3997,7 +4045,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "643c69c2-a421-45ce-a257-d686d286b48c")
-		(property "Reference" "C5"
+		(property "Reference" "C4"
 			(at 138.43 76.1999 0)
 			(effects
 				(font
@@ -4049,6 +4097,12 @@
 			(uuid "a4b3b16d-6a6a-4aff-87bb-d29495bdad42")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "C4")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "C5")
@@ -4132,6 +4186,12 @@
 			(uuid "5ac0d3df-a844-4f24-aa72-1c56dcc14c21")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "U1")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "U1")
@@ -4156,7 +4216,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "78c71e73-9076-412f-a906-0ae933fe7acf")
-		(property "Reference" "R7"
+		(property "Reference" "R6"
 			(at 148.59 73.66 90)
 			(effects
 				(font
@@ -4206,6 +4266,12 @@
 			(uuid "025da415-242e-4728-99a2-db0712432ba1")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "R6")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "R7")
@@ -4230,7 +4296,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "7e8eb24c-15d5-4062-804b-8b37a5ed77b3")
-		(property "Reference" "R6"
+		(property "Reference" "R5"
 			(at 148.59 60.96 90)
 			(effects
 				(font
@@ -4280,6 +4346,12 @@
 			(uuid "2329d000-26e4-4dfa-8b87-0c0ffec1f558")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "R5")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "R6")
@@ -4352,6 +4424,12 @@
 			(uuid "f503fffb-87eb-4017-a61b-6479bc03a080")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "#PWR05")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "#PWR05")
@@ -4546,6 +4624,12 @@
 			(uuid "5973b102-133c-4dcb-8177-e4240c3bb726")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "U2")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "U2")
@@ -4570,7 +4654,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "aa03fc54-d621-4d5b-885a-415a88252554")
-		(property "Reference" "C6"
+		(property "Reference" "C5"
 			(at 140.97 40.6399 0)
 			(effects
 				(font
@@ -4622,6 +4706,12 @@
 			(uuid "7fa222c5-392c-46dc-8a43-b620c8a3cf2c")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "C5")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "C6")
@@ -4694,6 +4784,12 @@
 			(uuid "a10f6fa9-3bf5-4c21-b4ca-e051527a8117")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "#PWR07")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "#PWR07")
@@ -4766,6 +4862,12 @@
 			(uuid "7d60d642-787c-4297-b51d-7f461d9ec847")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "#PWR04")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "#PWR04")
@@ -4790,7 +4892,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "e069fae0-92bf-4cad-813c-e0235b2bb507")
-		(property "Reference" "C9"
+		(property "Reference" "C8"
 			(at 210.82 38.0999 0)
 			(effects
 				(font
@@ -4842,6 +4944,12 @@
 			(uuid "ac658b2c-ece9-446a-9a52-fd7fb09a82f4")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "C8")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "C9")
@@ -4866,7 +4974,7 @@
 		(dnp no)
 		(fields_autoplaced yes)
 		(uuid "ec075093-58da-4491-b577-8d7f6965a6fa")
-		(property "Reference" "C7"
+		(property "Reference" "C6"
 			(at 171.45 40.6399 0)
 			(effects
 				(font
@@ -4918,6 +5026,12 @@
 			(uuid "3ef1e61b-c0ba-4193-87c3-025027b52312")
 		)
 		(instances
+			(project "ssd1327"
+				(path "/4342a6a3-bef3-4d00-bf81-0e0627ac4f3c/89317fe1-37c2-417c-ae91-da35df10ccc3"
+					(reference "C6")
+					(unit 1)
+				)
+			)
 			(project "ssd1322"
 				(path "/e965cf35-0f43-4e18-a922-fe79a625b049/6582fc17-a6be-4359-8e04-c0b6227802a5"
 					(reference "C7")
