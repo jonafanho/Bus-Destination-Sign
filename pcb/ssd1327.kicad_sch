@@ -1954,7 +1954,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "4.7uF (25V)"
+		(property "Value" "4.7uF"
 			(at 167.64 57.1499 0)
 			(effects
 				(font

@@ -999,7 +999,7 @@
 				)
 			)
 		)
-		(property "Value" "190k (or 200k)"
+		(property "Value" "200k"
 			(at 48.1 -55.6 0)
 			(layer "F.Fab")
 			(uuid "c20548ee-c83e-48d5-834f-f222d8e35011")
@@ -2082,7 +2082,7 @@
 				)
 			)
 		)
-		(property "Value" "10uF (25V)"
+		(property "Value" "10uF"
 			(at 49.6 -63 0)
 			(layer "F.Fab")
 			(uuid "9e254d30-3094-487d-9898-105736a81659")
@@ -2709,7 +2709,7 @@
 				)
 			)
 		)
-		(property "Value" "0.1uF (25V)"
+		(property "Value" "0.1uF"
 			(at 49.6 -61.5 0)
 			(layer "F.Fab")
 			(uuid "649634ae-293e-4d3d-9bd8-2ac22ff481fc")
@@ -3132,7 +3132,7 @@
 				)
 			)
 		)
-		(property "Value" "4.7uF (25V)"
+		(property "Value" "4.7uF"
 			(at -52.6 63 0)
 			(layer "F.Fab")
 			(uuid "17292842-7ca4-4806-8b28-237237b779a3")
@@ -3658,7 +3658,7 @@
 				)
 			)
 		)
-		(property "Value" "22uH (or 10uH)"
+		(property "Value" "10uH"
 			(at -54.8 -45.8 0)
 			(layer "F.Fab")
 			(uuid "d808390b-2ee3-4f96-b7ab-091f36dfa1fe")
@@ -6722,7 +6722,7 @@
 				)
 			)
 		)
-		(property "Value" "22uF (25V)"
+		(property "Value" "22uF"
 			(at 58.2 49.5 0)
 			(layer "F.Fab")
 			(uuid "f594fa6c-3c9e-4807-baa0-effa5ed0de76")
@@ -6858,7 +6858,7 @@
 		(uuid "7a0af0b1-8226-40cb-91b7-94a52ee7206f")
 	)
 	(gr_text "SSD1327 Display Adapter"
-		(at 68 32 0)
+		(at 32 32 0)
 		(layer "B.SilkS")
 		(uuid "05a14088-2414-407e-97fe-a341ac14e39c")
 		(effects
@@ -6867,11 +6867,11 @@
 				(thickness 0.2)
 				(bold yes)
 			)
-			(justify left top mirror)
+			(justify right top mirror)
 		)
 	)
 	(gr_text "Jonathan Ho\n2026-03-12"
-		(at 68 34 0)
+		(at 32 34 0)
 		(layer "B.SilkS")
 		(uuid "e8da9547-19d7-476f-812f-32aaf4f34355")
 		(effects
@@ -6879,7 +6879,7 @@
 				(size 1 1)
 				(thickness 0.125)
 			)
-			(justify left top mirror)
+			(justify right top mirror)
 		)
 	)
 	(segment
