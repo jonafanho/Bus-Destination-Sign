@@ -24,7 +24,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector_FFC-FPC:TE_3-1734839-0_1x30-1MP_P0.5mm_Horizontal"
+		(property "Footprint" "Display_FPC:ssd1322"
 			(at 0 1.27 0)
 			(effects
 				(font
@@ -368,7 +368,7 @@
 				)
 			)
 			(pin power_in line
-				(at -2.54 -29.21 90)
+				(at -3.81 -29.21 90)
 				(length 2.54)
 				(name "VSS"
 					(effects
@@ -404,7 +404,7 @@
 				)
 			)
 			(pin power_in line
-				(at 0 -29.21 90)
+				(at -1.27 -29.21 90)
 				(length 2.54)
 				(name "VLSS"
 					(effects
@@ -440,7 +440,7 @@
 				)
 			)
 			(pin power_in line
-				(at 2.54 -29.21 90)
+				(at 1.27 -29.21 90)
 				(length 2.54)
 				(name "VLSS"
 					(effects
@@ -476,7 +476,7 @@
 				)
 			)
 			(pin power_out line
-				(at 12.7 11.43 180)
+				(at 12.7 10.16 180)
 				(length 2.54)
 				(name "VCOMH"
 					(effects
@@ -494,7 +494,7 @@
 				)
 			)
 			(pin power_out line
-				(at 12.7 8.89 180)
+				(at 12.7 7.62 180)
 				(length 2.54)
 				(name "VDD"
 					(effects
@@ -512,7 +512,7 @@
 				)
 			)
 			(pin power_out line
-				(at 12.7 6.35 180)
+				(at 12.7 5.08 180)
 				(length 2.54)
 				(name "VSL"
 					(effects
@@ -530,7 +530,7 @@
 				)
 			)
 			(pin no_connect line
-				(at 12.7 -1.27 180)
+				(at 12.7 -2.54 180)
 				(length 2.54)
 				(name ""
 					(effects
@@ -549,8 +549,26 @@
 			)
 		)
 		(symbol "SSD1322_30-Pin_Connector_1_0"
+			(pin power_in line
+				(at 3.81 -29.21 90)
+				(length 2.54)
+				(name "GND"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "0"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
 			(pin no_connect line
-				(at 12.7 1.27 180)
+				(at 12.7 0 180)
 				(length 2.54)
 				(name "FR"
 					(effects
@@ -568,25 +586,7 @@
 				)
 			)
 			(pin passive line
-				(at 12.7 -6.35 180)
-				(length 2.54)
-				(name "PAD"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "0"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin passive line
-				(at 12.7 -8.89 180)
+				(at 12.7 -7.62 180)
 				(length 2.54)
 				(name ""
 					(effects
@@ -604,7 +604,7 @@
 				)
 			)
 			(pin passive line
-				(at 12.7 -11.43 180)
+				(at 12.7 -10.16 180)
 				(length 2.54)
 				(name ""
 					(effects
