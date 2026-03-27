@@ -133,7 +133,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin output line
 				(at 8.89 6.35 180)
 				(length 2.54)
 				(name "CLK"
@@ -151,7 +151,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin output line
 				(at 8.89 3.81 180)
 				(length 2.54)
 				(name "MOSI"
@@ -169,25 +169,7 @@
 					)
 				)
 			)
-			(pin input line
-				(at 8.89 1.27 180)
-				(length 2.54)
-				(name "MISO"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-				(number "6"
-					(effects
-						(font
-							(size 1.27 1.27)
-						)
-					)
-				)
-			)
-			(pin bidirectional line
+			(pin output line
 				(at 8.89 -1.27 180)
 				(length 2.54)
 				(name "CS"
@@ -205,7 +187,7 @@
 					)
 				)
 			)
-			(pin bidirectional line
+			(pin output line
 				(at 8.89 -6.35 180)
 				(length 2.54)
 				(name "WAKE"
@@ -225,7 +207,7 @@
 			)
 		)
 		(symbol "Display_Connector_Input_1_0"
-			(pin power_in line
+			(pin power_out line
 				(at -5.08 -15.24 90)
 				(length 2.54)
 				(name "GND"
@@ -243,7 +225,7 @@
 					)
 				)
 			)
-			(pin power_in line
+			(pin power_out line
 				(at 0 15.24 270)
 				(length 2.54)
 				(name "5V"
@@ -254,6 +236,24 @@
 					)
 				)
 				(number "10"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin tri_state line
+				(at 8.89 1.27 180)
+				(length 2.54)
+				(name "MISO"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "6"
 					(effects
 						(font
 							(size 1.27 1.27)
@@ -498,7 +498,7 @@
 			)
 		)
 		(symbol "Display_Connector_Output_1_0"
-			(pin bidirectional line
+			(pin tri_state line
 				(at -8.89 1.27 0)
 				(length 2.54)
 				(name "MISO"
