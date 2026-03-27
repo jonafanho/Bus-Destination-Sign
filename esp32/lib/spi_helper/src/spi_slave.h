@@ -1,5 +1,4 @@
-#ifndef SPI_SLAVE_H
-#define SPI_SLAVE_H
+#pragma once
 
 #include "spi_device.h"
 
@@ -15,5 +14,3 @@ private:
     uint8_t *rxDmaBuffer = nullptr;
     uint8_t *txDmaBuffer = nullptr;
 };
-
-#endif

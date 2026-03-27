@@ -1,5 +1,4 @@
-#ifndef DISPLAY_TRANSACTION_MASTER_H
-#define DISPLAY_TRANSACTION_MASTER_H
+#pragma once
 
 #include "spi_master.h"
 
@@ -21,5 +20,3 @@ private:
     const uint8_t displayIndex;
     uint8_t currentGroup = 0;
 };
-
-#endif

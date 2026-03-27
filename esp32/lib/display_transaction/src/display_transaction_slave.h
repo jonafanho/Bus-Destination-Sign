@@ -1,5 +1,4 @@
-#ifndef DISPLAY_TRANSACTION_SLAVE_H
-#define DISPLAY_TRANSACTION_SLAVE_H
+#pragma once
 
 #include "spi_slave.h"
 #include "display_driver.h"
@@ -35,5 +34,3 @@ private:
     void processNextDisplay(const uint8_t *data);
     static uint16_t getValue(const uint8_t *data);
 };
-
-#endif

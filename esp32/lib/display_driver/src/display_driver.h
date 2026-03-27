@@ -1,5 +1,4 @@
-#ifndef DISPLAY_DRIVER_H
-#define DISPLAY_DRIVER_H
+#pragma once
 
 #include <Arduino.h>
 #include <vector>
@@ -27,5 +26,3 @@ private:
     uint16_t targetFramesPerSecond = 0;
     int64_t lastFrameMicros = 0;
 };
-
-#endif

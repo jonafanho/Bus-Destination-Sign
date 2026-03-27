@@ -1,5 +1,4 @@
-#ifndef SPI_DEVICE_H
-#define SPI_DEVICE_H
+#pragma once
 
 #include <Arduino.h>
 
@@ -18,5 +17,3 @@ protected:
     static constexpr gpio_num_t PIN_MISO = GPIO_NUM_38;
     static constexpr gpio_num_t PIN_CS_DISPLAY = GPIO_NUM_39;
 };
-
-#endif

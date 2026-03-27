@@ -1,5 +1,4 @@
-#ifndef SSD1322_H
-#define SSD1322_H
+#pragma once
 
 #include "display_driver.h"
 
@@ -29,5 +28,3 @@ private:
 
     static void send(uint8_t value, bool isData);
 };
-
-#endif

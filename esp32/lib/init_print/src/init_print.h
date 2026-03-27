@@ -1,5 +1,4 @@
-#ifndef INIT_PRINT_H
-#define INIT_PRINT_H
+#pragma once
 
 #include "esp_log.h"
 #include "esp_err.h"
@@ -28,5 +27,3 @@ public:
 private:
     const char *tag;
 };
-
-#endif

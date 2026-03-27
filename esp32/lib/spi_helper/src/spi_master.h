@@ -1,5 +1,4 @@
-#ifndef SPI_MASTER_H
-#define SPI_MASTER_H
+#pragma once
 
 #include "spi_device.h"
 #include "driver/spi_master.h"
@@ -15,5 +14,3 @@ public:
 private:
     spi_device_handle_t spi;
 };
-
-#endif
