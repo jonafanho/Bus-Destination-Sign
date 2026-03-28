@@ -1,5 +1,10 @@
 name: Build
-on: [ pull_request, push, workflow_dispatch ]
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   build-spring-boot:
@@ -14,6 +19,9 @@ jobs:
           node-version: 24
       - name: Install Node packages
         run: npm ci --prefix website
+      - name: Update packages
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+        run: npm run update-all --prefix website
       - name: Build Angular
         run: npm run build --prefix website
       - name: Validate Gradle wrapper
@@ -26,6 +34,9 @@ jobs:
           cache: gradle
       - name: Make gradle wrapper executable
         run: chmod +x ./gradlew
+      - name: Update Gradle
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+        run: ./gradlew wrapper --gradle-version latest --no-daemon
       - name: Build JAR
         run: ./gradlew build --no-daemon
       - name: Upload Spring Boot JAR
@@ -33,6 +44,18 @@ jobs:
         with:
           name: Spring Boot JAR
           path: build/libs/RC-Bus-System.jar
+      - name: Commit changes
+        uses: iarekylew00t/verified-bot-commit@main
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' }}
+        with:
+          message: Update Gradle and Angular
+          files: |
+            gradle/**
+            gradlew
+            gradlew.bat
+            website/package.json
+            website/package-lock.json
+          max-retries: 5
 
   build-platformio:
     name: Build PlatformIO
