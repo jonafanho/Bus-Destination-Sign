@@ -1,0 +1,31 @@
+name: Update
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  update-angular-packages:
+    name: Update Angular Packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+      - name: Setup Node
+        uses: actions/setup-node@main
+        with:
+          node-version: 24
+      - name: Install Node packages
+        run: npm ci --prefix website
+      - name: Update packages
+        run: npm run update-all --prefix website
+      - name: Build Angular
+        run: npm run build --prefix website
+      - name: Commit changes
+        uses: iarekylew00t/verified-bot-commit@main
+        with:
+          message: Update Angular packages
+          files: |
+            website/package.json
+            website/package-lock.json
+          max-retries: 5

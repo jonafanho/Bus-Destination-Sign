@@ -2602,7 +2602,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "#PWR026")
 					(unit 1)
@@ -2765,7 +2765,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "J10")
 					(unit 1)
@@ -2859,7 +2859,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "D9")
 					(unit 1)
@@ -2935,7 +2935,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "R32")
 					(unit 1)
@@ -3007,7 +3007,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "#PWR027")
 					(unit 1)
@@ -3079,7 +3079,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "#PWR030")
 					(unit 1)
@@ -3153,7 +3153,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "R33")
 					(unit 1)
@@ -3247,7 +3247,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "D8")
 					(unit 1)
@@ -3350,7 +3350,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "J8")
 					(unit 1)
@@ -3426,7 +3426,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "R34")
 					(unit 1)
@@ -3502,7 +3502,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "C25")
 					(unit 1)
@@ -3578,7 +3578,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "C27")
 					(unit 1)
@@ -3654,7 +3654,7 @@
 					(unit 1)
 				)
 			)
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(reference "C26")
 					(unit 1)
@@ -3887,7 +3887,7 @@
 			)
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(page "2")
 				)
@@ -3954,7 +3954,7 @@
 			)
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6/cdbfa409-b525-4cd5-8b51-351f618e011e"
 					(page "4")
 				)

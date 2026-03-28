@@ -2,7 +2,6 @@ plugins {
 	id "java"
 	id "org.springframework.boot" version "3.+"
 	id "io.spring.dependency-management" version "1.+"
-	id "edu.sc.seis.launch4j" version "+"
 }
 
 group "org.mtr.bus"
@@ -28,10 +27,4 @@ java {
 	toolchain {
 		languageVersion.set(JavaLanguageVersion.of(21))
 	}
-}
-
-launch4j {
-	mainClassName = "org.mtr.bus.Application"
-	outfile = "BusDestinationSign.exe"
-	headerType = "console"
 }

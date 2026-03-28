@@ -3176,7 +3176,7 @@
 			(uuid "ae4a58b1-6926-4d05-be6b-2c3cf4961aae")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "D1")
 					(unit 1)
@@ -3246,7 +3246,7 @@
 			(uuid "d827305c-f8a2-4471-9582-761e2ea57a17")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R5")
 					(unit 1)
@@ -3325,7 +3325,7 @@
 			(uuid "68320397-1496-4b9b-994d-f7ee2a3a72c0")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "D2")
 					(unit 1)
@@ -3391,7 +3391,7 @@
 			(uuid "80cf7619-7657-42d4-bac5-737c4ab9512a")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR08")
 					(unit 1)
@@ -3457,7 +3457,7 @@
 			(uuid "572df4ec-d7cb-4c60-b73c-d1e5f227a0b8")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR03")
 					(unit 1)
@@ -3527,7 +3527,7 @@
 			(uuid "993bea67-d53c-4315-8418-4aef7b36da2f")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R3")
 					(unit 1)
@@ -3625,7 +3625,7 @@
 			(uuid "b534e4be-caeb-402b-98dd-e1e4fb0b0fce")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "J2")
 					(unit 1)
@@ -3691,7 +3691,7 @@
 			(uuid "155f487b-a85a-4224-bb9b-cec5ca554cc0")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR06")
 					(unit 1)
@@ -3788,7 +3788,7 @@
 			(uuid "b6590c67-5e2a-4eab-a5a7-5d394f5092d9")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "J4")
 					(unit 1)
@@ -3858,7 +3858,7 @@
 			(uuid "c963ec2c-3149-42d5-88ba-03155ebeb418")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R7")
 					(unit 1)
@@ -4019,7 +4019,7 @@
 			(uuid "40421bce-f937-45d8-b129-f4d15befea16")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR07")
 					(unit 1)
@@ -4089,7 +4089,7 @@
 			(uuid "bc4bf627-5052-4631-869f-d504d26b8336")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R2")
 					(unit 1)
@@ -4159,7 +4159,7 @@
 			(uuid "a2613e5b-bead-4f11-9e64-d1a978671a86")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R8")
 					(unit 1)
@@ -4229,7 +4229,7 @@
 			(uuid "b24c16e0-f0c0-4273-bea9-7dd89014d4ab")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R6")
 					(unit 1)
@@ -4299,7 +4299,7 @@
 			(uuid "02ccb349-1ebd-4fb2-bbff-5cf96aab331e")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R1")
 					(unit 1)
@@ -4365,7 +4365,7 @@
 			(uuid "3d661f4a-c932-47b8-8f84-4ff525762a37")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR09")
 					(unit 1)
@@ -4435,7 +4435,7 @@
 			(uuid "e7217281-84c7-4579-bf59-b2bf3f343aab")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "R4")
 					(unit 1)
@@ -4514,7 +4514,7 @@
 			(uuid "e81c7062-a37e-46f9-a319-2d34524238c0")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "D3")
 					(unit 1)
@@ -4580,7 +4580,7 @@
 			(uuid "ff9d52c8-8a0c-4bfc-bfec-ef78dfabefbe")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR02")
 					(unit 1)
@@ -4646,7 +4646,7 @@
 			(uuid "55019674-578e-4eda-8f36-7132d37ed04c")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR04")
 					(unit 1)
@@ -4744,7 +4744,7 @@
 			(uuid "ecafc730-4cc7-4d6a-9aac-f64112962584")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "J3")
 					(unit 1)
@@ -4810,7 +4810,7 @@
 			(uuid "0ce175d6-5c41-4219-8a85-46b84a5956f1")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR05")
 					(unit 1)
@@ -4876,7 +4876,7 @@
 			(uuid "abd27226-08d9-44c9-a36d-ebc7b709210c")
 		)
 		(instances
-			(project "bus_destination_sign"
+			(project "rc_bus_system"
 				(path "/ef60a031-d3da-483e-916d-caebb8513ab6"
 					(reference "#PWR01")
 					(unit 1)

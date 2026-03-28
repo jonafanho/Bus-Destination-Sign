@@ -4,7 +4,7 @@ on: [ pull_request, push, workflow_dispatch ]
 jobs:
   build-spring-boot:
     name: Build Spring Boot
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@main
@@ -32,14 +32,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: Spring Boot JAR
-          path: build/libs/Bus-Destination-Sign.jar
-      - name: Build Windows Executable
-        run: ./gradlew createExe --no-daemon
-      - name: Upload Windows Executable
-        uses: actions/upload-artifact@main
-        with:
-          name: Windows Executable
-          path: build/launch4j/BusDestinationSign.exe
+          path: build/libs/RC-Bus-System.jar
 
   build-platformio:
     name: Build PlatformIO
