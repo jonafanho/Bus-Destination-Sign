@@ -34,19 +34,15 @@ void DisplayDriver::drawPixel(uint16_t x, uint16_t y, uint8_t brightness)
 
 void DisplayDriver::push()
 {
-    if (targetFramesPerSecond > 0)
+    while (esp_timer_get_time() - lastFrameMicros < targetFrameDuration)
     {
-        while ((esp_timer_get_time() - lastFrameMicros) * targetFramesPerSecond < 1000000)
-        {
-            vTaskDelay(1);
-        }
-        lastFrameMicros = esp_timer_get_time();
+        vTaskDelay(1);
     }
-
+    lastFrameMicros = esp_timer_get_time();
     pushRaw();
 }
 
-void DisplayDriver::setTargetFramesPerSecond(uint16_t targetFramesPerSecond)
+void DisplayDriver::setTargetFrameDuration(uint32_t targetFrameDuration)
 {
-    this->targetFramesPerSecond = targetFramesPerSecond;
+    this->targetFrameDuration = targetFrameDuration;
 }

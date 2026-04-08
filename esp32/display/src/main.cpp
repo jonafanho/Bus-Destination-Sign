@@ -12,6 +12,8 @@ SSD1322 ssd1322;
 DisplayTransactionSlave displayTransactionSlave(&spiSlave, &ssd1322);
 FileLoader fileLoader("/displays.dat", &ssd1322);
 
+uint32_t imageIndex;
+
 void spiTask(void *pvParameters)
 {
 	while (true)
@@ -31,7 +33,6 @@ void setup()
 	initPrint.init(ssd1322.init(), "SSD1322");
 	initPrint.init(fileLoader.init(), "File loader");
 
-	ssd1322.setTargetFramesPerSecond(2);
 	xTaskCreatePinnedToCore(spiTask, "SPI", 4096, NULL, 2, NULL, 0);
 }
 
@@ -39,6 +40,8 @@ void loop()
 {
 	// displayTransactionSlave.displayTick();
 
-	fileLoader.load(rand() % fileLoader.getImageCount());
-	ssd1322.push();
+	if (fileLoader.load(imageIndex))
+	{
+		imageIndex = rand() % fileLoader.getImageCount();
+	}
 }

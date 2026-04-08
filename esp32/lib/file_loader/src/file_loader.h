@@ -8,7 +8,7 @@ class FileLoader
 public:
     FileLoader(const char *fileName, DisplayDriver *displayDriver);
     bool init();
-    void load(uint32_t index);
+    bool load(uint32_t imageIndex);
     uint32_t getWidth();
     uint32_t getHeight();
     uint32_t getImageCount();
@@ -20,6 +20,12 @@ private:
     uint32_t width;
     uint32_t height;
     uint32_t imageCount;
+    uint32_t lastImageIndex;
+    uint32_t frameIndex;
 
-    void drawByte(uint16_t decodedIndex, uint8_t byte);
+    uint8_t readByte();
+    uint32_t readInt();
+    void decodePackBits(uint32_t sameColumnCount, uint32_t animatedColumnCount);
+    void drawByte(uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount);
+    void clearScreen();
 };
