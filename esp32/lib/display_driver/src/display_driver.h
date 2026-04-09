@@ -11,6 +11,8 @@ public:
 
     DisplayDriver(const uint16_t screenWidth, const uint16_t screenHeight, const gpio_num_t pinScreenEnable);
     bool init();
+    void clear();
+    void startWipe(uint32_t wipeFrameDuration);
     void drawPixel(uint16_t x, uint16_t y, uint8_t brightness);
     void push();
     void setTargetFrameDuration(uint32_t targetFrameDuration);
@@ -23,6 +25,8 @@ protected:
 
 private:
     const gpio_num_t pinScreenEnable;
+    std::vector<uint8_t> wipeBuffer;
     uint32_t targetFrameDuration = 0;
+    uint32_t wipeFrameDuration = 0;
     int64_t lastFrameMicros = 0;
 };

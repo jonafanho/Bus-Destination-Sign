@@ -10,7 +10,7 @@ InitPrint initPrint("Display");
 SPISlave spiSlave;
 SSD1322 ssd1322;
 DisplayTransactionSlave displayTransactionSlave(&spiSlave, &ssd1322);
-FileLoader fileLoader("/displays.dat", &ssd1322);
+FileLoader fileLoader("/displays.dat", 500000, 5000, &ssd1322);
 
 uint32_t imageIndex;
 

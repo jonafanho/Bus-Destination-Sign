@@ -1,6 +1,6 @@
 #include "file_loader.h"
 
-FileLoader::FileLoader(const char *fileName, DisplayDriver *displayDriver) : fileName(fileName), displayDriver(displayDriver) {}
+FileLoader::FileLoader(const char *fileName, const uint32_t imageDuration, const uint32_t wipeFrameDuration, DisplayDriver *displayDriver) : fileName(fileName), imageDuration(imageDuration), wipeFrameDuration(wipeFrameDuration), displayDriver(displayDriver) {}
 
 bool FileLoader::init()
 {
@@ -8,72 +8,68 @@ bool FileLoader::init()
     width = readInt();
     height = readInt();
     imageCount = readInt();
+    headerSize = sizeof(width) + sizeof(height) + sizeof(imageCount);
     return file;
 }
 
 bool FileLoader::load(uint32_t imageIndex)
 {
-    uint32_t offset;
-    file.seek(sizeof(width) + sizeof(height) + sizeof(imageCount) + imageIndex * sizeof(offset));
-    offset = readInt();
+    bool newImage = imageIndex != lastImageIndex;
+    lastImageIndex = imageIndex;
+
+    if (newImage && wipeFrameDuration > 0)
+    {
+        displayDriver->startWipe(wipeFrameDuration);
+    }
+
+    file.seek(headerSize + imageIndex * sizeof(uint32_t));
+    uint32_t offset = readInt();
     file.seek(offset);
     uint8_t displayType = readByte();
+    uint32_t frameCount;
+    uint32_t frameDuration;
 
     switch (displayType)
     {
-    case 0: // Generic image
-    {
-        decodePackBits(width, 0);
-        displayDriver->push();
-        displayDriver->setTargetFrameDuration(1000000);
-        return true;
-    }
     case 1: // Generic animated
     {
-        uint32_t frameCount = readInt();
-
-        if (imageIndex != lastImageIndex || frameIndex >= frameCount)
-        {
-            clearScreen();
-        }
+        frameCount = readInt();
+        updateFrameIndex(newImage, frameCount);
 
         file.seek(offset + sizeof(displayType) + sizeof(frameCount) + frameIndex * sizeof(offset));
         offset = readInt();
         file.seek(offset);
 
-        uint32_t frameDuration = readInt();
+        frameDuration = readInt();
         decodePackBits(width, 0);
-
-        lastImageIndex = imageIndex;
-        frameIndex++;
-        displayDriver->push();
-        displayDriver->setTargetFrameDuration(frameDuration);
-        return frameIndex == frameCount;
+        break;
     }
     case 2: // Standard scroll
     {
         uint32_t sameColumnCount = readInt();
         uint32_t animatedColumnCount = readInt();
-        uint32_t frameCount = animatedColumnCount + width - sameColumnCount;
+        frameCount = animatedColumnCount + width - sameColumnCount;
+        updateFrameIndex(newImage, frameCount);
 
-        if (imageIndex != lastImageIndex || frameIndex >= frameCount)
-        {
-            clearScreen();
-        }
-
+        frameDuration = 30000;
         decodePackBits(sameColumnCount, animatedColumnCount);
-
-        lastImageIndex = imageIndex;
-        frameIndex++;
-        displayDriver->push();
-        displayDriver->setTargetFrameDuration(30000);
-        return frameIndex == frameCount;
+        break;
     }
-    default:
+    default: // Generic image
     {
-        return true;
+        frameCount = 1;
+        updateFrameIndex(newImage, frameCount);
+
+        frameDuration = imageDuration;
+        decodePackBits(width, 0);
+        break;
     }
     }
+
+    frameIndex++;
+    displayDriver->push();
+    displayDriver->setTargetFrameDuration(frameDuration);
+    return frameIndex == frameCount;
 }
 
 uint32_t FileLoader::getWidth()
@@ -103,6 +99,15 @@ uint32_t FileLoader::readInt()
     uint32_t result;
     file.readBytes((char *)&result, sizeof(result));
     return result;
+}
+
+void FileLoader::updateFrameIndex(bool newImage, uint32_t frameCount)
+{
+    if (newImage || frameIndex >= frameCount)
+    {
+        frameIndex = 0;
+        displayDriver->clear();
+    }
 }
 
 void FileLoader::decodePackBits(uint32_t sameColumnCount, uint32_t animatedColumnCount)
@@ -157,18 +162,6 @@ void FileLoader::drawByte(uint16_t decodedIndex, uint8_t byte, uint32_t sameColu
         if (isLastColumn && x < width - 1)
         {
             displayDriver->drawPixel(x + 1, y, 0);
-        }
-    }
-}
-
-void FileLoader::clearScreen()
-{
-    frameIndex = 0;
-    for (uint16_t x = 0; x < width; x++)
-    {
-        for (uint16_t y = 0; y < height; y++)
-        {
-            displayDriver->drawPixel(x, y, 0);
         }
     }
 }
