@@ -4,7 +4,7 @@
 #include "sdmmc_cmd.h"
 #include "esp_vfs_fat.h"
 
-DisplayTransactionMaster::DisplayTransactionMaster(SPIMaster *spiMaster, uint8_t displayIndex) : spiMaster(spiMaster), displayIndex(displayIndex) {}
+DisplayTransactionMaster::DisplayTransactionMaster(uint8_t displayIndex) : displayIndex(displayIndex) {}
 
 bool DisplayTransactionMaster::initSD()
 {
@@ -57,7 +57,7 @@ bool DisplayTransactionMaster::init()
     return mkdir(path, 0775) == 0;
 }
 
-void DisplayTransactionMaster::nextDisplay()
+void DisplayTransactionMaster::nextDisplay(SPIMaster *spiMaster)
 {
     char path[32];
     snprintf(path, 32, "/sdcard/display_%d/group_%d", displayIndex, currentGroup);
@@ -86,6 +86,6 @@ void DisplayTransactionMaster::nextDisplay()
     else if (currentGroup > 0)
     {
         currentGroup = 0;
-        nextDisplay();
+        nextDisplay(spiMaster);
     }
 }

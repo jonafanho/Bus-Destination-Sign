@@ -5,7 +5,7 @@
 
 InitPrint initPrint("Main");
 SPIMaster spiMaster1;
-DisplayTransactionMaster displayTransactionMaster1(&spiMaster1, 0);
+DisplayTransactionMaster displayTransactionMaster1(0);
 
 constexpr gpio_num_t PIN_LED_RED_1 = GPIO_NUM_1;
 constexpr gpio_num_t PIN_LED_YELLOW_1 = GPIO_NUM_2;
@@ -55,7 +55,7 @@ void setup()
 void loop()
 {
 	setStatusLights(false, false, false, false, false, true);
-	displayTransactionMaster1.nextDisplay();
+	displayTransactionMaster1.nextDisplay(&spiMaster1);
 	delay(1000);
 	setStatusLights(false, false, false, false, false, false);
 	delay(15000);
