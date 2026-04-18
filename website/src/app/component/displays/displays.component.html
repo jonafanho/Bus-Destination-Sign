@@ -1,0 +1,57 @@
+<ng-container *transloco="let t">
+	<div class="column gap">
+		@if (getDisplayGroups().length > 0) {
+			<p-accordion [multiple]="true">
+				@for (displayGroup of getDisplayGroups(); track $index; let groupIndex = $index) {
+					<p-accordion-panel [value]="$index">
+						<p-accordion-header>
+							<div class="row gap center header">
+								<div class="column spacing">
+									<div>{{ t('displays.group', {index: groupIndex + 1}) }}</div>
+									<div class="subtitle">{{ getGroupTitle(displayGroup) }}</div>
+								</div>
+								<div class="row">
+									<p-button icon="pi pi-arrow-up" (onClick)="moveGroup($event, groupIndex, -1)" [disabled]="groupIndex === 0" severity="secondary" rounded text [pTooltip]="t('displays.moveUp')" tooltipPosition="bottom"/>
+									<p-button icon="pi pi-arrow-down" (onClick)="moveGroup($event, groupIndex, 1)" [disabled]="groupIndex === $count - 1" severity="secondary" rounded text [pTooltip]="t('displays.moveDown')" tooltipPosition="bottom"/>
+									<p-button icon="pi pi-trash" severity="warn" (onClick)="deleteGroup($event, groupIndex)" rounded text [pTooltip]="t('displays.deleteGroup')" tooltipPosition="bottom"/>
+								</div>
+								<div></div>
+							</div>
+						</p-accordion-header>
+
+						<p-accordion-content>
+							<div class="row gap">
+								@for (board of boards; track $index; let boardIndex = $index) {
+									<p-panel class="spacing" [header]="t('displays.display', {index: boardIndex + 1})">
+										<div class="column gap">
+											<div class="subtitle">{{ board.type.toUpperCase() }} ({{ board.width }}×{{ board.height }})</div>
+
+											@for (fileName of displayGroup[boardIndex]; track $index; let displayIndex = $index) {
+												<div class="row gap center">
+													<app-canvas class="spacing" [fileName]="fileName"></app-canvas>
+													<div class="row">
+														<p-button icon="pi pi-arrow-up" (onClick)="moveDisplay(groupIndex, boardIndex, displayIndex,-1)" [disabled]="displayIndex === 0" severity="secondary" rounded text [pTooltip]="t('displays.moveUp')" tooltipPosition="bottom"/>
+														<p-button icon="pi pi-arrow-down" (onClick)="moveDisplay(groupIndex, boardIndex, displayIndex,1)" [disabled]="displayIndex === $count - 1" severity="secondary" rounded text [pTooltip]="t('displays.moveDown')" tooltipPosition="bottom"/>
+														<p-button icon="pi pi-trash" severity="warn" (onClick)="deleteDisplay(groupIndex, boardIndex, displayIndex)" rounded text [pTooltip]="t('displays.deleteDisplay')" tooltipPosition="bottom"/>
+													</div>
+												</div>
+											}
+										</div>
+
+										<ng-template #footer>
+											<p-button icon="pi pi-plus" (onClick)="openDialog(library, groupIndex, boardIndex)" rounded text [pTooltip]="t('displays.addDisplay')" tooltipPosition="bottom"/>
+										</ng-template>
+									</p-panel>
+								}
+							</div>
+						</p-accordion-content>
+					</p-accordion-panel>
+				}
+			</p-accordion>
+		}
+
+		<p-button [label]="t('displays.addGroup')" icon="pi pi-plus" (onClick)="addGroup()"/>
+	</div>
+
+	<app-library #library/>
+</ng-container>
