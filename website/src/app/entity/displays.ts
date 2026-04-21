@@ -1,9 +1,9 @@
-import {ByteReader} from "../utility/byteReader";
+import {ByteReader} from "../utility/byte-reader";
 
 export interface Displays {
-	width: number;
-	height: number;
-	imageCount: number;
-	byteReader: ByteReader;
-	indexList: { groups: string[], fileName: string }[];
+	readonly width: number;
+	readonly height: number;
+	readonly imageCount: number;
+	readonly byteReader: ByteReader;
+	readonly indexList: { readonly groups: string[], readonly fileName: string }[];
 }

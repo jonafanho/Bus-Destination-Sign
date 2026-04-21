@@ -2,7 +2,7 @@
 	<div class="column gap content" #wrapper>
 		<p-float-label variant="in">
 			<input id="input" pInputText type="text" [(ngModel)]="searchTerm" autocomplete="off" spellcheck="false" fluid/>
-			<label for="input">{{ t('displays.search') }}</label>
+			<label for="input">{{ t('common.search') }}</label>
 		</p-float-label>
 
 		<p-table [value]="rows()" paginator [rows]="rowCount()" [(first)]="firstIndex" selectionMode="single">

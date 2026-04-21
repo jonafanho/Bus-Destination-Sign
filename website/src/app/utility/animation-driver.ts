@@ -1,6 +1,6 @@
 import {Displays} from "../entity/displays";
 import {BITS_PER_BYTE, BYTES_PER_INT} from "./utilities";
-import {ByteReader} from "./byteReader";
+import {ByteReader} from "./byte-reader";
 
 export class AnimationDriver {
 	readonly canvas = document.createElement("canvas");

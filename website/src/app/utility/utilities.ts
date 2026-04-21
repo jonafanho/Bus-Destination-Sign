@@ -16,14 +16,6 @@ export function setCookie(name: string, value: string) {
 	document.cookie = `${name}=${value}; expires=${new Date(2999, 11, 31).toUTCString()}; path=/`;
 }
 
-export function getUrl() {
-	if (document.location.hostname === "localhost") {
-		return "http://localhost:8080/";
-	} else {
-		return "";
-	}
-}
-
 export function clamp(value: number, min: number, max: number) {
 	return Math.min(Math.max(value, min), max);
 }

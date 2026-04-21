@@ -11,6 +11,8 @@ import {sortNumbers} from "../../utility/utilities";
 import {DialogModule} from "primeng/dialog";
 import {CanvasComponent} from "../canvas/canvas.component";
 import {LibraryComponent} from "../library/library.component";
+import {SaveButtonComponent} from "../save-button/save-button.component";
+import {SortAndDeleteButtonsComponent} from "../sort-and-delete-buttons/sort-and-delete-buttons.component";
 
 @Component({
 	selector: "app-displays",
@@ -23,6 +25,8 @@ import {LibraryComponent} from "../library/library.component";
 		TranslocoDirective,
 		CanvasComponent,
 		LibraryComponent,
+		SaveButtonComponent,
+		SortAndDeleteButtonsComponent,
 	],
 	templateUrl: "./displays.component.html",
 	styleUrls: ["./displays.component.scss"],
@@ -39,33 +43,19 @@ export class DisplaysComponent {
 
 	getGroupTitle(displayGroup: string[][]) {
 		const groups: string[] = [];
-		displayGroup.forEach(fileNames => fileNames.forEach(fileName => this.libraryService.getDisplayDetailsByFileName(fileName)?.groups?.forEach(group => groups.push(group))));
+		displayGroup.forEach(fileNames => fileNames.forEach(fileName => this.libraryService.pushGroups(fileName, groups)));
 		return [...new Set(groups)].sort(sortNumbers).join(", ");
+	}
+
+	save() {
+		return this.displaysService.displayGroups();
 	}
 
 	addGroup() {
 		this.displaysService.addGroup();
 	}
 
-	moveGroup(event: MouseEvent, groupIndex: number, direction: number) {
-		event.stopPropagation();
-		this.displaysService.moveGroup(groupIndex, direction);
-	}
-
-	deleteGroup(event: MouseEvent, groupIndex: number) {
-		event.stopPropagation();
-		this.displaysService.deleteGroup(groupIndex);
-	}
-
 	openDialog(libraryComponent: LibraryComponent, groupIndex: number, boardIndex: number) {
 		libraryComponent.open(BOARDS[boardIndex].displaySizes, groupIndex, boardIndex);
-	}
-
-	moveDisplay(groupIndex: number, boardIndex: number, displayIndex: number, direction: number) {
-		this.displaysService.moveDisplay(groupIndex, boardIndex, displayIndex, direction);
-	}
-
-	deleteDisplay(groupIndex: number, boardIndex: number, displayIndex: number) {
-		this.displaysService.deleteDisplay(groupIndex, boardIndex, displayIndex);
 	}
 }

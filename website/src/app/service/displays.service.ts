@@ -1,9 +1,21 @@
-import {Injectable, signal} from "@angular/core";
+import {inject, Injectable, signal} from "@angular/core";
 import {BOARDS} from "../utility/constants";
+import {PersistedServiceBase} from "./persisted.service.base";
+import {PersistedDisplay} from "../entity/data";
+import {LibraryService} from "./library.service";
 
 @Injectable({providedIn: "root"})
-export class DisplaysService {
+export class DisplaysService extends PersistedServiceBase<PersistedDisplay[][][]> {
+	private readonly libraryService = inject(LibraryService);
 	readonly displayGroups = signal<string[][][]>([]);
+
+	override read(data: PersistedDisplay[][][]) {
+		this.displayGroups.set(data.map(displayGroup => displayGroup.map(displaysForBoard => displaysForBoard.map(({fileName}) => fileName))));
+	}
+
+	override write(): PersistedDisplay[][][] {
+		return this.displayGroups().map(displayGroup => displayGroup.map(displaysForBoard => displaysForBoard.map(fileName => this.libraryService.getPersistedDisplay(fileName)).filter(display => display !== undefined)));
+	}
 
 	addGroup() {
 		const displayGroups = this.displayGroups();
@@ -13,40 +25,9 @@ export class DisplaysService {
 		this.displayGroups.set(displayGroups);
 	}
 
-	moveGroup(groupIndex: number, direction: number) {
-		const displayGroups = this.displayGroups();
-		const newIndex = groupIndex + direction;
-		if (newIndex >= 0 && newIndex < displayGroups.length) {
-			[displayGroups[groupIndex], displayGroups[newIndex]] = [displayGroups[newIndex], displayGroups[groupIndex]];
-			this.displayGroups.set(displayGroups);
-		}
-	}
-
-	deleteGroup(groupIndex: number) {
-		const displayGroups = this.displayGroups();
-		displayGroups.splice(groupIndex, 1);
-		this.displayGroups.set(displayGroups);
-	}
-
 	addDisplay(groupIndex: number, boardIndex: number, fileName: string) {
 		const displayGroups = this.displayGroups();
 		displayGroups[groupIndex][boardIndex].push(fileName);
-		this.displayGroups.set(displayGroups);
-	}
-
-	moveDisplay(groupIndex: number, boardIndex: number, displayIndex: number, direction: number) {
-		const displayGroups = this.displayGroups();
-		const fileNames = displayGroups[groupIndex][boardIndex];
-		const newIndex = displayIndex + direction;
-		if (newIndex >= 0 && newIndex < fileNames.length) {
-			[fileNames[displayIndex], fileNames[newIndex]] = [fileNames[newIndex], fileNames[displayIndex]];
-			this.displayGroups.set(displayGroups);
-		}
-	}
-
-	deleteDisplay(groupIndex: number, boardIndex: number, displayIndex: number) {
-		const displayGroups = this.displayGroups();
-		displayGroups[groupIndex][boardIndex].splice(displayIndex, 1);
 		this.displayGroups.set(displayGroups);
 	}
 }

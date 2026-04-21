@@ -1,0 +1,2 @@
+<p-toast/>
+<p-button *transloco="let t" [label]="t('common.save')" [icon]="isSaving() ? 'pi pi-spin pi-spinner' : 'pi pi-save'" [disabled]="isSaving()" (onClick)="save()"/>

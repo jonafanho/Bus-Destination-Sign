@@ -3,18 +3,20 @@ import {HttpClient} from "@angular/common/http";
 import {BOARDS, SOURCES} from "../utility/constants";
 import {map} from "rxjs";
 import {getWithRetry, setIfUndefined} from "../utility/utilities";
-import {ByteReader} from "../utility/byteReader";
+import {ByteReader} from "../utility/byte-reader";
 import {Displays} from "../entity/displays";
+import {PersistedDisplay} from "../entity/data";
+import {AnimationDriver} from "../utility/animation-driver";
 
 @Injectable({providedIn: "root"})
 export class LibraryService {
 	private readonly displaysBySize = signal<Record<number, Record<number, Displays[]>>>({});
-	private readonly displayDetailsByFileName = signal<Record<string, { displays: Displays, index: number, groups: string[] }>>({});
+	private readonly displayDetailsByFileName = signal<Record<string, { displays: Displays, source: string, size: string, index: number, groups: string[] }>>({});
 
 	constructor() {
 		const httpClient = inject(HttpClient);
 		const tempDisplaysBySize: Record<number, Record<number, Displays[]>> = {};
-		const tempDisplayDetailsByFileName: Record<string, { displays: Displays, index: number, groups: string[] }> = {};
+		const tempDisplayDetailsByFileName: Record<string, { displays: Displays, source: string, size: string, index: number, groups: string[] }> = {};
 		let timeoutId = 0;
 
 		SOURCES.forEach(source => BOARDS.forEach(board => board.displaySizes.forEach(({width, height}) => {
@@ -31,7 +33,7 @@ export class LibraryService {
 
 					const displays = {width, height, imageCount, byteReader, indexList};
 					tempDisplaysBySize[width][height].push(displays);
-					indexList.forEach(({fileName, groups}, index) => tempDisplayDetailsByFileName[fileName] = {displays, groups, index});
+					indexList.forEach(({fileName, groups}, index) => tempDisplayDetailsByFileName[fileName] = {displays, source, size: `${width}_${height}`, groups, index});
 
 					clearTimeout(timeoutId);
 					timeoutId = setTimeout(() => {
@@ -47,7 +49,22 @@ export class LibraryService {
 		return this.displaysBySize()[width]?.[height];
 	}
 
-	getDisplayDetailsByFileName(fileName: string): { displays: Displays, index: number, groups: string[] } | undefined {
-		return this.displayDetailsByFileName()[fileName];
+	getAnimationDriver(fileName: string) {
+		const displayDetails = this.displayDetailsByFileName()[fileName];
+		return displayDetails ? new AnimationDriver(displayDetails.displays, displayDetails.index) : undefined;
+	}
+
+	pushGroups(fileName: string, groups: string[]) {
+		this.displayDetailsByFileName()[fileName]?.groups?.forEach(group => groups.push(group));
+	}
+
+	getPersistedDisplay(fileName: string): PersistedDisplay | undefined {
+		const displayDetails = this.displayDetailsByFileName()[fileName];
+		return displayDetails ? {
+			fileName,
+			source: displayDetails.source,
+			size: displayDetails.size,
+			index: displayDetails.index,
+		} : undefined;
 	}
 }

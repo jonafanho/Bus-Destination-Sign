@@ -1,6 +1,6 @@
 import {Component, effect, ElementRef, inject, input, OnDestroy, viewChild} from "@angular/core";
 import {LibraryService} from "../../service/library.service";
-import {AnimationDriver} from "../../utility/animationDriver";
+import {AnimationDriver} from "../../utility/animation-driver";
 
 @Component({
 	selector: "app-canvas",
@@ -19,7 +19,11 @@ export class CanvasComponent implements OnDestroy {
 	constructor() {
 		effect(() => {
 			this.fileName();
-			this.update();
+			this.wrapperRef().nativeElement.innerHTML = "";
+			this.animationDriver = this.libraryService.getAnimationDriver(this.fileName());
+			if (this.animationDriver) {
+				this.wrapperRef().nativeElement.appendChild(this.animationDriver.canvas);
+			}
 		});
 
 		const tick = (time: number) => {
@@ -32,14 +36,5 @@ export class CanvasComponent implements OnDestroy {
 
 	ngOnDestroy() {
 		cancelAnimationFrame(this.requestAnimationFrameId);
-	}
-
-	private update() {
-		this.wrapperRef().nativeElement.innerHTML = "";
-		const displayDetails = this.libraryService.getDisplayDetailsByFileName(this.fileName());
-		if (displayDetails) {
-			this.animationDriver = new AnimationDriver(displayDetails.displays, displayDetails.index);
-			this.wrapperRef().nativeElement.appendChild(this.animationDriver.canvas);
-		}
 	}
 }

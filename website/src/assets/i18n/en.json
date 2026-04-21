@@ -1,5 +1,14 @@
 {
 	"title": "RC Bus System",
+	"common": {
+		"save": "Save",
+		"success": "Success",
+		"error": "Error",
+		"search": "Search",
+		"moveUp": "Move Up",
+		"moveDown": "Move Down",
+		"delete": "Delete"
+	},
 	"menu": {
 		"language": "Language",
 		"lightTheme": "Light Theme",
@@ -14,10 +23,7 @@
 		"display": "Display {{index}}",
 		"addGroup": "Add Group",
 		"addDisplay": "Add Display",
-		"deleteGroup": "Delete Group",
-		"deleteDisplay": "Delete Display",
-		"moveUp": "Move Up",
-		"moveDown": "Move Down",
-		"search": "Search"
+		"success": "Successfully saved displays",
+		"error": "Failed to save displays"
 	}
 }
