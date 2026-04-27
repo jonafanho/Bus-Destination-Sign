@@ -3,12 +3,14 @@
 #include <init_print.h>
 #include <spi_slave.h>
 #include <ssd1322.h>
+#include <ssd1327.h>
 #include <display_transaction_slave.h>
 #include <stream_reader.h>
 
 InitPrint initPrint("Display");
 SPISlave spiSlave;
 SSD1322 ssd1322;
+SSD1322 ssd1327;
 DisplayTransactionSlave displayTransactionSlave;
 StreamReader *defaultStreamReaders = new StreamReader[1]{StreamReader()};
 
