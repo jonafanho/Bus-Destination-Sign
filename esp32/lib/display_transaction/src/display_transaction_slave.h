@@ -6,14 +6,9 @@
 class DisplayTransactionSlave
 {
 public:
-    void tick(SPISlave *spiSlave, StreamReader *defaultStreamReaders, DisplayDriver *displayDriver);
+    void tick(SPISlave *spiSlave, StreamReader *streamReader, DisplayDriver *displayDriver);
 
 private:
-    StreamReader customStreamReader;
-    BufferStreamWrapper customBufferStreamWrapper;
-
+    BufferStreamWrapper bufferStreamWrapper;
     uint8_t imageIndex = 0;
-    int32_t imageDuration = 0;
-    int32_t imageScroll = 0;
-    uint8_t imagesInGroup = 0;
 };

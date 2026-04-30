@@ -1,4 +1,5 @@
 #include "spi_master.h"
+#include <vector>
 
 bool SPIMaster::initBus()
 {
@@ -26,8 +27,11 @@ bool SPIMaster::init()
     return spi_bus_add_device(SPI2_HOST, &deviceConfig, &spi) == ESP_OK;
 }
 
-bool SPIMaster::send(const std::vector<uint8_t> data, uint32_t length)
+bool SPIMaster::send(FILE *file)
 {
+    fseek(file, 0, SEEK_END);
+    uint32_t length = ftell(file);
+    fseek(file, 0, SEEK_SET);
     uint32_t headerPayload[] = {MAGIC_HEADER, length};
     spi_transaction_t headerTransaction = {
         .flags = 0,
@@ -45,10 +49,12 @@ bool SPIMaster::send(const std::vector<uint8_t> data, uint32_t length)
     while (sentLength < length)
     {
         uint32_t chunkLength = min(CHUNK_SIZE, length - sentLength);
+        std::vector<uint8_t> buffer(chunkLength);
+        fread(buffer.data(), 1, chunkLength, file);
 
         spi_transaction_t bodyTransaction = {
             .length = chunkLength * 8,
-            .tx_buffer = data.data() + sentLength,
+            .tx_buffer = buffer.data(),
             .rx_buffer = NULL,
         };
 

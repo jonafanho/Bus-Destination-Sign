@@ -67,19 +67,8 @@ void DisplayTransactionMaster::nextDisplay(SPIMaster *spiMaster)
 
     if (file)
     {
-        // Get file size
-        fseek(file, 0, SEEK_END);
-        long size = ftell(file);
-        fseek(file, 0, SEEK_SET);
-
         // Send to display
-        if (size > 0 && size <= INT32_MAX)
-        {
-            std::vector<uint8_t> buffer(size);
-            fread(buffer.data(), 1, size, file);
-            spiMaster->send(buffer, size);
-        }
-
+        spiMaster->send(file);
         fclose(file);
         currentGroup++;
     }

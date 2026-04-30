@@ -1,6 +1,9 @@
 #pragma once
 
+#include "spi_device.h"
 #include <LittleFS.h>
+#include <cstdint>
+#include <memory>
 
 class StreamWrapper
 {
@@ -45,13 +48,11 @@ private:
 class BufferStreamWrapper : public StreamWrapper
 {
 public:
-    void init(uint8_t *buffer)
+    void init(ChunkedBuffer *chunkedBuffer)
     {
-        if (this->buffer)
-        {
-            free(buffer);
-        };
-        this->buffer = buffer;
+        // Old chunkedBuffer automatically freed by unique_ptr (destructor cleans chunks)
+        this->chunkedBuffer.reset(chunkedBuffer);
+        this->offset = 0;
     };
 
     void seek(uint32_t offset) override
@@ -61,18 +62,44 @@ public:
 
     uint8_t readByte() override
     {
-        return buffer[offset++];
+        if (!chunkedBuffer || offset >= chunkedBuffer->totalLength)
+            return 0;
+
+        // Map offset to chunk and index within chunk
+        uint32_t chunkIdx = offset / CHUNK_SIZE;
+        uint32_t chunkOffset = offset % CHUNK_SIZE;
+
+        if (chunkIdx >= chunkedBuffer->chunks.size())
+            return 0;
+
+        uint8_t value = (*chunkedBuffer->chunks[chunkIdx])[chunkOffset];
+        offset++;
+        return value;
     };
 
     uint32_t readInt() override
     {
+        if (!chunkedBuffer || offset + sizeof(uint32_t) > chunkedBuffer->totalLength)
+            return 0;
+
+        // Read 4 bytes, handling potential chunk boundary
+        uint8_t bytes[4];
+        for (int i = 0; i < 4; i++)
+        {
+            bytes[i] = readByte();
+        }
+
         uint32_t result;
-        memcpy(&result, buffer + offset, sizeof(result));
-        offset += sizeof(result);
+        memcpy(&result, bytes, sizeof(result));
         return result;
     };
 
+    uint32_t getTotalLength() const
+    {
+        return chunkedBuffer ? chunkedBuffer->totalLength : 0;
+    };
+
 private:
-    uint8_t *buffer = nullptr;
+    std::unique_ptr<ChunkedBuffer> chunkedBuffer;
     uint32_t offset = 0;
 };

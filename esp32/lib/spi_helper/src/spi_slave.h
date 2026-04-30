@@ -11,6 +11,8 @@ public:
     void tick();
 
 private:
+    static constexpr uint32_t HARD_SIZE_CAP = CHUNK_SIZE * 256;
+
     uint8_t *rxDmaBuffer = nullptr;
     uint8_t *txDmaBuffer = nullptr;
 };

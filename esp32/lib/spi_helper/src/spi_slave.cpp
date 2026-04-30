@@ -1,5 +1,6 @@
 #include "spi_slave.h"
 #include "driver/spi_slave.h"
+#include <vector>
 
 bool SPISlave::init()
 {
@@ -22,7 +23,7 @@ bool SPISlave::init()
         .mode = 0,
     };
 
-    messageQueue = xQueueCreate(3, sizeof(uint8_t *));
+    messageQueue = xQueueCreate(3, sizeof(ChunkedBuffer *));
     return spi_slave_initialize(SPI2_HOST, &busConfig, &slaveConfig, SPI_DMA_CH_AUTO) == ESP_OK;
 }
 
@@ -50,21 +51,24 @@ void SPISlave::tick()
         return;
     }
 
-    // Allocate a buffer to hold the entire body
-    uint8_t *payload = (uint8_t *)malloc(totalLength);
+    Serial.print("Received SPI message of length ");
+    Serial.println(totalLength);
+    totalLength = min(HARD_SIZE_CAP, totalLength);
+
+    // Allocate chunked buffer container
+    ChunkedBuffer *chunkedBuffer = new ChunkedBuffer();
+    chunkedBuffer->totalLength = totalLength;
     uint32_t receivedLength = 0;
 
-    // Verify payload allocation
-    if (!payload)
-    {
-        return;
-    }
-
-    // Receive body in chunks
+    // Receive body in chunks - allocate each chunk separately
     while (receivedLength < totalLength)
     {
-        // Setup body chunk transaction
         uint32_t chunkLength = min(CHUNK_SIZE, totalLength - receivedLength);
+
+        // Allocate fixed-size chunk on heap
+        std::array<uint8_t, CHUNK_SIZE> *chunk = new std::array<uint8_t, CHUNK_SIZE>();
+
+        // Setup body chunk transaction
         spi_slave_transaction_t bodyTransaction = {
             .length = chunkLength * 8,
             .tx_buffer = txDmaBuffer,
@@ -74,24 +78,26 @@ void SPISlave::tick()
         // Receive body chunk
         if (spi_slave_transmit(SPI2_HOST, &bodyTransaction, portMAX_DELAY) != ESP_OK)
         {
+            delete chunk;
             break;
         }
 
-        // Copy body chunk to payload buffer
-        memcpy(payload + receivedLength, rxDmaBuffer, chunkLength);
+        // Copy body chunk to newly allocated chunk
+        memcpy(chunk->data(), rxDmaBuffer, chunkLength);
+        chunkedBuffer->chunks.push_back(chunk);
         receivedLength += chunkLength;
     }
 
     // Verify if packet is complete
     if (receivedLength != totalLength || totalLength == 0)
     {
-        free(payload);
+        delete chunkedBuffer; // Destructor cleans up all chunks
         return;
     }
 
-    // Send message to queue
-    if (xQueueSend(messageQueue, &payload, 0) != pdPASS)
+    // Send message to queue (receiver owns the pointer)
+    if (xQueueSend(messageQueue, &chunkedBuffer, 0) != pdPASS)
     {
-        free(payload);
+        delete chunkedBuffer;
     }
 }

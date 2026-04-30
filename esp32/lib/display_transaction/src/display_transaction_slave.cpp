@@ -1,17 +1,18 @@
 #include "display_transaction_slave.h"
 
-void DisplayTransactionSlave::tick(SPISlave *spiSlave, StreamReader *defaultStreamReaders, DisplayDriver *displayDriver)
+void DisplayTransactionSlave::tick(SPISlave *spiSlave, StreamReader *streamReader, DisplayDriver *displayDriver)
 {
-    uint8_t *buffer = nullptr;
-    if (xQueueReceive(spiSlave->messageQueue, &buffer, 0))
+    ChunkedBuffer *chunkedBuffer = nullptr;
+    if (xQueueReceive(spiSlave->messageQueue, &chunkedBuffer, 0))
     {
-        customBufferStreamWrapper.init(buffer);
-        imageDuration = customBufferStreamWrapper.readInt();
-        imageScroll = customBufferStreamWrapper.readInt();
-        imagesInGroup = customBufferStreamWrapper.readByte();
+        bufferStreamWrapper.init(chunkedBuffer);
+        streamReader->init(&bufferStreamWrapper);
         imageIndex = 0;
     }
 
-    // defaultStreamReaders[0].init(&customBufferStreamWrapper);
-    // defaultStreamReaders[0].draw(displayDriver, imageIndex, imageDuration);
+    uint32_t imageCount = streamReader->getImageCount();
+    if (imageCount > 0 && streamReader->draw(displayDriver, imageIndex, 10000))
+    {
+        imageIndex = (imageIndex + 1) % imageCount;
+    }
 }
