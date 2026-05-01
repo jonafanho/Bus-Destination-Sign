@@ -18,11 +18,13 @@ private:
     uint32_t height;
     uint32_t imageCount;
     uint32_t headerSize;
+    float scaleX;
+    float scaleY;
 
     uint32_t lastImageIndex;
     uint32_t frameIndex;
 
-    void updateFrameIndex(DisplayDriver *displayDriver, bool newImage, uint32_t frameCount);
-    void decodePackBits(DisplayDriver *displayDriver, uint32_t sameColumnCount, uint32_t animatedColumnCount);
-    void drawByte(DisplayDriver *displayDriver, uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount);
+    void updateFrameIndex(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, bool newImage, uint32_t frameCount);
+    void decodePackBits(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, uint32_t sameColumnCount, uint32_t animatedColumnCount);
+    void drawByte(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount);
 };

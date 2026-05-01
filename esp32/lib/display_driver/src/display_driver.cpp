@@ -31,7 +31,7 @@ void DisplayDriver::startWipe(uint32_t wipeFrameDuration)
     clear();
 }
 
-void DisplayDriver::drawPixel(uint16_t x, uint16_t y, uint8_t brightness)
+void DisplayDriver::drawPixel(uint16_t x, uint16_t y, uint8_t brightness, bool replace)
 {
     if (x >= screenWidth || y >= screenHeight)
     {
@@ -43,11 +43,11 @@ void DisplayDriver::drawPixel(uint16_t x, uint16_t y, uint8_t brightness)
 
     if (x % 2 == 0)
     {
-        currentBuffer[index] = ((brightness & 0x0F) << 4) | (currentBuffer[index] & 0x0F);
+        currentBuffer[index] = ((brightness & 0x0F) << 4) | (currentBuffer[index] & (replace ? 0x0F : 0xFF));
     }
     else
     {
-        currentBuffer[index] = (currentBuffer[index] & 0xF0) | (brightness & 0x0F);
+        currentBuffer[index] = (currentBuffer[index] & (replace ? 0xF0 : 0xFF)) | (brightness & 0x0F);
     }
 }
 

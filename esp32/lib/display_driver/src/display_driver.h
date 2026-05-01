@@ -13,7 +13,7 @@ public:
     bool init();
     void clear();
     void startWipe(uint32_t wipeFrameDuration);
-    void drawPixel(uint16_t x, uint16_t y, uint8_t brightness);
+    void drawPixel(uint16_t x, uint16_t y, uint8_t brightness, bool replace = true);
     void push();
     void setTargetFrameDuration(uint32_t targetFrameDuration);
 
