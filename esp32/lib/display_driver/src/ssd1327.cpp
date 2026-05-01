@@ -38,11 +38,19 @@ void SSD1327::send(uint8_t value, bool isData)
     for (uint8_t i = 0; i < 8; i++)
     {
         GPIO.out_w1tc = 1 << PIN_CLK;
-        GPIO.out_w1ts = (value & 0x80 ? 1 << PIN_MOSI : 0) | (1 << PIN_CLK);
+
+        if (value & 0x80)
+        {
+            GPIO.out_w1ts = 1 << PIN_MOSI;
+        }
+        else
+        {
+            GPIO.out_w1tc = 1 << PIN_MOSI;
+        }
+
+        asm volatile("nop\n");
+        GPIO.out_w1ts = 1 << PIN_CLK;
         value <<= 1;
-        asm volatile("nop\n");
-        GPIO.out_w1tc = (1 << PIN_CLK);
-        asm volatile("nop\n");
     }
 
     GPIO.out_w1ts = 1 << PIN_CS;

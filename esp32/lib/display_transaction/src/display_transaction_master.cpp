@@ -29,6 +29,7 @@ bool DisplayTransactionMaster::initSD()
             sdmmc_card_print_info(stdout, card);
             return true;
         }
+        delay(1000);
     }
 
     return false;
