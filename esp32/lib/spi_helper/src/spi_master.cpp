@@ -1,6 +1,8 @@
 #include "spi_master.h"
 #include <vector>
 
+SPIMaster::SPIMaster(gpio_num_t pinCS) : pinCS(pinCS) {}
+
 bool SPIMaster::initBus()
 {
     spi_bus_config_t busConfig = {
@@ -20,7 +22,7 @@ bool SPIMaster::init()
     spi_device_interface_config_t deviceConfig = {
         .mode = 0,
         .clock_speed_hz = 1000000,
-        .spics_io_num = PIN_CS_DISPLAY,
+        .spics_io_num = pinCS,
         .queue_size = 3,
     };
 

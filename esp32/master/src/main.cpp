@@ -6,7 +6,7 @@
 #include "server_handler.h"
 
 InitPrint initPrint("Main");
-SPIMaster spiMaster1;
+SPIMaster spiMaster1(GPIO_NUM_1);
 DisplayTransactionMaster displayTransactionMaster1(0);
 ServerHandler serverHandler;
 

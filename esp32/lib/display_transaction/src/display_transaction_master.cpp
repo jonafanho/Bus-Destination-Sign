@@ -21,10 +21,17 @@ bool DisplayTransactionMaster::initSD()
         .allocation_unit_size = 16 * 1024,
     };
 
-    sdmmc_card_t *card;
-    bool result = esp_vfs_fat_sdspi_mount("/sdcard", &host, &slotConfig, &mountConfig, &card) == ESP_OK;
-    sdmmc_card_print_info(stdout, card);
-    return result;
+    for (uint8_t i = 0; i < 10; i++)
+    {
+        sdmmc_card_t *card;
+        if (esp_vfs_fat_sdspi_mount("/sdcard", &host, &slotConfig, &mountConfig, &card) == ESP_OK)
+        {
+            sdmmc_card_print_info(stdout, card);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 bool DisplayTransactionMaster::init()
