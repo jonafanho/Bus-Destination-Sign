@@ -9,7 +9,7 @@
 InitPrint initPrint("Display");
 SPISlave spiSlave;
 SSD1322 ssd1322;
-SSD1322 ssd1327;
+SSD1327 ssd1327;
 DisplayTransactionSlave displayTransactionSlave;
 StreamReader streamReader;
 
