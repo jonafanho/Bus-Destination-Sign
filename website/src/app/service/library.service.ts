@@ -2,7 +2,7 @@ import {inject, Injectable, signal} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {BOARDS, SOURCES} from "../utility/constants";
 import {map} from "rxjs";
-import {getWithRetry, setIfUndefined} from "../utility/utilities";
+import {getUrl, getWithRetry, setIfUndefined} from "../utility/utilities";
 import {ByteReader} from "../utility/byte-reader";
 import {Displays} from "../entity/displays";
 import {PersistedDisplay} from "../entity/data";
@@ -20,7 +20,7 @@ export class LibraryService {
 		let timeoutId = 0;
 
 		SOURCES.forEach(source => BOARDS.forEach(board => board.displaySizes.forEach(({width, height}) => {
-			const urlHeader = `/assets/library/${source}/${width}_${height}`;
+			const urlHeader = `${getUrl()}/display/source/${source}/${width}_${height}`;
 			getWithRetry(httpClient.get(`${urlHeader}/displays.dat`, {responseType: "arraybuffer"}).pipe(map(arrayBuffer => new ByteReader(arrayBuffer))), byteReader => {
 				// Read header
 				const width = byteReader.readInt();

@@ -39,6 +39,10 @@ export function sortNumbers(item1: string, item2: string) {
 	}
 }
 
+export function getUrl() {
+	return document.location.host === "localhost:4200" ? "/assets" : "";
+}
+
 export function getWithRetry<T>(getRequest: Observable<T>, next: (data: T) => void) {
 	getRequest.pipe(retry(3)).subscribe({next, error: error => console.error(error)});
 }

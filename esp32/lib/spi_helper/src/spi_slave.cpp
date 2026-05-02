@@ -1,6 +1,23 @@
 #include "spi_slave.h"
 #include "driver/spi_slave.h"
 #include <vector>
+#include <esp_heap_caps.h>
+
+SPISlave::~SPISlave()
+{
+    // Free DMA buffers to prevent memory leak
+    if (rxDmaBuffer)
+    {
+        heap_caps_free(rxDmaBuffer);
+        rxDmaBuffer = nullptr;
+    }
+
+    if (txDmaBuffer)
+    {
+        heap_caps_free(txDmaBuffer);
+        txDmaBuffer = nullptr;
+    }
+}
 
 bool SPISlave::init()
 {

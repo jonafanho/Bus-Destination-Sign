@@ -1,23 +1,21 @@
 #pragma once
 
+#include "settings.h"
 #include <Arduino.h>
-#include <WiFi.h>
 #include <WebServer.h>
 
 class ServerHandler
 {
 public:
-    void init();
-    void tick();
+    void init(Settings *settings);
+    void tick(Settings *settings);
 
 private:
-    const char *WIFI_SSID = "";
-    const char *WIFI_PASS = "";
     const char *AP_SSID = "RC Bus System Setup";
     const char *AP_PASS = "88888888";
 
-    static constexpr unsigned long WIFI_CONNECT_TIMEOUT_MS = 10000;
-    static constexpr unsigned long WIFI_RECONNECT_INTERVAL_MS = 30000;
+    static constexpr uint16_t WIFI_CONNECT_TIMEOUT = 10000;
+    static constexpr uint16_t WIFI_RECONNECT_INTERVAL = 30000;
 
     WebServer server{80};
     bool apMode = false;
@@ -28,9 +26,9 @@ private:
     bool serveSDFile(const String &path);
 
     void handleNotFound();
-    void handleApiSave();
+    void handleApiSaveData();
     void handleApiStatus();
 
     void startAP();
-    bool connectSTA();
+    bool connectSTA(Settings *settings);
 };

@@ -5,8 +5,9 @@
 class SPISlave : public SPIDevice
 {
 public:
-    QueueHandle_t messageQueue;
+    QueueHandle_t messageQueue = nullptr;
 
+    ~SPISlave();
     bool init() override;
     void tick();
 

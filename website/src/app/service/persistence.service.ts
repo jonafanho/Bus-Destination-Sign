@@ -3,6 +3,7 @@ import {Data} from "../entity/data";
 import {HttpClient} from "@angular/common/http";
 import {DisplaysService} from "./displays.service";
 import {SettingsService} from "./settings.service";
+import {getUrl} from "../utility/utilities";
 
 @Injectable({providedIn: "root"})
 export class PersistenceService {
@@ -11,7 +12,7 @@ export class PersistenceService {
 	private readonly settingsService = inject(SettingsService);
 
 	constructor() {
-		this.httpClient.get<Data>("api/getData").subscribe(data => {
+		this.httpClient.get<Data>(`${getUrl()}/settings.json`).subscribe(data => {
 			this.displaysService.read(data.displays);
 			this.settingsService.read(data.settings);
 		});

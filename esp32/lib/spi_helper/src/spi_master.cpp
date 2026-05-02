@@ -1,72 +1,67 @@
 #include "spi_master.h"
-#include <vector>
+#include <array>
+
+SPIClass *SPIMaster::spiBus = nullptr;
+SdFat SPIMaster::sdFat;
 
 SPIMaster::SPIMaster(gpio_num_t pinCS) : pinCS(pinCS) {}
 
 bool SPIMaster::initBus()
 {
-    spi_bus_config_t busConfig = {
-        .mosi_io_num = PIN_MOSI,
-        .miso_io_num = PIN_MISO,
-        .sclk_io_num = PIN_CLK,
-        .quadwp_io_num = -1,
-        .quadhd_io_num = -1,
-        .max_transfer_sz = CHUNK_SIZE,
-    };
-
-    return spi_bus_initialize(SPI2_HOST, &busConfig, SPI_DMA_CH_AUTO) == ESP_OK;
+    spiBus = new SPIClass(HSPI);
+    spiBus->begin(PIN_CLK, PIN_MISO, PIN_MOSI, -1);
+    SdSpiConfig config(PIN_CS_SD, SHARED_SPI, SPI_SPEED, spiBus);
+    return sdFat.begin(config);
 }
 
 bool SPIMaster::init()
 {
-    spi_device_interface_config_t deviceConfig = {
-        .mode = 0,
-        .clock_speed_hz = 1000000,
-        .spics_io_num = pinCS,
-        .queue_size = 3,
-    };
-
-    return spi_bus_add_device(SPI2_HOST, &deviceConfig, &spi) == ESP_OK;
+    pinMode(pinCS, OUTPUT);
+    digitalWrite(pinCS, HIGH);
+    return true;
 }
 
-bool SPIMaster::send(FILE *file)
+bool SPIMaster::send(FsFile &file)
 {
-    fseek(file, 0, SEEK_END);
-    uint32_t length = ftell(file);
-    fseek(file, 0, SEEK_SET);
-    uint32_t headerPayload[] = {MAGIC_HEADER, length};
-    spi_transaction_t headerTransaction = {
-        .flags = 0,
-        .length = TOTAL_HEADER_LENGTH,
-        .tx_buffer = headerPayload,
-        .rx_buffer = NULL,
-    };
+    uint32_t length = file.fileSize();
+    file.rewind();
 
-    if (spi_device_transmit(spi, &headerTransaction) != ESP_OK)
-    {
-        return false;
-    }
+    // Send header
+    digitalWrite(pinCS, LOW);
+    spiBus->beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, SPI_MODE0));
+    uint32_t headerPayload[] = {MAGIC_HEADER, length};
+    spiBus->transferBytes((uint8_t *)headerPayload, nullptr, TOTAL_HEADER_LENGTH / 8);
+    spiBus->endTransaction();
+    digitalWrite(pinCS, HIGH);
 
     uint32_t sentLength = 0;
     while (sentLength < length)
     {
         uint32_t chunkLength = min(CHUNK_SIZE, length - sentLength);
-        std::vector<uint8_t> buffer(chunkLength);
-        fread(buffer.data(), 1, chunkLength, file);
+        std::array<uint8_t, CHUNK_SIZE> buffer;
+        int bytesRead = file.read(buffer.data(), chunkLength);
 
-        spi_transaction_t bodyTransaction = {
-            .length = chunkLength * 8,
-            .tx_buffer = buffer.data(),
-            .rx_buffer = NULL,
-        };
-
-        if (spi_device_transmit(spi, &bodyTransaction) != ESP_OK)
+        if (bytesRead < chunkLength)
         {
-            return false;
+            // Adjust chunk length if reading less than expected
+            chunkLength = bytesRead;
         }
+
+        if (chunkLength == 0)
+        {
+            // No more data to read
+            break;
+        }
+
+        // Send chunk
+        digitalWrite(pinCS, LOW);
+        spiBus->beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, SPI_MODE0));
+        spiBus->transferBytes(buffer.data(), nullptr, chunkLength);
+        spiBus->endTransaction();
+        digitalWrite(pinCS, HIGH);
 
         sentLength += chunkLength;
     }
 
-    return true;
+    return sentLength == length;
 }

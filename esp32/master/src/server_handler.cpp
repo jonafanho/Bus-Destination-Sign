@@ -1,28 +1,25 @@
 #include "server_handler.h"
+#include "spi_master.h"
 #include <LittleFS.h>
-#include <cstdio>
+#include <functional>
 
-void ServerHandler::init()
+void ServerHandler::init(Settings *settings)
 {
-    // Decide STA vs AP
-    if (strlen(WIFI_SSID) == 0 || !connectSTA())
+    if (!connectSTA(settings))
     {
         startAP();
     }
 
     // Register routes
-    server.on("/api/save", HTTP_POST, [this]()
-              { handleApiSave(); });
-    server.on("/api/status", HTTP_GET, [this]()
-              { handleApiStatus(); });
-    server.onNotFound([this]()
-                      { handleNotFound(); });
+    server.on("/api/saveData", HTTP_POST, std::bind(&ServerHandler::handleApiSaveData, this));
+    server.on("/api/status", HTTP_GET, std::bind(&ServerHandler::handleApiStatus, this));
+    server.onNotFound(std::bind(&ServerHandler::handleNotFound, this));
 
     server.begin();
     Serial.println("[Web] Server started on port 80");
 }
 
-void ServerHandler::tick()
+void ServerHandler::tick(Settings *settings)
 {
     server.handleClient();
 
@@ -30,12 +27,11 @@ void ServerHandler::tick()
     if (!apMode && WiFi.status() != WL_CONNECTED)
     {
         unsigned long currentMillis = millis();
-        if (currentMillis - lastReconnectAttempt >= WIFI_RECONNECT_INTERVAL_MS)
+        if (currentMillis - lastReconnectAttempt >= WIFI_RECONNECT_INTERVAL)
         {
-            lastReconnectAttempt = currentMillis;
-            Serial.println("[WiFi] Disconnected, attempting reconnect...");
             WiFi.disconnect();
-            WiFi.begin(WIFI_SSID, WIFI_PASS);
+            connectSTA(settings);
+            lastReconnectAttempt = currentMillis;
         }
     }
 }
@@ -71,7 +67,7 @@ bool ServerHandler::serveFile(const String &path)
         filePath += "index.html";
     }
 
-    if (filePath.endsWith(".dat"))
+    if (filePath.endsWith(".dat") || filePath.endsWith(".json"))
     {
         return serveSDFile(filePath);
     }
@@ -96,28 +92,24 @@ bool ServerHandler::serveFile(const String &path)
 
 bool ServerHandler::serveSDFile(const String &path)
 {
-    String sdPath = "/sdcard" + path;
-    FILE *file = fopen(sdPath.c_str(), "rb");
+    FsFile file = SPIMaster::getSD().open(path.c_str(), O_RDONLY);
     if (!file)
     {
         return false;
     }
 
-    fseek(file, 0, SEEK_END);
-    long fileSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
+    uint32_t fileSize = file.fileSize();
     server.setContentLength(fileSize);
     server.send(200, getContentType(path), "");
 
-    uint8_t buf[512];
-    size_t bytesRead;
-    while ((bytesRead = fread(buf, 1, sizeof(buf), file)) > 0)
+    uint8_t buffer[CHUNK_SIZE];
+    int bytesRead;
+    while ((bytesRead = file.read(buffer, sizeof(buffer))) > 0)
     {
-        server.sendContent(reinterpret_cast<const char *>(buf), bytesRead);
+        server.sendContent(reinterpret_cast<const char *>(buffer), bytesRead);
     }
 
-    fclose(file);
+    file.close();
     return true;
 }
 
@@ -131,9 +123,32 @@ void ServerHandler::handleNotFound()
     }
 }
 
-void ServerHandler::handleApiSave()
+void ServerHandler::handleApiSaveData()
 {
-    // TODO: implement save logic
+    String payload = server.arg("plain");
+    unsigned int payloadLength = payload.length();
+    if (payloadLength == 0)
+    {
+        server.send(400, "application/json", "{\"error\":\"No data received\"}");
+        return;
+    }
+
+    FsFile file = SPIMaster::getSD().open("/settings.json", O_WRONLY | O_CREAT | O_TRUNC);
+    if (!file)
+    {
+        server.send(500, "application/json", "{\"error\":\"Failed to open file for writing\"}");
+        return;
+    }
+
+    unsigned int writtenLength = file.write((const uint8_t *)payload.c_str(), payloadLength);
+    file.close();
+
+    if (writtenLength != payloadLength)
+    {
+        server.send(500, "application/json", "{\"error\":\"Failed to write complete data\"}");
+        return;
+    }
+
     server.send(200, "application/json", "{\"status\":\"ok\"}");
 }
 
@@ -162,14 +177,19 @@ void ServerHandler::startAP()
     Serial.println(WiFi.softAPIP());
 }
 
-bool ServerHandler::connectSTA()
+bool ServerHandler::connectSTA(Settings *settings)
 {
-    WiFi.mode(WIFI_STA);
-    WiFi.begin(WIFI_SSID, WIFI_PASS);
-    Serial.printf("[WiFi] Connecting to %s", WIFI_SSID);
+    if (!settings->loadWiFiCredentials())
+    {
+        return false;
+    }
 
-    unsigned long start = millis();
-    while (WiFi.status() != WL_CONNECTED && (millis() - start) < WIFI_CONNECT_TIMEOUT_MS)
+    WiFi.mode(WIFI_STA);
+    WiFi.begin(settings->getWifiSsid(), settings->getWifiPassword());
+    Serial.printf("[WiFi] Connecting to %s", settings->getWifiSsid());
+
+    unsigned long currentMillis = millis();
+    while (WiFi.status() != WL_CONNECTED && (millis() - currentMillis) < WIFI_CONNECT_TIMEOUT)
     {
         delay(500);
         Serial.print(".");

@@ -8,9 +8,9 @@ DisplayDriver::DisplayDriver(const uint16_t screenWidth, const uint16_t screenHe
 
 bool DisplayDriver::init()
 {
-    gpio_set_direction(PIN_SCREEN_ENABLE, GPIO_MODE_OUTPUT);
-    GPIO.out_w1ts = (1 << PIN_SCREEN_ENABLE);
-    vTaskDelay(100);
+    pinMode(PIN_SCREEN_ENABLE, OUTPUT);
+    digitalWrite(PIN_SCREEN_ENABLE, HIGH);
+    delay(100);
     return initRaw();
 }
 
@@ -88,12 +88,12 @@ void DisplayDriver::push()
             }
         }
 
-        while (esp_timer_get_time() - lastFrameMicros < (isWiping ? WIPE_FRAME_DURATION : targetFrameDuration))
+        while (micros() - lastFrameMicros < (isWiping ? WIPE_FRAME_DURATION : targetFrameDuration))
         {
-            vTaskDelay(1);
+            delay(1);
         }
 
-        lastFrameMicros = esp_timer_get_time();
+        lastFrameMicros = micros();
         pushRaw();
 
         if (!isWiping)
