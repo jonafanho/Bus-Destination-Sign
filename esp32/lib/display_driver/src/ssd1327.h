@@ -5,7 +5,7 @@
 class SSD1327 : public DisplayDriver
 {
 public:
-    SSD1327(const bool rotated, const bool hasWipe);
+    SSD1327(const bool rotated, const bool hasWipe, const uint8_t pixelatedStyle);
     bool initRaw() override;
     void pushRaw() override;
 

@@ -57,8 +57,8 @@ bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
     uint32_t frameCount;
     uint32_t frameDuration;
 
-    uint32_t offsetX = floor((displayDriver->screenWidth - width * scaleX) / 2);
-    uint32_t offsetY = floor((displayDriver->screenHeight - height * scaleY) / 2);
+    uint32_t offsetX = floor((displayDriver->screenWidth - width * scaleX) / 2 / scaleX);
+    uint32_t offsetY = floor((displayDriver->screenHeight - height * scaleY) / 2 / scaleY);
 
     switch (displayType)
     {
@@ -79,7 +79,7 @@ bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
     {
         uint32_t sameColumnCount = streamWrapper->readInt();
         uint32_t animatedColumnCount = streamWrapper->readInt();
-        frameCount = animatedColumnCount + width - sameColumnCount;
+        frameCount = animatedColumnCount + width - sameColumnCount + 1;
         updateFrameIndex(displayDriver, offsetX, offsetY, newImage, frameCount);
 
         frameDuration = 30000;
@@ -173,24 +173,7 @@ void StreamReader::drawByte(DisplayDriver *displayDriver, uint32_t offsetX, uint
 
         if ((byte >> i) & 1 > 0)
         {
-            float x1a = x * scaleX;
-            float x2a = (x + 1) * scaleX;
-            uint16_t x1b = floor(x1a);
-            uint16_t x2b = ceil(x2a);
-            float y1a = y * scaleY;
-            float y2a = (y + 1) * scaleY;
-            uint16_t y1b = floor(y1a);
-            uint16_t y2b = ceil(y2a);
-
-            for (uint16_t newX = x1b; newX < x2b; newX++)
-            {
-                for (uint16_t newY = y1b; newY < y2b; newY++)
-                {
-                    float brightnessX = newX == x1b ? x1b + 1 - x1a : (newX == x2b - 1 ? x2b - newX : 1);
-                    float brightnessY = newY == y1b ? y1b + 1 - y1a : (newY == y2b - 1 ? y2b - newY : 1);
-                    displayDriver->drawPixel(newX + offsetX, newY + offsetY, brightnessX * brightnessY * 0x0F, false);
-                }
-            }
+            displayDriver->drawScaledPixel(offsetX + x, offsetY + y, scaleX, scaleY);
         }
     }
 }

@@ -1,7 +1,7 @@
 #include "ssd1322.h"
 #include <U8g2lib.h>
 
-SSD1322::SSD1322(const bool rotated, const bool hasWipe) : DisplayDriver(256, 64, rotated, hasWipe) {}
+SSD1322::SSD1322(const bool rotated, const bool hasWipe, const uint8_t pixelatedStyle) : DisplayDriver(256, 64, rotated, hasWipe, pixelatedStyle) {}
 
 bool SSD1322::initRaw()
 {

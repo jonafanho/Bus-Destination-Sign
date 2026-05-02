@@ -8,8 +8,8 @@
 
 InitPrint initPrint("Display");
 SPISlave spiSlave;
-SSD1322 ssd1322(false, false);
-SSD1327 ssd1327(false, false);
+SSD1322 ssd1322(false, false, 0);
+SSD1327 ssd1327(false, false, 0);
 DisplayTransactionSlave displayTransactionSlave;
 StreamReader streamReader;
 
