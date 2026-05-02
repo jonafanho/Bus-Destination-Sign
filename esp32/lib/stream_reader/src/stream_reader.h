@@ -7,7 +7,7 @@ class StreamReader
 {
 public:
     void init(StreamWrapper *streamWrapper);
-    bool draw(DisplayDriver *displayDriver, const uint32_t imageIndex, const uint32_t wipeFrameDuration);
+    bool draw(DisplayDriver *displayDriver, const uint32_t imageIndex);
     uint32_t getWidth();
     uint32_t getHeight();
     uint32_t getImageCount();

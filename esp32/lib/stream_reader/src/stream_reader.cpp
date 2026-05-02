@@ -36,14 +36,18 @@ void StreamReader::init(StreamWrapper *streamWrapper)
     }
 }
 
-bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex, const uint32_t wipeFrameDuration)
+bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
 {
     bool newImage = imageIndex != lastImageIndex;
     lastImageIndex = imageIndex;
 
-    if (newImage && wipeFrameDuration > 0)
+    if (newImage)
     {
-        displayDriver->startWipe(wipeFrameDuration);
+        displayDriver->startWipe();
+    }
+    else
+    {
+        displayDriver->clear();
     }
 
     streamWrapper->seek(headerSize + imageIndex * sizeof(uint32_t));
@@ -55,7 +59,6 @@ bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex,
 
     uint32_t offsetX = floor((displayDriver->screenWidth - width * scaleX) / 2);
     uint32_t offsetY = floor((displayDriver->screenHeight - height * scaleY) / 2);
-    displayDriver->clear();
 
     switch (displayType)
     {

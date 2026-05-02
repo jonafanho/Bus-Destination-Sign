@@ -11,7 +11,7 @@ void DisplayTransactionSlave::tick(SPISlave *spiSlave, StreamReader *streamReade
     }
 
     uint32_t imageCount = streamReader->getImageCount();
-    if (imageCount > 0 && streamReader->draw(displayDriver, imageIndex, 10000))
+    if (imageCount > 0 && streamReader->draw(displayDriver, imageIndex))
     {
         imageIndex = (imageIndex + 1) % imageCount;
     }

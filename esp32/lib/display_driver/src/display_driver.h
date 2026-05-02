@@ -9,10 +9,10 @@ public:
     const uint16_t screenWidth;
     const uint16_t screenHeight;
 
-    DisplayDriver(const uint16_t screenWidth, const uint16_t screenHeight, const gpio_num_t pinScreenEnable);
+    DisplayDriver(const uint16_t screenWidth, const uint16_t screenHeight, const bool rotated, const bool hasWipe);
     bool init();
     void clear();
-    void startWipe(uint32_t wipeFrameDuration);
+    void startWipe();
     void drawPixel(uint16_t x, uint16_t y, uint8_t brightness, bool replace = true);
     void push();
     void setTargetFrameDuration(uint32_t targetFrameDuration);
@@ -22,11 +22,17 @@ protected:
 
     virtual bool initRaw() = 0;
     virtual void pushRaw() = 0;
+    uint16_t getRotatedX(const uint16_t x);
+    uint16_t getRotatedY(const uint16_t y);
 
 private:
-    const gpio_num_t pinScreenEnable;
+    static constexpr gpio_num_t PIN_SCREEN_ENABLE = GPIO_NUM_13;
+    static constexpr uint32_t WIPE_FRAME_DURATION = 10000;
+
+    const bool rotated;
+    const bool hasWipe;
     std::vector<uint8_t> wipeBuffer;
     uint32_t targetFrameDuration = 0;
-    uint32_t wipeFrameDuration = 0;
+    bool isWiping = false;
     int64_t lastFrameMicros = 0;
 };

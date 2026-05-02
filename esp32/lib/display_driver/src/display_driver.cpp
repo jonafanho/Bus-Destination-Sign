@@ -1,6 +1,6 @@
 #include "display_driver.h"
 
-DisplayDriver::DisplayDriver(const uint16_t screenWidth, const uint16_t screenHeight, const gpio_num_t pinScreenEnable) : screenWidth(screenWidth), screenHeight(screenHeight), pinScreenEnable(pinScreenEnable)
+DisplayDriver::DisplayDriver(const uint16_t screenWidth, const uint16_t screenHeight, const bool rotated, const bool hasWipe) : screenWidth(screenWidth), screenHeight(screenHeight), rotated(rotated), hasWipe(hasWipe)
 {
     buffer = std::vector<uint8_t>(screenWidth * screenHeight / 2);
     wipeBuffer = std::vector<uint8_t>(screenWidth * screenHeight / 2);
@@ -8,8 +8,8 @@ DisplayDriver::DisplayDriver(const uint16_t screenWidth, const uint16_t screenHe
 
 bool DisplayDriver::init()
 {
-    gpio_set_direction(pinScreenEnable, GPIO_MODE_OUTPUT);
-    GPIO.out_w1ts = (1 << pinScreenEnable);
+    gpio_set_direction(PIN_SCREEN_ENABLE, GPIO_MODE_OUTPUT);
+    GPIO.out_w1ts = (1 << PIN_SCREEN_ENABLE);
     vTaskDelay(100);
     return initRaw();
 }
@@ -25,9 +25,9 @@ void DisplayDriver::clear()
     }
 }
 
-void DisplayDriver::startWipe(uint32_t wipeFrameDuration)
+void DisplayDriver::startWipe()
 {
-    this->wipeFrameDuration = wipeFrameDuration;
+    isWiping = hasWipe;
     clear();
 }
 
@@ -38,10 +38,12 @@ void DisplayDriver::drawPixel(uint16_t x, uint16_t y, uint8_t brightness, bool r
         return;
     }
 
-    uint16_t index = x / 2 + y * screenWidth / 2;
-    std::vector<uint8_t> &currentBuffer = wipeFrameDuration > 0 ? wipeBuffer : buffer;
+    uint16_t rotatedX = getRotatedX(x);
+    uint16_t rotatedY = getRotatedY(y);
+    uint16_t index = rotatedX / 2 + rotatedY * screenWidth / 2;
+    std::vector<uint8_t> &currentBuffer = isWiping ? wipeBuffer : buffer;
 
-    if (x % 2 == 0)
+    if (rotatedX % 2 == 0)
     {
         currentBuffer[index] = ((brightness & 0x0F) << 4) | (currentBuffer[index] & (replace ? 0x0F : 0xFF));
     }
@@ -55,11 +57,12 @@ void DisplayDriver::push()
 {
     for (uint16_t x = 0; x < screenWidth; x++)
     {
-        if (wipeFrameDuration > 0)
+        if (isWiping)
         {
-            uint16_t index1 = x / 2;
+            uint16_t rotatedX = getRotatedX(x);
+            uint16_t index1 = rotatedX / 2;
             uint16_t index2 = screenWidth / 2;
-            bool isEven = x % 2 == 0;
+            bool isEven = rotatedX % 2 == 0;
 
             for (uint16_t y = 0; y < screenHeight; y++)
             {
@@ -76,7 +79,7 @@ void DisplayDriver::push()
             }
         }
 
-        while (esp_timer_get_time() - lastFrameMicros < (wipeFrameDuration > 0 ? wipeFrameDuration : targetFrameDuration))
+        while (esp_timer_get_time() - lastFrameMicros < (isWiping ? WIPE_FRAME_DURATION : targetFrameDuration))
         {
             vTaskDelay(1);
         }
@@ -84,16 +87,26 @@ void DisplayDriver::push()
         lastFrameMicros = esp_timer_get_time();
         pushRaw();
 
-        if (wipeFrameDuration == 0)
+        if (!isWiping)
         {
             return;
         }
     }
 
-    wipeFrameDuration = 0;
+    isWiping = false;
 }
 
 void DisplayDriver::setTargetFrameDuration(uint32_t targetFrameDuration)
 {
     this->targetFrameDuration = targetFrameDuration;
+}
+
+uint16_t DisplayDriver::getRotatedX(const uint16_t x)
+{
+    return rotated ? screenWidth - x - 1 : x;
+}
+
+uint16_t DisplayDriver::getRotatedY(const uint16_t y)
+{
+    return rotated ? screenHeight - y - 1 : y;
 }

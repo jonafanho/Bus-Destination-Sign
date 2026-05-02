@@ -1,13 +1,10 @@
 #include "ssd1327.h"
 #include <U8g2lib.h>
 
-SSD1327::SSD1327() : DisplayDriver(128, 96, GPIO_NUM_13) {}
+SSD1327::SSD1327(const bool rotated, const bool hasWipe) : DisplayDriver(128, 96, rotated, hasWipe) {}
 
 bool SSD1327::initRaw()
 {
-    gpio_set_direction(PIN_SCREEN_ENABLE, GPIO_MODE_OUTPUT);
-    GPIO.out_w1ts = (1 << PIN_SCREEN_ENABLE);
-    vTaskDelay(100);
     return U8G2_SSD1327_VISIONOX_128X96_F_4W_SW_SPI(U8G2_R0, PIN_CLK, PIN_MOSI, PIN_CS, PIN_DC, PIN_RST).begin();
 }
 
