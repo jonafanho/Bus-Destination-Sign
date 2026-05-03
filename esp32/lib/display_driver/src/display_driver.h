@@ -38,5 +38,5 @@ private:
     std::vector<uint8_t> wipeBuffer;
     uint32_t targetFrameDuration = 0;
     bool isWiping = false;
-    int64_t lastFrameMicros = 0;
+    unsigned long lastFrameMicros = 0;
 };

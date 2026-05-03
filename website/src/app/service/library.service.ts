@@ -2,7 +2,7 @@ import {inject, Injectable, signal} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {BOARDS, SOURCES} from "../utility/constants";
 import {map} from "rxjs";
-import {getUrl, getWithRetry, setIfUndefined} from "../utility/utilities";
+import {getWithRetry, setIfUndefined} from "../utility/utilities";
 import {ByteReader} from "../utility/byte-reader";
 import {Displays} from "../entity/displays";
 import {PersistedDisplay} from "../entity/data";
@@ -20,7 +20,7 @@ export class LibraryService {
 		let timeoutId = 0;
 
 		SOURCES.forEach(source => BOARDS.forEach(board => board.displaySizes.forEach(({width, height}) => {
-			const urlHeader = `${getUrl()}/display/source/${source}/${width}_${height}`;
+			const urlHeader = `/assets/display/${source}/${width}_${height}`;
 			getWithRetry(httpClient.get(`${urlHeader}/displays.dat`, {responseType: "arraybuffer"}).pipe(map(arrayBuffer => new ByteReader(arrayBuffer))), byteReader => {
 				// Read header
 				const width = byteReader.readInt();
@@ -58,13 +58,16 @@ export class LibraryService {
 		this.displayDetailsByFileName()[fileName]?.groups?.forEach(group => groups.push(group));
 	}
 
-	getPersistedDisplay(fileName: string): PersistedDisplay | undefined {
+	getPersistedDisplayAndDisplays(fileName: string): { persistedDisplay: PersistedDisplay, displays: Displays } | undefined {
 		const displayDetails = this.displayDetailsByFileName()[fileName];
 		return displayDetails ? {
-			fileName,
-			source: displayDetails.source,
-			size: displayDetails.size,
-			index: displayDetails.index,
+			persistedDisplay: {
+				fileName,
+				source: displayDetails.source,
+				size: displayDetails.size,
+				index: displayDetails.index,
+			},
+			displays: displayDetails.displays,
 		} : undefined;
 	}
 }

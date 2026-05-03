@@ -21,4 +21,4 @@ const SSD1327: Board = {
 };
 
 export const BOARDS: Board[] = [SSD1322, SSD1327, SSD1327];
-export const SOURCES: string[] = ["ctb", "nwfb"];
+export const SOURCES: string[] = ["kmb", "ctb", "nwfb"];

@@ -5,7 +5,7 @@ DisplayTransactionMaster::DisplayTransactionMaster(uint8_t displayIndex) : displ
 
 bool DisplayTransactionMaster::init()
 {
-    return createDirectory("/display") && createDirectory((String("/display/display_") + (displayIndex + 1)).c_str()) && createDirectory("/display/source");
+    return createDirectory("/display") && createDirectory((String("/display/display_") + (displayIndex + 1)).c_str());
 }
 
 void DisplayTransactionMaster::nextDisplay(SPIMaster *spiMaster)

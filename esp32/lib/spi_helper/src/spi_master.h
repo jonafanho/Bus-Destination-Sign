@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spi_device.h"
+#include "stream_wrapper.h"
 #include <SdFat.h>
 
 class SPIMaster : public SPIDevice

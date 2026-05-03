@@ -3,37 +3,8 @@
 void StreamReader::init(StreamWrapper *streamWrapper)
 {
     this->streamWrapper = streamWrapper;
-    width = streamWrapper->readInt();
-    height = streamWrapper->readInt();
     imageCount = streamWrapper->readInt();
-    headerSize = sizeof(width) + sizeof(height) + sizeof(imageCount);
-
-    if (width == 128 && height == 32)
-    {
-        scaleX = 1.5F;
-        scaleY = 1.5F;
-    }
-    else if (width == 160 && height == 24)
-    {
-        scaleX = 1.6F;
-        scaleY = 1.6F;
-    }
-    else if (width == 28 && height == 14)
-    {
-        scaleX = 4.5F;
-        scaleY = 4.5F;
-    }
-    else if (width == 36 && height == 17)
-    {
-        float ratio = 17.0F / 14.0F;
-        scaleX = 3.5F;
-        scaleY = 3.5F * ratio;
-    }
-    else
-    {
-        scaleX = 1.0F;
-        scaleY = 1.0F;
-    }
+    headerSize = sizeof(imageCount);
 }
 
 bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
@@ -53,46 +24,51 @@ bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
     streamWrapper->seek(headerSize + imageIndex * sizeof(uint32_t));
     uint32_t offset = streamWrapper->readInt();
     streamWrapper->seek(offset);
+
+    Dimensions dimensions = {streamWrapper->readInt(), streamWrapper->readInt()};
+    Scale scale = getScale(dimensions);
+    Offset imageOffset = {
+        static_cast<int32_t>(floor((displayDriver->screenWidth - dimensions.x * scale.x) / 2 / scale.x)),
+        static_cast<int32_t>(floor((displayDriver->screenHeight - dimensions.y * scale.y) / 2 / scale.y)),
+    };
+
     uint8_t displayType = streamWrapper->readByte();
     uint32_t frameCount;
     uint32_t frameDuration;
-
-    uint32_t offsetX = floor((displayDriver->screenWidth - width * scaleX) / 2 / scaleX);
-    uint32_t offsetY = floor((displayDriver->screenHeight - height * scaleY) / 2 / scaleY);
 
     switch (displayType)
     {
     case 1: // Generic animated
     {
         frameCount = streamWrapper->readInt();
-        updateFrameIndex(displayDriver, offsetX, offsetY, newImage, frameCount);
+        updateFrameIndex(displayDriver, newImage, frameCount);
 
         streamWrapper->seek(offset + sizeof(displayType) + sizeof(frameCount) + frameIndex * sizeof(offset));
         offset = streamWrapper->readInt();
         streamWrapper->seek(offset);
 
         frameDuration = streamWrapper->readInt();
-        decodePackBits(displayDriver, offsetX, offsetY, width, 0);
+        decodePackBits(displayDriver, dimensions, scale, imageOffset, dimensions.x, 0);
         break;
     }
     case 2: // Standard scroll
     {
         uint32_t sameColumnCount = streamWrapper->readInt();
         uint32_t animatedColumnCount = streamWrapper->readInt();
-        frameCount = animatedColumnCount + width - sameColumnCount + 1;
-        updateFrameIndex(displayDriver, offsetX, offsetY, newImage, frameCount);
+        frameCount = animatedColumnCount + dimensions.x - sameColumnCount + 1;
+        updateFrameIndex(displayDriver, newImage, frameCount);
 
         frameDuration = 30000;
-        decodePackBits(displayDriver, offsetX, offsetY, sameColumnCount, animatedColumnCount);
+        decodePackBits(displayDriver, dimensions, scale, imageOffset, sameColumnCount, animatedColumnCount);
         break;
     }
     default: // Generic image
     {
         frameCount = 1;
-        updateFrameIndex(displayDriver, offsetX, offsetY, newImage, frameCount);
+        updateFrameIndex(displayDriver, newImage, frameCount);
 
         frameDuration = 1;
-        decodePackBits(displayDriver, offsetX, offsetY, width, 0);
+        decodePackBits(displayDriver, dimensions, scale, imageOffset, dimensions.x, 0);
         break;
     }
     }
@@ -103,22 +79,32 @@ bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
     return frameIndex == frameCount;
 }
 
-uint32_t StreamReader::getWidth()
+StreamReader::Scale StreamReader::getScale(Dimensions dimensions)
 {
-    return width;
+    if (dimensions.x == 128 && dimensions.y == 32)
+    {
+        return {1.5F, 1.5F};
+    }
+    else if (dimensions.x == 160 && dimensions.y == 24)
+    {
+        return {1.6F, 1.6F};
+    }
+    else if (dimensions.x == 28 && dimensions.y == 14)
+    {
+        return {4.5F, 4.5F};
+    }
+    else if (dimensions.x == 36 && dimensions.y == 17)
+    {
+        float ratio = 17.0F / 14.0F;
+        return {3.5F, 3.5F * ratio};
+    }
+    else
+    {
+        return {1.0F, 1.0F};
+    }
 }
 
-uint32_t StreamReader::getHeight()
-{
-    return height;
-}
-
-uint32_t StreamReader::getImageCount()
-{
-    return imageCount;
-}
-
-void StreamReader::updateFrameIndex(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, bool newImage, uint32_t frameCount)
+void StreamReader::updateFrameIndex(DisplayDriver *displayDriver, bool newImage, uint32_t frameCount)
 {
     if (newImage || frameIndex >= frameCount)
     {
@@ -126,10 +112,10 @@ void StreamReader::updateFrameIndex(DisplayDriver *displayDriver, uint32_t offse
     }
 }
 
-void StreamReader::decodePackBits(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, uint32_t sameColumnCount, uint32_t animatedColumnCount)
+void StreamReader::decodePackBits(DisplayDriver *displayDriver, Dimensions dimensions, Scale scale, Offset imageOffset, uint32_t sameColumnCount, uint32_t animatedColumnCount)
 {
     uint16_t decodedIndex = 0;
-    while (decodedIndex < (sameColumnCount + animatedColumnCount) * height / 8)
+    while (decodedIndex < (sameColumnCount + animatedColumnCount) * dimensions.y / 8)
     {
         int8_t header = streamWrapper->readByte();
         if (header >= 0)
@@ -137,7 +123,7 @@ void StreamReader::decodePackBits(DisplayDriver *displayDriver, uint32_t offsetX
             // Literal run
             for (int i = 0; i < header + 1; i++)
             {
-                drawByte(displayDriver, offsetX, offsetY, decodedIndex++, streamWrapper->readByte(), sameColumnCount, animatedColumnCount);
+                drawByte(displayDriver, dimensions, scale, imageOffset, decodedIndex++, streamWrapper->readByte(), sameColumnCount, animatedColumnCount);
             }
         }
         else if (header > -128)
@@ -146,13 +132,13 @@ void StreamReader::decodePackBits(DisplayDriver *displayDriver, uint32_t offsetX
             uint8_t value = streamWrapper->readByte();
             for (int i = 0; i < 1 - header; i++)
             {
-                drawByte(displayDriver, offsetX, offsetY, decodedIndex++, value, sameColumnCount, animatedColumnCount);
+                drawByte(displayDriver, dimensions, scale, imageOffset, decodedIndex++, value, sameColumnCount, animatedColumnCount);
             }
         }
     }
 }
 
-void StreamReader::drawByte(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount)
+void StreamReader::drawByte(DisplayDriver *displayDriver, Dimensions dimensions, Scale scale, Offset imageOffset, uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount)
 {
     uint32_t base = decodedIndex * 8;
     uint32_t rawWidth = sameColumnCount + animatedColumnCount;
@@ -164,16 +150,24 @@ void StreamReader::drawByte(DisplayDriver *displayDriver, uint32_t offsetX, uint
 
         if (x >= sameColumnCount)
         {
-            x += width - sameColumnCount - frameIndex;
-            if (x < sameColumnCount || x >= width)
+            x += dimensions.x - sameColumnCount - frameIndex;
+            if (x < sameColumnCount || x >= dimensions.x)
             {
                 continue;
             }
         }
 
-        if ((byte >> i) & 1 > 0)
+        if ((byte >> i) & 1)
         {
-            displayDriver->drawScaledPixel(offsetX + x, offsetY + y, scaleX, scaleY);
+            int32_t drawX = imageOffset.x + static_cast<int32_t>(x);
+            int32_t drawY = imageOffset.y + static_cast<int32_t>(y);
+
+            if (drawX < 0 || drawY < 0)
+            {
+                continue;
+            }
+
+            displayDriver->drawScaledPixel(static_cast<uint16_t>(drawX), static_cast<uint16_t>(drawY), scale.x, scale.y);
         }
     }
 }

@@ -8,10 +8,17 @@ SPIMaster::SPIMaster(gpio_num_t pinCS) : pinCS(pinCS) {}
 
 bool SPIMaster::initBus()
 {
-    spiBus = new SPIClass(HSPI);
-    spiBus->begin(PIN_CLK, PIN_MISO, PIN_MOSI, -1);
-    SdSpiConfig config(PIN_CS_SD, SHARED_SPI, SPI_SPEED, spiBus);
-    return sdFat.begin(config);
+    if (spiBus)
+    {
+        return true;
+    }
+    else
+    {
+        spiBus = new SPIClass(HSPI);
+        spiBus->begin(PIN_CLK, PIN_MISO, PIN_MOSI, -1);
+        SdSpiConfig config(PIN_CS_SD, SHARED_SPI, SPI_SPEED, spiBus);
+        return sdFat.begin(config);
+    }
 }
 
 bool SPIMaster::init()

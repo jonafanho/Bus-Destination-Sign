@@ -67,7 +67,7 @@ bool ServerHandler::serveFile(const String &path)
         filePath += "index.html";
     }
 
-    if (filePath.endsWith(".dat") || filePath.endsWith(".json"))
+    if (filePath.endsWith("/displays.dat") || filePath.endsWith("/index.json"))
     {
         return serveSDFile(filePath);
     }
@@ -140,7 +140,7 @@ void ServerHandler::handleApiSaveData()
         return;
     }
 
-    unsigned int writtenLength = file.write((const uint8_t *)payload.c_str(), payloadLength);
+    unsigned int writtenLength = file.write(reinterpret_cast<const uint8_t *>(payload.c_str()), payloadLength);
     file.close();
 
     if (writtenLength != payloadLength)

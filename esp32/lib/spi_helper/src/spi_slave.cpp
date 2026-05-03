@@ -21,8 +21,13 @@ SPISlave::~SPISlave()
 
 bool SPISlave::init()
 {
-    rxDmaBuffer = (uint8_t *)heap_caps_calloc(CHUNK_SIZE, sizeof(uint8_t), MALLOC_CAP_DMA);
-    txDmaBuffer = (uint8_t *)heap_caps_calloc(CHUNK_SIZE, sizeof(uint8_t), MALLOC_CAP_DMA);
+    rxDmaBuffer = static_cast<uint8_t *>(heap_caps_calloc(CHUNK_SIZE, sizeof(uint8_t), MALLOC_CAP_DMA));
+    txDmaBuffer = static_cast<uint8_t *>(heap_caps_calloc(CHUNK_SIZE, sizeof(uint8_t), MALLOC_CAP_DMA));
+
+    if (!rxDmaBuffer || !txDmaBuffer)
+    {
+        return false;
+    }
 
     spi_bus_config_t busConfig = {
         .mosi_io_num = PIN_MOSI,
@@ -59,8 +64,10 @@ void SPISlave::tick()
         return;
     }
 
-    uint32_t magicHeader = ((uint32_t *)rxDmaBuffer)[0];
-    uint32_t totalLength = ((uint32_t *)rxDmaBuffer)[1];
+    uint32_t magicHeader = 0;
+    uint32_t totalLength = 0;
+    memcpy(&magicHeader, rxDmaBuffer, sizeof(magicHeader));
+    memcpy(&totalLength, rxDmaBuffer + sizeof(magicHeader), sizeof(totalLength));
 
     // Verify header
     if (magicHeader != MAGIC_HEADER || totalLength == 0)

@@ -3,6 +3,8 @@ import {BOARDS} from "../utility/constants";
 import {PersistedServiceBase} from "./persisted.service.base";
 import {PersistedDisplay} from "../entity/data";
 import {LibraryService} from "./library.service";
+import {BinaryBuilder} from "../utility/binary-builder";
+import JSZip from "jszip";
 
 @Injectable({providedIn: "root"})
 export class DisplaysService extends PersistedServiceBase<PersistedDisplay[][][]> {
@@ -14,7 +16,43 @@ export class DisplaysService extends PersistedServiceBase<PersistedDisplay[][][]
 	}
 
 	override write(): PersistedDisplay[][][] {
-		return this.displayGroups().map(displayGroup => displayGroup.map(displaysForBoard => displaysForBoard.map(fileName => this.libraryService.getPersistedDisplay(fileName)).filter(display => display !== undefined)));
+		const persistedDisplays: PersistedDisplay[][][] = [];
+		const zip = new JSZip();
+
+		this.displayGroups().forEach((displayGroup, groupIndex) => {
+			const persistedDisplaysForGroup: PersistedDisplay[][] = [];
+
+			displayGroup.forEach((displaysForBoard, boardIndex) => {
+				const binaryBuilder = new BinaryBuilder(groupIndex, boardIndex);
+				const persistedDisplaysForBoardInGroup: PersistedDisplay[] = [];
+
+				displaysForBoard.forEach(fileName => {
+					const persistedDisplayAndDisplays = this.libraryService.getPersistedDisplayAndDisplays(fileName);
+					if (persistedDisplayAndDisplays) {
+						persistedDisplaysForBoardInGroup.push(persistedDisplayAndDisplays.persistedDisplay);
+						binaryBuilder.add(persistedDisplayAndDisplays.displays, persistedDisplayAndDisplays.persistedDisplay.index);
+					}
+				});
+
+				binaryBuilder.build(zip);
+				persistedDisplaysForGroup.push(persistedDisplaysForBoardInGroup);
+			});
+
+			persistedDisplays.push(persistedDisplaysForGroup);
+		});
+
+		zip.generateAsync({type: "blob"}).then(blob => {
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = "SD Card.zip";
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		});
+
+		return persistedDisplays;
 	}
 
 	addGroup() {

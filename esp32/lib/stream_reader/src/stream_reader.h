@@ -8,23 +8,36 @@ class StreamReader
 public:
     void init(StreamWrapper *streamWrapper);
     bool draw(DisplayDriver *displayDriver, const uint32_t imageIndex);
-    uint32_t getWidth();
-    uint32_t getHeight();
-    uint32_t getImageCount();
+    uint32_t getImageCount() const { return imageCount; }
 
 private:
     StreamWrapper *streamWrapper;
-    uint32_t width;
-    uint32_t height;
-    uint32_t imageCount;
-    uint32_t headerSize;
-    float scaleX;
-    float scaleY;
+    uint32_t imageCount = 0;
+    uint32_t headerSize = 0;
 
-    uint32_t lastImageIndex;
-    uint32_t frameIndex;
+    uint32_t lastImageIndex = 0;
+    uint32_t frameIndex = 0;
 
-    void updateFrameIndex(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, bool newImage, uint32_t frameCount);
-    void decodePackBits(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, uint32_t sameColumnCount, uint32_t animatedColumnCount);
-    void drawByte(DisplayDriver *displayDriver, uint32_t offsetX, uint32_t offsetY, uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount);
+    struct Scale
+    {
+        const float x;
+        const float y;
+    };
+
+    struct Dimensions
+    {
+        const uint32_t x;
+        const uint32_t y;
+    };
+
+    struct Offset
+    {
+        const int32_t x;
+        const int32_t y;
+    };
+
+    Scale getScale(Dimensions dimensions);
+    void updateFrameIndex(DisplayDriver *displayDriver, bool newImage, uint32_t frameCount);
+    void decodePackBits(DisplayDriver *displayDriver, Dimensions dimensions, Scale scale, Offset imageOffset, uint32_t sameColumnCount, uint32_t animatedColumnCount);
+    void drawByte(DisplayDriver *displayDriver, Dimensions dimensions, Scale scale, Offset imageOffset, uint16_t decodedIndex, uint8_t byte, uint32_t sameColumnCount, uint32_t animatedColumnCount);
 };

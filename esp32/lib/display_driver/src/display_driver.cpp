@@ -16,13 +16,8 @@ bool DisplayDriver::init()
 
 void DisplayDriver::clear()
 {
-    for (uint16_t x = 0; x < screenWidth; x++)
-    {
-        for (uint16_t y = 0; y < screenHeight; y++)
-        {
-            drawPixel(x, y, 0);
-        }
-    }
+    std::vector<uint8_t> &currentBuffer = isWiping ? wipeBuffer : buffer;
+    std::fill(currentBuffer.begin(), currentBuffer.end(), 0);
 }
 
 void DisplayDriver::startWipe()

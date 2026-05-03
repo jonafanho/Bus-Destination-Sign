@@ -29,4 +29,8 @@ export class ByteReader {
 		this.position += BYTES_PER_INT;
 		return value;
 	}
+
+	getLength() {
+		return this.dataView.byteLength;
+	}
 }

@@ -1,8 +1,12 @@
 #include "settings.h"
 #include "spi_master.h"
+#include <ArduinoJson.h>
 
 bool Settings::loadWiFiCredentials()
 {
+    wifiSsid = "";
+    wifiPassword = "";
+
     // Open settings.json from SD card root
     FsFile file = SPIMaster::getSD().open("/settings.json", O_RDONLY);
     if (!file)
