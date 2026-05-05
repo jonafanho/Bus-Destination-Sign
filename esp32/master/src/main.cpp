@@ -44,10 +44,10 @@ void setup()
 	delay(500);
 
 	initPrint.init(LittleFS.begin() || (LittleFS.format() && LittleFS.begin()), "LittleFS");
-	initPrint.init(SPIMaster::initBus(), "SPI bus and SD card");
 	initPrint.init(spiMaster1.init(), "SPI device 1");
 	initPrint.init(spiMaster2.init(), "SPI device 2");
 	initPrint.init(spiMaster3.init(), "SPI device 3");
+	initPrint.init(SPIMaster::initBus(), "SPI bus and SD card");
 	initPrint.init(displayTransactionMaster1.init(), "SD file structure 1");
 	initPrint.init(displayTransactionMaster2.init(), "SD file structure 2");
 	initPrint.init(displayTransactionMaster3.init(), "SD file structure 3");
@@ -68,7 +68,7 @@ void loop()
 		displayTransactionMaster1.nextDisplay(&spiMaster1);
 		displayTransactionMaster2.nextDisplay(&spiMaster2);
 		displayTransactionMaster3.nextDisplay(&spiMaster3);
-		nextDisplayMillis = millis() + 5000;
+		nextDisplayMillis = millis() + 15000;
 		setStatusLights(false, false, false);
 	}
 }

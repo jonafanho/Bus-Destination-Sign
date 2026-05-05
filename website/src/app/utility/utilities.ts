@@ -16,8 +16,12 @@ export function setCookie(name: string, value: string) {
 	document.cookie = `${name}=${value}; expires=${new Date(2999, 11, 31).toUTCString()}; path=/`;
 }
 
-export function clamp(value: number, min: number, max: number) {
-	return Math.min(Math.max(value, min), max);
+export function safeParse<T>(value: string, defaultValue: T): T {
+	try {
+		return JSON.parse(value) as T;
+	} catch {
+		return defaultValue;
+	}
 }
 
 export function setIfUndefined<T extends (string | number), U>(map: Record<T, U>, key: T, createInstance: () => U) {

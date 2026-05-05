@@ -1,28 +1,30 @@
 import {inject, Injectable} from "@angular/core";
-import {Data} from "../entity/data";
-import {HttpClient} from "@angular/common/http";
 import {DisplaysService} from "./displays.service";
 import {SettingsService} from "./settings.service";
-import {getUrl} from "../utility/utilities";
+import {getCookie, safeParse, setCookie} from "../utility/utilities";
+import {Data} from "../entity/data";
 
 @Injectable({providedIn: "root"})
 export class PersistenceService {
-	private readonly httpClient = inject(HttpClient);
 	private readonly displaysService = inject(DisplaysService);
 	private readonly settingsService = inject(SettingsService);
 
 	constructor() {
-		this.httpClient.get<Data>(`${getUrl()}/settings.json`).subscribe(data => {
-			this.displaysService.read(data.displays);
-			this.settingsService.read(data.settings);
+		const data = safeParse<Data>(getCookie("data"), {
+			displays: [],
+			settings: {
+				wifiSSID: "",
+				wifiPassword: "",
+			},
 		});
+		this.displaysService.read(data.displays);
+		this.settingsService.read(data.settings);
 	}
 
 	save() {
-		const data: Data = {
+		setCookie("data", JSON.stringify({
 			displays: this.displaysService.write(),
 			settings: this.settingsService.write(),
-		};
-		return this.httpClient.post("api/saveData", data);
+		}));
 	}
 }

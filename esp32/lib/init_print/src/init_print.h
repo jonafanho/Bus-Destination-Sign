@@ -13,10 +13,8 @@ public:
         else
         {
             Serial.printf("[%s] %s initialization failed\n", tag, message);
-            while (true)
-            {
-                delay(1000);
-            }
+            delay(1000);
+            ESP.restart();
         }
     }
 

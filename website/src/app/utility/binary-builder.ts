@@ -34,7 +34,7 @@ export class BinaryBuilder {
 			}
 		});
 
-		zip.file(`display_${this.boardIndex + 1}/group_${this.groupIndex + 1}`, new Uint8Array(buffer));
+		zip.file(`display/display_${this.boardIndex + 1}/group_${this.groupIndex + 1}`, new Uint8Array(buffer));
 	}
 
 	static pushInt(buffer: number[], value: number) {

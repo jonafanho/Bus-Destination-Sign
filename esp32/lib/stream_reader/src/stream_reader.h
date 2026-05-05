@@ -11,6 +11,9 @@ public:
     uint32_t getImageCount() const { return imageCount; }
 
 private:
+    static constexpr uint32_t DEFAULT_FRAME_DURATION = 30 * 1000;       // 30 ms
+    static constexpr uint32_t DEFAULT_IMAGE_DURATION = 2 * 1000 * 1000; // 2 seconds
+
     StreamWrapper *streamWrapper;
     uint32_t imageCount = 0;
     uint32_t headerSize = 0;

@@ -85,7 +85,7 @@ void DisplayDriver::push()
 
         while (micros() - lastFrameMicros < (isWiping ? WIPE_FRAME_DURATION : targetFrameDuration))
         {
-            delay(1);
+            delayMicroseconds(1);
         }
 
         lastFrameMicros = micros();

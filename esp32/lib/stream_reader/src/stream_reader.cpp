@@ -58,16 +58,16 @@ bool StreamReader::draw(DisplayDriver *displayDriver, const uint32_t imageIndex)
         frameCount = animatedColumnCount + dimensions.x - sameColumnCount + 1;
         updateFrameIndex(displayDriver, newImage, frameCount);
 
-        frameDuration = 30000;
+        frameDuration = DEFAULT_FRAME_DURATION;
         decodePackBits(displayDriver, dimensions, scale, imageOffset, sameColumnCount, animatedColumnCount);
         break;
     }
     default: // Generic image
     {
-        frameCount = 1;
+        frameCount = DEFAULT_IMAGE_DURATION / DEFAULT_FRAME_DURATION;
         updateFrameIndex(displayDriver, newImage, frameCount);
 
-        frameDuration = 1;
+        frameDuration = DEFAULT_FRAME_DURATION;
         decodePackBits(displayDriver, dimensions, scale, imageOffset, dimensions.x, 0);
         break;
     }
