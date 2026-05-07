@@ -23,7 +23,7 @@ void SSD1322::pushRaw()
     // Write data into RAM
     send(0x5C, false);
 
-    for (int i = 0; i < screenWidth * screenHeight / 2; i++)
+    for (uint16_t i = 0; i < screenWidth * screenHeight / 2; i++)
     {
         send(buffer[i], true);
     }

@@ -5,7 +5,7 @@
 build/
 
 esp32/**/.gitignore
-esp32/master/data
+esp32/display/data
 pcb/.gitignore
 website/.gitignore
 website/src/assets/display

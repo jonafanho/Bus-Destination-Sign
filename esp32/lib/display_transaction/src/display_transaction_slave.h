@@ -9,6 +9,6 @@ public:
     void tick(SPISlave *spiSlave, StreamReader *streamReader, DisplayDriver *displayDriver);
 
 private:
-    BufferStreamWrapper bufferStreamWrapper;
+    FileStreamWrapper fileStreamWrapper;
     uint8_t imageIndex = 0;
 };

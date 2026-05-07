@@ -1,6 +1,7 @@
 #pragma once
 
 #include "spi_device.h"
+#include <LittleFS.h>
 #include <memory>
 
 class StreamWrapper
@@ -9,6 +10,38 @@ public:
     virtual void seek(uint32_t offset) = 0;
     virtual uint8_t readByte() = 0;
     virtual uint32_t readInt() = 0;
+};
+
+class FileStreamWrapper : public StreamWrapper
+{
+public:
+    bool init(const String fileName)
+    {
+        file = LittleFS.open(fileName, "r");
+        return file;
+    };
+
+    void seek(uint32_t offset) override
+    {
+        file.seek(offset);
+    };
+
+    uint8_t readByte() override
+    {
+        uint8_t result;
+        file.readBytes((char *)&result, sizeof(result));
+        return result;
+    };
+
+    uint32_t readInt() override
+    {
+        uint32_t result;
+        file.readBytes((char *)&result, sizeof(result));
+        return result;
+    };
+
+private:
+    File file;
 };
 
 class BufferStreamWrapper : public StreamWrapper

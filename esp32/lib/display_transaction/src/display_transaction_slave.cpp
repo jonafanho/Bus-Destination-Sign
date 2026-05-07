@@ -2,12 +2,18 @@
 
 void DisplayTransactionSlave::tick(SPISlave *spiSlave, StreamReader *streamReader, DisplayDriver *displayDriver)
 {
-    ChunkedBuffer *chunkedBuffer = nullptr;
-    if (xQueueReceive(spiSlave->messageQueue, &chunkedBuffer, 0))
+    uint32_t *data = nullptr;
+    if (xQueueReceive(spiSlave->messageQueue, &data, 0))
     {
-        bufferStreamWrapper.init(chunkedBuffer);
-        streamReader->init(&bufferStreamWrapper);
-        imageIndex = 0;
+        uint8_t displayIndex = data[0];
+        uint32_t groupIndex = data[1];
+        delete[] data;
+
+        if (fileStreamWrapper.init(String("/display/display_") + (displayIndex + 1) + "/group_" + (groupIndex + 1)))
+        {
+            streamReader->init(&fileStreamWrapper);
+            imageIndex = 0;
+        }
     }
 
     uint32_t imageCount = streamReader->getImageCount();

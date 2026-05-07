@@ -45,7 +45,7 @@ bool SPISlave::init()
         .mode = 0,
     };
 
-    messageQueue = xQueueCreate(3, sizeof(ChunkedBuffer *));
+    messageQueue = xQueueCreate(3, sizeof(uint32_t *));
     return spi_slave_initialize(SPI2_HOST, &busConfig, &slaveConfig, SPI_DMA_CH_AUTO) == ESP_OK;
 }
 
@@ -53,7 +53,7 @@ void SPISlave::tick()
 {
     // Setup header transaction
     spi_slave_transaction_t headerTransaction = {
-        .length = TOTAL_HEADER_LENGTH,
+        .length = TOTAL_HEADER_LENGTH * 8,
         .tx_buffer = txDmaBuffer,
         .rx_buffer = rxDmaBuffer,
     };
@@ -65,63 +65,21 @@ void SPISlave::tick()
     }
 
     uint32_t magicHeader = 0;
-    uint32_t totalLength = 0;
+    uint32_t *data = new uint32_t[2];
     memcpy(&magicHeader, rxDmaBuffer, sizeof(magicHeader));
-    memcpy(&totalLength, rxDmaBuffer + sizeof(magicHeader), sizeof(totalLength));
+    memcpy(data, rxDmaBuffer + sizeof(magicHeader), sizeof(uint32_t) * 2);
 
     // Verify header
-    if (magicHeader != MAGIC_HEADER || totalLength == 0)
+    if (magicHeader != MAGIC_HEADER)
     {
+        delete[] data;
         return;
     }
 
-    Serial.print("Received SPI message of length ");
-    Serial.println(totalLength);
-    totalLength = min(HARD_SIZE_CAP, totalLength);
+    Serial.println(String("Received SPI message for display ") + (data[0] + 1) + String(" and group ") + (data[1] + 1));
 
-    // Allocate chunked buffer container
-    ChunkedBuffer *chunkedBuffer = new ChunkedBuffer();
-    chunkedBuffer->totalLength = totalLength;
-    uint32_t receivedLength = 0;
-
-    // Receive body in chunks - allocate each chunk separately
-    while (receivedLength < totalLength)
+    if (xQueueSend(messageQueue, &data, 0) != pdPASS)
     {
-        uint32_t chunkLength = min(CHUNK_SIZE, totalLength - receivedLength);
-
-        // Allocate fixed-size chunk on heap
-        std::array<uint8_t, CHUNK_SIZE> *chunk = new std::array<uint8_t, CHUNK_SIZE>();
-
-        // Setup body chunk transaction
-        spi_slave_transaction_t bodyTransaction = {
-            .length = chunkLength * 8,
-            .tx_buffer = txDmaBuffer,
-            .rx_buffer = rxDmaBuffer,
-        };
-
-        // Receive body chunk
-        if (spi_slave_transmit(SPI2_HOST, &bodyTransaction, portMAX_DELAY) != ESP_OK)
-        {
-            delete chunk;
-            break;
-        }
-
-        // Copy body chunk to newly allocated chunk
-        memcpy(chunk->data(), rxDmaBuffer, chunkLength);
-        chunkedBuffer->chunks.push_back(chunk);
-        receivedLength += chunkLength;
-    }
-
-    // Verify if packet is complete
-    if (receivedLength != totalLength || totalLength == 0)
-    {
-        delete chunkedBuffer; // Destructor cleans up all chunks
-        return;
-    }
-
-    // Send message to queue (receiver owns the pointer)
-    if (xQueueSend(messageQueue, &chunkedBuffer, 0) != pdPASS)
-    {
-        delete chunkedBuffer;
+        delete[] data;
     }
 }

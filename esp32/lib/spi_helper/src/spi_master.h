@@ -2,23 +2,21 @@
 
 #include "spi_device.h"
 #include "stream_wrapper.h"
-#include <SdFat.h>
+#include <SPI.h>
 
 class SPIMaster : public SPIDevice
 {
 public:
     SPIMaster(gpio_num_t pinCS);
-    static bool initBus();
+    static void initBus();
     bool init() override;
-    bool send(FsFile &file);
-    static SdFat &getSD() { return sdFat; };
+    void send(const uint8_t displayIndex, const uint32_t groupIndex);
 
 private:
     static constexpr gpio_num_t PIN_CS_SD = GPIO_NUM_12;
     static constexpr uint32_t SPI_SPEED = 1000000;
 
     static SPIClass *spiBus;
-    static SdFat sdFat;
 
     const gpio_num_t pinCS;
 };

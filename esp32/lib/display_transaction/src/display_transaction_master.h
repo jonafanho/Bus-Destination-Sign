@@ -5,13 +5,11 @@
 class DisplayTransactionMaster
 {
 public:
-    DisplayTransactionMaster(uint8_t displayIndex);
-    bool init();
+    DisplayTransactionMaster(uint8_t displayIndex, uint32_t totalDisplayGroups);
     void nextDisplay(SPIMaster *spiMaster);
 
 private:
     const uint8_t displayIndex;
-    uint8_t currentGroup = 0;
-
-    static bool createDirectory(const char *path);
+    const uint32_t totalDisplayGroups;
+    uint32_t currentGroup = 0;
 };

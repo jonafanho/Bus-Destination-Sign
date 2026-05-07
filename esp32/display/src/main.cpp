@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <LittleFS.h>
 #include <init_print.h>
 #include <spi_slave.h>
 #include <ssd1327.h>
@@ -31,6 +32,7 @@ void setup()
 	Serial.begin(115200);
 	Serial.println("");
 
+	initPrint.init(LittleFS.begin(), "LittleFS");
 	initPrint.init(spiSlave.init(), "SPI device");
 	initPrint.init(displayDriver.init(), "Display driver");
 
@@ -40,4 +42,5 @@ void setup()
 void loop()
 {
 	displayTransactionSlave.tick(&spiSlave, &streamReader, &displayDriver);
+	delay(1);
 }
