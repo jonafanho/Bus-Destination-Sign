@@ -31,5 +31,6 @@ public:
 
 protected:
     static constexpr uint32_t MAGIC_HEADER = 0x20220326;
-    static constexpr uint32_t TOTAL_HEADER_LENGTH = 3 * sizeof(MAGIC_HEADER);
+    static constexpr uint32_t MAGIC_FOOTER = 0x20211115;
+    static constexpr uint32_t DATA_LENGTH = 4 * sizeof(uint32_t);
 };

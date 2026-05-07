@@ -25,8 +25,8 @@ void SPIMaster::send(const uint8_t displayIndex, const uint32_t groupIndex)
 {
     digitalWrite(pinCS, LOW);
     spiBus->beginTransaction(SPISettings(SPI_SPEED, MSBFIRST, SPI_MODE0));
-    uint32_t headerPayload[] = {MAGIC_HEADER, displayIndex, groupIndex};
-    spiBus->transferBytes((uint8_t *)headerPayload, nullptr, TOTAL_HEADER_LENGTH);
+    uint32_t headerPayload[] = {MAGIC_HEADER, displayIndex, groupIndex, MAGIC_FOOTER};
+    spiBus->transferBytes((uint8_t *)headerPayload, nullptr, DATA_LENGTH);
     spiBus->endTransaction();
     digitalWrite(pinCS, HIGH);
 }

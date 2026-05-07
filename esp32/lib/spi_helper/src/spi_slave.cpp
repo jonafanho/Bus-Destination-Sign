@@ -53,7 +53,7 @@ void SPISlave::tick()
 {
     // Setup header transaction
     spi_slave_transaction_t headerTransaction = {
-        .length = TOTAL_HEADER_LENGTH * 8,
+        .length = DATA_LENGTH * 8,
         .tx_buffer = txDmaBuffer,
         .rx_buffer = rxDmaBuffer,
     };
@@ -65,12 +65,14 @@ void SPISlave::tick()
     }
 
     uint32_t magicHeader = 0;
+    uint32_t magicFooter = 0;
     uint32_t *data = new uint32_t[2];
     memcpy(&magicHeader, rxDmaBuffer, sizeof(magicHeader));
-    memcpy(data, rxDmaBuffer + sizeof(magicHeader), sizeof(uint32_t) * 2);
+    memcpy(data, rxDmaBuffer + sizeof(uint32_t), sizeof(uint32_t) * 2);
+    memcpy(&magicFooter, rxDmaBuffer + sizeof(uint32_t) * 3, sizeof(magicFooter));
 
-    // Verify header
-    if (magicHeader != MAGIC_HEADER)
+    // Verify header and footer
+    if (magicHeader != MAGIC_HEADER || magicFooter != MAGIC_FOOTER)
     {
         delete[] data;
         return;
